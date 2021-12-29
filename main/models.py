@@ -2,7 +2,6 @@ from __future__ import unicode_literals
 
 import datetime
 
-from django.contrib.admin import options
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator
@@ -19,7 +18,6 @@ import os
 import requests
 
 # Create your models here.
-from rest_framework.fields import MultipleChoiceField
 
 
 class UserManager(BaseUserManager):
