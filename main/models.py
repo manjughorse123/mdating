@@ -119,26 +119,6 @@ def get_filename_ext(filepath):
     return name, ext
 
 
-class UserMedia(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-    media = models.FileField(upload_to=upload_image_path_profile, default=None, null=True, blank=True)
-    mediades = models.CharField(max_length=100, default="this is images")
-    create_at = models.DateTimeField(auto_now_add=True)
-
-
-class UserInterest(models.Model):
-    interest = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=500)
-    create_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.interest
-
-class UserIdeaMatch(models.Model):
-    ideamatch = models.CharField(max_length=200)
-    slug = models.SlugField(max_length=500)
-    create_at = models.DateTimeField(auto_now_add=True)
-
 
 class LocationManager(models.Manager):
 
@@ -162,65 +142,102 @@ class LocationManager(models.Manager):
         else:
             return self.annotate(distance=distance_raw_sql)
 
+class UserMedia(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    media = models.FileField(upload_to=upload_image_path_profile, default=None, null=True, blank=True)
+    mediades = models.CharField(max_length=100, default="this is images")
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.user
+
+class UserInterest(models.Model):
+    interest = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=500)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.interest
+
+class UserIdeaMatch(models.Model):
+    ideamatch = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=500)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.ideamatch
+
+class RelationshipStatus(models.Model):
+    relationship_status = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=5000)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.relationship_status
+
+class Education(models.Model):
+    educations = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=5000)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.educations
+
+class BodyType(models.Model):
+    body_type = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=5000)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.body_type
+
+class IsVerified(models.Model):
+    is_verified = models.CharField(max_length=200)
+    slug = models.SlugField(max_length=5000)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.is_verified
+
+class Gender(models.Model):
+    gender = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=500)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.gender
+
 
 class Profile(models.Model):
-    BODY_TYPE = (
-        ('THIN', 'Thin'),
-        ('AVERAGE', 'Average'),
-        ('FIT', 'Fit'),
-        ('MUSCULAR', 'Muscular'),
-        ('A LITTLE EXTRA', 'A Little Extra'),
-        ('CURVY', 'Curvy'),
-    )
-
-    APPROVAL = (
-        ('TO BE APPROVED', 'To be approved'),
-        ('APPROVED', 'Approved'),
-        ('NOT APPROVED', 'Not approved')
-    )
-
-    RELATIONSHIP_STATUS = (
-        ('NEVER MARRIED', 'Never Married'),
-        ('DIVORCED', 'Divorced'),
-        ('WIDOWED', 'Widowed'),
-        ('SEPARATED', 'Separated')
-    )
-    EDUCATION = (
-        ('HIGH SCHOOL', 'High School'),
-        ('COLLEGE', 'College'),
-        ('BACHELORS DEGREE', 'Bachelors Degree'),
-        ('MASTERS', 'Masters'),
-        ('PHD / POST DOCTORAL', 'PhD / Post Doctoral'),
-    )
-    GENDER = (
-        ("MALE", "Male"),
-        ("FEMALE", "Female")
-    )
-
     user = models.OneToOneField(User, on_delete=models.CASCADE)
     bio = RichTextField()
+
     ideamatch = models.ManyToManyField(UserIdeaMatch)
     usermedia = models.ManyToManyField(UserMedia)
     userinterest = models.ManyToManyField(UserInterest)
+    relationship_status = models.ManyToManyField(RelationshipStatus)
+    education = models.ManyToManyField(Education)
+    body_type = models.ManyToManyField(BodyType)
+    is_verified = models.ForeignKey(IsVerified, on_delete=models.CASCADE)
+    gender = models.ForeignKey(Gender, on_delete=models.CASCADE)
+
     email = models.EmailField(blank=True, null=True)
-    relationship_status = models.CharField(choices=RELATIONSHIP_STATUS, default="NEVER MARRIED", blank=False,
-                                           max_length=100)
-    education = models.CharField(choices=EDUCATION, default="HIGH SCHOOL", blank=False, max_length=100)
-    height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2)
-    body_type = models.CharField(choices=BODY_TYPE, default="AVERAGE", blank=False, max_length=15)
-    is_premium = models.BooleanField(default=False)
-    is_verified = models.CharField(choices=APPROVAL, default="TO BE APPROVED", blank=False, max_length=14)
     birth_date = models.DateField(null=True, default='1999-12-15', blank=True)
-    gender = models.CharField(choices=GENDER, default="MALE", max_length=6)
+    height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2)
     location = models.CharField(max_length=100, default='', blank=False)
     citylat = models.DecimalField(max_digits=9, decimal_places=6, default='-2.0180319')
     citylong = models.DecimalField(max_digits=9, decimal_places=6, default='52.5525525')
     image = models.ImageField(upload_to='profile/', default=None, null=True, blank=True)
     address = models.CharField(max_length=900, blank=True, null=True)
     city = models.CharField(max_length=30, blank=True, null=True)
+    is_premium = models.BooleanField(default=False)
     first_count = models.IntegerField(default=0,
                                       help_text='It is 0, if the user is totally new and 1 if the user has saved his '
                                                 'standard once')
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
+
+
     objects = LocationManager()
 
     # Assistance from https://stackoverflow.com/questions/5056327/define-and-insert-age-in-django-template
