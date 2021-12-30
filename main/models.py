@@ -1,7 +1,5 @@
 from __future__ import unicode_literals
-
 import datetime
-
 from django.db import models
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.validators import RegexValidator
@@ -17,88 +15,10 @@ import random
 import os
 import requests
 
+from account.models import *
+
 # Create your models here.
 
-
-class UserManager(BaseUserManager):
-    def create_user(self, phone, password=None, is_staff=False, is_active=True, is_admin=False):
-        if not phone:
-            raise ValueError('users must have a phone number')
-        if not password:
-            raise ValueError("Please enter correct password")
-        user_obj = self.model(
-            phone=phone
-        )
-        user_obj.set_password(password)
-        user_obj.staff = is_staff
-        user_obj.admin = is_admin
-        user_obj.active = is_active
-        user_obj.save(using=self._db)
-        return user_obj
-
-    def create_staffuser(self, phone, password=None):
-        user = self.create_user(
-            phone,
-            password=password,
-            is_staff=True,
-
-        )
-        return user
-
-    def create_superuser(self, phone, password=None):
-        user = self.create_user(
-            phone,
-            password=password,
-            is_staff=True,
-            is_admin=True,
-
-        )
-        return user
-
-
-class User(AbstractBaseUser):
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,14}$',
-                                 message="Phone number must be entered in the format: '+91-999999999'. Up to 14 digits allowed.")
-    phone = models.CharField(validators=[phone_regex], max_length=17, unique=True)
-    name = models.CharField(max_length=20, blank=True, null=True)
-    email = models.EmailField(max_length=20)
-    standard = models.CharField(max_length=3, blank=True, null=True)
-    score = models.IntegerField(default=16)
-    first_login = models.BooleanField(default=False)
-    active = models.BooleanField(default=True)
-    staff = models.BooleanField(default=False)
-    admin = models.BooleanField(default=False)
-    create_at = models.DateTimeField(auto_now_add=True)
-
-    USERNAME_FIELD = 'phone'
-    REQUIRED_FIELDS = []
-
-    def __str__(self):
-        return self.phone
-
-    def get_full_name(self):
-        return self.phone
-
-    def get_short_name(self):
-        return self.phone
-
-    def has_perm(self, perm, obj=None):
-        return True
-
-    def has_module_perms(self, app_label):
-        return True
-
-    @property
-    def is_staff(self):
-        return self.staff
-
-    @property
-    def is_admin(self):
-        return self.admin
-
-    @property
-    def is_active(self):
-        return self.active
 
 
 def upload_image_path_profile(instance, filename):
@@ -115,7 +35,6 @@ def get_filename_ext(filepath):
     base_name = os.path.basename(filepath)
     name, ext = os.path.splitext(base_name)
     return name, ext
-
 
 
 class LocationManager(models.Manager):
@@ -140,14 +59,15 @@ class LocationManager(models.Manager):
         else:
             return self.annotate(distance=distance_raw_sql)
 
+
 class UserMedia(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
     media = models.FileField(upload_to=upload_image_path_profile, default=None, null=True, blank=True)
     mediades = models.CharField(max_length=100, default="this is images")
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user
+
 
 class UserInterest(models.Model):
     interest = models.CharField(max_length=200)
@@ -157,6 +77,7 @@ class UserInterest(models.Model):
     def __str__(self):
         return self.interest
 
+
 class UserIdeaMatch(models.Model):
     ideamatch = models.CharField(max_length=200)
     slug = models.SlugField(max_length=500)
@@ -164,6 +85,7 @@ class UserIdeaMatch(models.Model):
 
     def __str__(self):
         return self.ideamatch
+
 
 class RelationshipStatus(models.Model):
     relationship_status = models.CharField(max_length=200)
@@ -173,6 +95,7 @@ class RelationshipStatus(models.Model):
     def __str__(self):
         return self.relationship_status
 
+
 class Education(models.Model):
     educations = models.CharField(max_length=200)
     slug = models.SlugField(max_length=5000)
@@ -180,6 +103,7 @@ class Education(models.Model):
 
     def __str__(self):
         return self.educations
+
 
 class BodyType(models.Model):
     body_type = models.CharField(max_length=200)
@@ -189,6 +113,7 @@ class BodyType(models.Model):
     def __str__(self):
         return self.body_type
 
+
 class IsVerified(models.Model):
     is_verified = models.CharField(max_length=200)
     slug = models.SlugField(max_length=5000)
@@ -196,6 +121,7 @@ class IsVerified(models.Model):
 
     def __str__(self):
         return self.is_verified
+
 
 class Gender(models.Model):
     gender = models.CharField(max_length=100)
@@ -207,7 +133,7 @@ class Gender(models.Model):
 
 
 class Profile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
     bio = RichTextField()
 
     ideamatch = models.ManyToManyField(UserIdeaMatch)
@@ -219,7 +145,6 @@ class Profile(models.Model):
     is_verified = models.ForeignKey(IsVerified, on_delete=models.CASCADE)
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE)
 
-    email = models.EmailField(blank=True, null=True)
     birth_date = models.DateField(null=True, default='1999-12-15', blank=True)
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2)
     location = models.CharField(max_length=100, default='', blank=False)
@@ -235,7 +160,6 @@ class Profile(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
-
     objects = LocationManager()
 
     # Assistance from https://stackoverflow.com/questions/5056327/define-and-insert-age-in-django-template
@@ -245,25 +169,11 @@ class Profile(models.Model):
     def __str__(self):
         return str(self.user)
 
+#
+# def user_created_receiver(sender, instance, created, *args, **kwargs):
+#     if created:
+#         Profile.objects.get_or_create(user=instance)
+#
+#
+# post_save.connect(user_created_receiver, sender=User)
 
-def user_created_receiver(sender, instance, created, *args, **kwargs):
-    if created:
-        Profile.objects.get_or_create(user=instance)
-
-
-post_save.connect(user_created_receiver, sender=User)
-
-
-class PhoneOTP(models.Model):
-    phone_regex = RegexValidator(regex=r'^\+?1?\d{9,14}$',
-                                 message="Phone number must be entered in the format: '+91-999999999'. Up to 14 "
-                                         "digits allowed.")
-    phone = models.CharField(validators=[phone_regex], max_length=17, unique=True)
-    otp = models.CharField(max_length=9, blank=True, null=True)
-    count = models.IntegerField(default=0, help_text='Number of otp sent')
-    logged = models.BooleanField(default=False, help_text='If otp verification got successful')
-    forgot = models.BooleanField(default=False, help_text='only true for forgot password')
-    forgot_logged = models.BooleanField(default=False, help_text='Only true if validdate otp forgot get successful')
-
-    def __str__(self):
-        return str(self.phone) + ' is sent ' + str(self.otp)

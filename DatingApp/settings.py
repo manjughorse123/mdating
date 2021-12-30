@@ -41,6 +41,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'ckeditor',
     'main',
+    'account',
+    # 'phone_verify',
+
 ]
 
 MIDDLEWARE = [

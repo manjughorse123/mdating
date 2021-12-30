@@ -64,3 +64,5 @@ admin.site.register(BodyType, BodyTypeAdmin)
 admin.site.register(IsVerified, IsVerifiedAdmin)
 admin.site.register(Gender, GenderAdmin)
 admin.site.register(Profile, ProfileAdmin)
+
+
