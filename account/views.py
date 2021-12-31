@@ -23,9 +23,11 @@ def send_otp(mobile, otp):
 class LoginAttempt(APIView):
 
     def post(self, request, *args, **kwargs):
-        print(request.user)
         mobile = request.POST.get('mobile')
-        user = UserProfile.objects.filter(mobile=mobile).first()
+        country_code = request.POST.get('country_code')
+
+        # if mobile == User.objects.filter(mobile=mobile):
+        user = User.objects.filter(mobile=mobile).first()
         if user is None:
             return Response({"message": "Wrong OTP"}, status=status.HTTP_400_BAD_REQUEST)
         otp = str(random.randint(999, 9999))
@@ -34,6 +36,9 @@ class LoginAttempt(APIView):
         send_otp(mobile, otp)
         request.sessions['mobile'] = mobile
         return Response({"message": "redirect to registrations pages"}, status=status.HTTP_400_BAD_REQUEST)
+        # else:
+        #     print("Phone no. are not registered")
+        #     return False
 
 
 class LoginOtp(APIView):
@@ -42,7 +47,7 @@ class LoginOtp(APIView):
         print(request.user)
         mobile = request.session['mobile']
         otp = request.POST.get("otp")
-        profile = UserProfile.objects.filter(mobile=mobile).first()
+        profile = User.objects.filter(mobile=mobile).first()
 
         if otp == profile.otp:
             user = User.objects.get(id=profile.user.id)
@@ -57,15 +62,14 @@ class Registration(APIView):
         email = request.POST.get('email')
         name = request.POST.get('name')
         mobile = request.POST.get('mobile')
-        check_user = User.objects.filter(email=email).first()
-        check_profile = UserProfile.objects.filter(mobile=mobile).first()
-        if check_profile or check_user:
+        country_code = request.POST.get('country_code')
+        birth_date = request.POST.get('birth_date')
+        check_user = User.objects.filter(email=email, mobile=mobile).first()
+        if check_user:
             return Response({"message": "User Already Exists"}, status=status.HTTP_400_BAD_REQUEST)
-        user = User(email=email, name=name)
-        user.save()
         otp = str(random.randint(999, 9999))
-        profile = UserProfile(user=user, mobile=mobile, otp=otp)
-        profile.save()
+        user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp, country_code=country_code)
+        user.save()
         # send_otp(mobile, otp)
         # request.session['mobile'] = mobile
         return Response({"message": "Redirect OTP pages"}, status=status.HTTP_201_CREATED)
@@ -75,7 +79,7 @@ class VirifyOtp(APIView):
     def post(self, request, *args, **kwargs):
         mobile = request.session['mobile']
         otp = request.POST.get('otp')
-        profile = UserProfile.objects.filter(mobile=mobile).first()
+        profile = User.objects.filter(mobile=mobile).first()
         if otp == profile.otp:
             return Response({"message": "Redirect to Next Pages"}, status=status.HTTP_201_CREATED)
         else:

@@ -133,7 +133,7 @@ class Gender(models.Model):
 
 
 class Profile(models.Model):
-    user = models.ForeignKey(UserProfile, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     bio = RichTextField()
 
     ideamatch = models.ManyToManyField(UserIdeaMatch)
@@ -145,7 +145,6 @@ class Profile(models.Model):
     is_verified = models.ForeignKey(IsVerified, on_delete=models.CASCADE)
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE)
 
-    birth_date = models.DateField(null=True, default='1999-12-15', blank=True)
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2)
     location = models.CharField(max_length=100, default='', blank=False)
     citylat = models.DecimalField(max_digits=9, decimal_places=6, default='-2.0180319')
@@ -163,8 +162,7 @@ class Profile(models.Model):
     objects = LocationManager()
 
     # Assistance from https://stackoverflow.com/questions/5056327/define-and-insert-age-in-django-template
-    def age(self):
-        return int((datetime.date.today() - self.birth_date).days / 365.25)
+
 
     def __str__(self):
         return str(self.user)
