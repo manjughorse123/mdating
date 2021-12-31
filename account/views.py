@@ -33,7 +33,7 @@ class LoginAttempt(APIView):
         user.save()
         send_otp(mobile, otp)
         request.sessions['mobile'] = mobile
-        return Response({"message": "User created"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "redirect to registrations pages"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class LoginOtp(APIView):
@@ -66,8 +66,8 @@ class Registration(APIView):
         otp = str(random.randint(999, 9999))
         profile = UserProfile(user=user, mobile=mobile, otp=otp)
         profile.save()
-        send_otp(mobile, otp)
-        request.session['mobile'] = mobile
+        # send_otp(mobile, otp)
+        # request.session['mobile'] = mobile
         return Response({"message": "Redirect OTP pages"}, status=status.HTTP_201_CREATED)
 
 
@@ -76,7 +76,6 @@ class VirifyOtp(APIView):
         mobile = request.session['mobile']
         otp = request.POST.get('otp')
         profile = UserProfile.objects.filter(mobile=mobile).first()
-        print("Profile data are printed", profile)
         if otp == profile.otp:
             return Response({"message": "Redirect to Next Pages"}, status=status.HTTP_201_CREATED)
         else:
