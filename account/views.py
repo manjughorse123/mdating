@@ -26,8 +26,7 @@ class LoginAttempt(APIView):
         mobile = request.POST.get('mobile')
         country_code = request.POST.get('country_code')
 
-        # if mobile == User.objects.filter(mobile=mobile):
-        user = User.objects.filter(mobile=mobile).first()
+        user = User.objects.filter(mobile=mobile, country_code=country_code).first()
         if user is None:
             return Response({"message": "Wrong OTP"}, status=status.HTTP_400_BAD_REQUEST)
         otp = str(random.randint(999, 9999))
@@ -36,9 +35,6 @@ class LoginAttempt(APIView):
         send_otp(mobile, otp)
         request.sessions['mobile'] = mobile
         return Response({"message": "redirect to registrations pages"}, status=status.HTTP_400_BAD_REQUEST)
-        # else:
-        #     print("Phone no. are not registered")
-        #     return False
 
 
 class LoginOtp(APIView):
