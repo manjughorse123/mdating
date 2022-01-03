@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.base_user import AbstractBaseUser
+from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 
@@ -13,11 +14,12 @@ class User(AbstractBaseUser):
     mobile = models.CharField(max_length=14)
     country_code = models.CharField(max_length=8)
     otp = models.CharField(max_length=6)
-
+    username = None
     password = None
     last_login = None
     create_at = models.DateTimeField(auto_now_add=True)
     USERNAME_FIELD = 'email'
+
 
     def age(self):
         return int((datetime.date.today() - self.birth_date).days / 365.25)

@@ -140,3 +140,6 @@ JAZZMIN_SETTINGS = {
     "site_brand": "ByteCipher",
     "changeform_format": "single"
 }
+
+# Sms gateway Authentication Keys
+AUTH_KEY = 'YOUR_KEY_HERE'

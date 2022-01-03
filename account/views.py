@@ -25,16 +25,32 @@ class LoginAttempt(APIView):
     def post(self, request, *args, **kwargs):
         mobile = request.POST.get('mobile')
         country_code = request.POST.get('country_code')
-
+        # otp = request.POST.get("otp")
         user = User.objects.filter(mobile=mobile, country_code=country_code).first()
         if user is None:
-            return Response({"message": "Wrong OTP"}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {"message": "Mobile No. Doesn't Exist in Database/ Redirect Registrations Pages", "status_code": False},
+                status=status.HTTP_400_BAD_REQUEST)
         otp = str(random.randint(999, 9999))
         user.otp = otp
         user.save()
-        send_otp(mobile, otp)
-        request.sessions['mobile'] = mobile
-        return Response({"message": "redirect to registrations pages"}, status=status.HTTP_400_BAD_REQUEST)
+        request.session['mobile'] = mobile
+        return Response({"message": "Login OTP pages", "status_code": True},
+                        status=status.HTTP_201_CREATED)
+        # profile = User.objects.filter(mobile=mobile).first()
+
+        # data = profile.otp
+        # if data == profile.otp:
+        #     user.otp = data
+        #     user.save()
+        #
+        # else:
+        #     return Response({"message": "Wrong OTP", "status_code": False}, status=status.HTTP_400_BAD_REQUEST)
+
+        # send_otp(mobile, otp)
+        # request.sessions['mobile'] = mobile
+        # return Response({"message": "redirect to main pages", "status_code": True},
+        #                 status=status.HTTP_201_CREATED)
 
 
 class LoginOtp(APIView):
@@ -48,27 +64,29 @@ class LoginOtp(APIView):
         if otp == profile.otp:
             user = User.objects.get(id=profile.user.id)
             login(request, user)
-            return Response(status=status.HTTP_201_CREATED)
+            return Response({"message": "Go To Profile Pages", "status_code": True}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"message": "Wrong OTP"}, status=status.HTTP_201_CREATED)
+            return Response({"message": "Wrong OTP", "status_code": False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class Registration(APIView):
     def post(self, request, *args, **kwargs):
         email = request.POST.get('email')
-        name = request.POST.get('name')
         mobile = request.POST.get('mobile')
         country_code = request.POST.get('country_code')
+        name = request.POST.get('name')
         birth_date = request.POST.get('birth_date')
         check_user = User.objects.filter(email=email, mobile=mobile).first()
         if check_user:
-            return Response({"message": "User Already Exists"}, status=status.HTTP_400_BAD_REQUEST)
-        otp = str(random.randint(999, 9999))
+            return Response({"message": "User Already Exists", status: False}, status=status.HTTP_400_BAD_REQUEST)
+        # otp = str(random.randint(999, 9999))
+        otp = '1234'
         user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp, country_code=country_code)
         user.save()
         # send_otp(mobile, otp)
         # request.session['mobile'] = mobile
-        return Response({"message": "Redirect OTP pages"}, status=status.HTTP_201_CREATED)
+        return Response({"message": "Your Registrations is successfully", "status_code": True},
+                        status=status.HTTP_201_CREATED)
 
 
 class VirifyOtp(APIView):
