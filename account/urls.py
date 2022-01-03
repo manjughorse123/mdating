@@ -2,9 +2,13 @@ from django.urls import path
 from .views import *
 
 urlpatterns = [
-    path('LoginAttempt', LoginAttempt.as_view(), name="LoginAttempt"),
-    path('LoginOtp', LoginOtp.as_view(), name='LoginOtp'),
-    path('VirifyOtp', VirifyOtp.as_view(), name='VirifyOtp'),
-    path('Registration', Registration.as_view(), name='Registration'),
+    path('login', Login.as_view(), name="Login"),
+    # path('LoginOtp', LoginOtp.as_view(), name='LoginOtp'),
+    path('otp/verify', OTPVerify.as_view(), name='OTPVerify'),
+    path('registration', Registration.as_view(), name='Registration'),
+    path('user/data', UserData.as_view(), name='UserData'),
+    path('user/update/<int:pk>', UserUpdate.as_view(), name='UserUpdate'),
+
+
 
 ]
