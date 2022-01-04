@@ -15,7 +15,29 @@ class ProfileList(ListCreateAPIView):
     serializer_class = ProfileSerializer
 
 
-class UserInterestList(ListCreateAPIView):
+# User Gender API Data
+class GenderList(ListAPIView):
+    queryset = Gender.objects.all()
+    serializer_class = GenderSerializer
+
+
+class GenderCreate(ListCreateAPIView):
+    queryset = Gender.objects.all()
+    serializer_class = GenderSerializer
+
+
+class GenderUpdate(RetrieveUpdateDestroyAPIView):
+    queryset = Gender.objects.all()
+    serializer_class = GenderSerializer
+
+
+# User Interest Api Data
+class UserInterestList(ListAPIView):
+    queryset = UserInterest.objects.all()
+    serializer_class = UserInterestSerializer
+
+
+class UserInterestCreate(ListCreateAPIView):
     QuerySet = UserInterest.objects.all()
     serializer_class = UserInterestSerializer
 
@@ -23,3 +45,35 @@ class UserInterestList(ListCreateAPIView):
 class UserInterestUpdate(RetrieveUpdateDestroyAPIView):
     queryset = UserInterest.objects.all()
     serializer_class = UserInterestSerializer
+
+
+# Ideal Match API Data
+class UserIdeaMatchList(ListAPIView):
+    queryset = UserIdeaMatch.objects.all()
+    serializer_class = UserIdeaMatchSerializer
+
+
+class UserIdeaMatchCreate(ListCreateAPIView):
+    queryset = UserIdeaMatch.objects.all()
+    serializer_class = UserIdeaMatchSerializer
+
+
+class UserIdeaMatchUpdate(RetrieveUpdateDestroyAPIView):
+    queryset = UserIdeaMatch.objects.all()
+    serializer_class = UserIdeaMatchSerializer
+
+
+# Relationship Status API Data
+class RelationshipStatusList(ListAPIView):
+    queryset = RelationshipStatus.objects.all()
+    serializer_class = RelationshipStatusSerializer
+
+
+class RelationshipStatusCreate(ListCreateAPIView):
+    queryset = RelationshipStatus.objects.all()
+    serializer_class = RelationshipStatusSerializer
+
+
+class RelationshipStatusUpdate(RetrieveUpdateDestroyAPIView):
+    queryset = RelationshipStatus.objects.all()
+    serializer_class = RelationshipStatusSerializer
