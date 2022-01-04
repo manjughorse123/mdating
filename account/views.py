@@ -29,12 +29,12 @@ class Login(APIView):
             user = User.objects.filter(mobile=mobile, country_code=country_code).first()
             if user is None:
                 return Response(
-                    {"message": "mobile no. not registered", "success": False},
+                    {"message": "mobile no. not registered", "success": False, 'is_register': False},
                     status=status.HTTP_404_NOT_FOUND)
             otp = str(random.randint(999, 9999))
             user.otp = otp
             user.save()
-            return Response({"message": "Done", "success": True,},
+            return Response({"message": "Done", "success": True, 'is_register': True},
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -54,21 +54,23 @@ class Registration(APIView):
             check_email = User.objects.filter(email=email).first()
 
             if check_mobile:
-                return Response({"message": "mobile Already Exists", 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "mobile Already Exists", 'success': False, 'is_register': False},
+                                status=status.HTTP_400_BAD_REQUEST)
             if check_email:
-                return Response({"message": "email Already Exists", 'success': False}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"message": "email Already Exists", 'success': False, 'is_register': False},
+                                status=status.HTTP_400_BAD_REQUEST)
 
             otp = str(random.randint(999, 9999))
             user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                         country_code=country_code)
             user.save()
 
-            return Response({"message": "Your Registrations is successfully", "success": True},
+            return Response({"message": "Your Registrations is successfully", "success": True, 'is_register': True},
                             status=status.HTTP_201_CREATED)
 
         except Exception as e:
             print(e)
-            return Response({'success': False, 'message': 'internal server error'},
+            return Response({'success': False, 'message': 'internal server error', 'is_register': False},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -82,11 +84,12 @@ class OTPVerify(APIView):
             if user_obj.otp == otp:
                 user_obj.is_phone_verified = True
                 user_obj.save()
-                return Response({'success': True, 'message': 'your OTP is verified'}, status=status.HTTP_200_OK)
-            return Response({'flag': success, 'message': 'Wrong OTP'}, status=status.HTTP_403_FORBIDDEN)
+                return Response({'success': True, 'message': 'your OTP is verified', 'is_register': True},
+                                status=status.HTTP_200_OK)
+            return Response({'success': "success", 'message': 'Wrong OTP'}, status=status.HTTP_403_FORBIDDEN)
         except Exception as e:
             print(e)
-        return Response({'success': False, 'message': 'internal server error'},
+        return Response({'success': False, 'message': 'internal server error', 'is_register': False},
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 

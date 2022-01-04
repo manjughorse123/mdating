@@ -1,3 +1,4 @@
+import uuid
 from datetime import datetime
 
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -8,7 +9,7 @@ from django.db import models
 # from django.contrib.auth.models import User
 
 class User(AbstractBaseUser):
-
+    userid = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=500, unique=True)
     name = models.CharField(max_length=200)
     birth_date = models.DateField(default='1999-12-15')

@@ -68,10 +68,20 @@ class UserMedia(models.Model):
     def __str__(self):
         return self.user
 
+class Gender(models.Model):
+    gender = models.CharField(max_length=100)
+    slug = models.SlugField(max_length=500)
+    icon = models.ImageField(upload_to="gender/")
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.gender
+
 
 class UserInterest(models.Model):
     interest = models.CharField(max_length=200)
     slug = models.SlugField(max_length=500)
+    icon = models.ImageField(upload_to="interest/")
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -81,6 +91,7 @@ class UserInterest(models.Model):
 class UserIdeaMatch(models.Model):
     ideamatch = models.CharField(max_length=200)
     slug = models.SlugField(max_length=500)
+    icon = models.ImageField(upload_to="ideamatch/")
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -90,6 +101,7 @@ class UserIdeaMatch(models.Model):
 class RelationshipStatus(models.Model):
     relationship_status = models.CharField(max_length=200)
     slug = models.SlugField(max_length=5000)
+    icon = models.ImageField(upload_to="relations/")
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -123,13 +135,6 @@ class IsVerified(models.Model):
         return self.is_verified
 
 
-class Gender(models.Model):
-    gender = models.CharField(max_length=100)
-    slug = models.SlugField(max_length=500)
-    create_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.gender
 
 
 class Profile(models.Model):

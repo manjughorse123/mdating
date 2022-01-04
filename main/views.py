@@ -15,4 +15,11 @@ class ProfileList(ListCreateAPIView):
     serializer_class = ProfileSerializer
 
 
+class UserInterestList(ListCreateAPIView):
+    QuerySet = UserInterest.objects.all()
+    serializer_class = UserInterestSerializer
 
+
+class UserInterestUpdate(RetrieveUpdateDestroyAPIView):
+    queryset = UserInterest.objects.all()
+    serializer_class = UserInterestSerializer
