@@ -6,6 +6,8 @@ import random
 import http.client
 from rest_framework.views import *
 from .models import *
+from rest_framework.permissions import IsAuthenticated
+from rest_framework_simplejwt.authentication import JWTAuthentication
 
 
 def send_otp(mobile, otp):
@@ -21,6 +23,7 @@ def send_otp(mobile, otp):
 
 
 class Login(APIView):
+
     def post(self, request, *args, **kwargs):
         try:
             mobile = request.POST.get('mobile')
@@ -93,11 +96,19 @@ class OTPVerify(APIView):
                         status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class UserData(ListAPIView):
+class UserData(ListCreateAPIView):
+    # authentication_classes = [JWTAuthentication]
+    # print(authentication_classes)
+    # permission_classes = [IsAuthenticated]
+    # print(permission_classes)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
 
 class UserUpdate(RetrieveUpdateDestroyAPIView):
+    # authentication_classes = [JWTAuthentication]
+    # print(authentication_classes)
+    # permission_classes = [IsAuthenticated]
+    # print(permission_classes)
     queryset = User.objects.all()
     serializer_class = UserSerializer
