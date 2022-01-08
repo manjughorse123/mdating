@@ -39,11 +39,17 @@ class UserMedia(models.Model):
 
 
 class UserInterest(models.Model):
-    interest = models.CharField(max_length=10, blank=True, null=True)
+    interest = models.CharField(max_length=40, blank=True, null=True)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+
+class UserIdealMatch(models.Model):
+    idealmatch = models.CharField(max_length=40, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
 class User(AbstractBaseUser):
+    id = models.UUIDField(max_length=50, primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=500, unique=True, blank=True, null=True)
     mobile = models.CharField(max_length=10, unique=True, blank=True, null=True)
     country_code = models.CharField(max_length=8, blank=True, null=True)
@@ -56,13 +62,13 @@ class User(AbstractBaseUser):
     password = None
     last_login = None
 
-    idealmatch = models.CharField(max_length=50, blank=True, null=True)
     relationship_status = models.CharField(max_length=50, blank=True, null=True)
     education = models.CharField(max_length=50, blank=True, null=True)
     body_type = models.CharField(max_length=50, blank=True, null=True)
     gender = models.CharField(max_length=50, blank=True, null=True)
     image = models.ManyToManyField(UserMedia, default=None, null=True, blank=True)
-    userinterest = models.ManyToManyField(UserInterest, blank=True, null=True)
+    userinterest = models.ManyToManyField(UserInterest, default=None, blank=True, null=True)
+    idealmatch = models.ManyToManyField(UserIdealMatch,default=None, blank=True, null=True)
 
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=100, default='', blank=True, null=True)
@@ -78,10 +84,9 @@ class User(AbstractBaseUser):
 
     # create_at = models.DateTimeField(auto_now_add=True)
     # update_at = models.DateTimeField(auto_now=True)
-    objects = LocationManager()
+    # objects = LocationManager()
 
     USERNAME_FIELD = 'mobile'
 
     def age(self):
         return int((datetime.date.today() - self.birth_date).days / 365.25)
-

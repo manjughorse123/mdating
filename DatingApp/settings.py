@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 import os.path
+from datetime import timedelta
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -42,9 +43,6 @@ INSTALLED_APPS = [
     'ckeditor',
     'main',
     'account',
-    'rest_framework.authtoken',
-    'rest_framework_simplejwt',
-    'rest_framework_simplejwt.token_blacklist',
 
 ]
 
@@ -94,14 +92,6 @@ DATABASES = {
 }
 
 
-#
-# DATABASES = {
-#     'default': {
-#         'ENGINE': 'django.db.backends.sqlite3',
-#         'NAME': BASE_DIR / 'db.sqlite3',
-#     }
-# }
-#
 
 # Password validation
 # https://docs.djangoproject.com/en/4.0/ref/settings/#auth-password-validators
@@ -159,12 +149,3 @@ JAZZMIN_SETTINGS = {
 # Sms gateway Authentication Keys
 AUTH_KEY = 'YOUR_KEY_HERE'
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': [
-        # 'rest_framework.authentication.BasicAuthentication',
-        'rest_framework.authentication.SessionAuthentication',
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-        'rest_framework_simplejwt.authentication.JWTTokenUserAuthentication',
-
-    ]
-}
