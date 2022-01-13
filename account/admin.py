@@ -13,3 +13,11 @@ class UserAdmin(admin.ModelAdmin):
 
 # User = get_user_model()
 admin.site.register(User, UserAdmin)
+admin.site.register(Gender)
+admin.site.register(Interest)
+admin.site.register(MaritalStatus)
+admin.site.register(UserIdealMatch)
+
+
+
+

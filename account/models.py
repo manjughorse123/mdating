@@ -2,6 +2,8 @@ import uuid
 from datetime import datetime
 import random
 import os
+
+from django.db.models.deletion import CASCADE
 from ckeditor.fields import RichTextField
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import AbstractUser
@@ -33,23 +35,57 @@ class LocationManager(models.Manager):
             return self.annotate(distance=distance_raw_sql)
 
 
-class UserMedia(models.Model):
-    image = models.SlugField(blank=True, null=True)
+# class UserMedia(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE) 
+    
+#     image = models.URLField(blank=True, null=True)
+    
+#     create_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return self.name
+
+class Interest(models.Model):
+    interest = models.CharField(max_length=40,unique = True)
+    icon = models.URLField(blank=True, null=True)
+    icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.interest
 
-class UserInterest(models.Model):
-    interest = models.CharField(max_length=40, blank=True, null=True)
+
+class IdealMatch(models.Model):
+    idealmatch = models.CharField(max_length=40,unique = True)
+    icon = models.URLField(blank=True, null=True)
+    icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.idealmatch
 
-class UserIdealMatch(models.Model):
-    idealmatch = models.CharField(max_length=40, blank=True, null=True)
+
+
+class Gender(models.Model):
+    gender = models.CharField(max_length=40, unique = True)
+    icon = models.URLField(blank=True, null=True)
+    icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.gender
+
+class MaritalStatus(models.Model):
+    status = models.CharField(max_length=40, unique = True)
+    icon = models.URLField(blank=True, null=True)
+    icon_color = models.CharField(max_length=40)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.status
 
 class User(AbstractBaseUser):
-    id = models.UUIDField(max_length=50, primary_key=True, default=uuid.uuid4, editable=False)
+    id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=500, unique=True, blank=True, null=True)
     mobile = models.CharField(max_length=10, unique=True, blank=True, null=True)
     country_code = models.CharField(max_length=8, blank=True, null=True)
@@ -62,14 +98,11 @@ class User(AbstractBaseUser):
     password = None
     last_login = None
 
-    relationship_status = models.CharField(max_length=50, blank=True, null=True)
+    relationship_status = models.ForeignKey(MaritalStatus,on_delete=models.CASCADE ,related_name='user_merital_status',blank=True, null=True)
     education = models.CharField(max_length=50, blank=True, null=True)
     body_type = models.CharField(max_length=50, blank=True, null=True)
-    gender = models.CharField(max_length=50, blank=True, null=True)
-    image = models.ManyToManyField(UserMedia, default=None, null=True, blank=True)
-    userinterest = models.ManyToManyField(UserInterest, default=None, blank=True, null=True)
-    idealmatch = models.ManyToManyField(UserIdealMatch,default=None, blank=True, null=True)
-
+    gender = models.ForeignKey(Gender,on_delete=models.CASCADE, related_name='user_gender',blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=100, default='', blank=True, null=True)
     citylat = models.DecimalField(max_digits=9, decimal_places=6, default='-2.0180319', blank=True, null=True)
@@ -90,3 +123,30 @@ class User(AbstractBaseUser):
 
     def age(self):
         return int((datetime.date.today() - self.birth_date).days / 365.25)
+
+
+class UserMedia(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
+    title =  models.CharField(max_length = 255,blank=True, null=True)
+    image = models.URLField(blank=True, null=True)
+    
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.title
+
+class UserIdealMatch(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_ideal')
+    idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE , related_name= 'user_match')
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.idealmatch
+
+class UserInterest(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
+    interest = models.ForeignKey(Interest, on_delete=models.CASCADE , related_name= 'user_interest')
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.interest
