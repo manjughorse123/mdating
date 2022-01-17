@@ -2,6 +2,7 @@ import uuid
 from datetime import datetime
 import random
 import os
+from django.db.models.base import Model
 
 from django.db.models.deletion import CASCADE
 from ckeditor.fields import RichTextField
@@ -52,7 +53,7 @@ class Interest(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.interest
+        return str(self.interest)
 
 
 class IdealMatch(models.Model):
@@ -62,7 +63,7 @@ class IdealMatch(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.idealmatch
+        return str(self.idealmatch)
 
 
 
@@ -124,11 +125,13 @@ class User(AbstractBaseUser):
     def age(self):
         return int((datetime.date.today() - self.birth_date).days / 365.25)
 
+    def __str__(self):
+        return str(self.email)
 
 class UserMedia(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
     title =  models.CharField(max_length = 255,blank=True, null=True)
-    image = models.URLField(blank=True, null=True)
+    image = models.TextField(blank=True, null=True)
     
     create_at = models.DateTimeField(auto_now_add=True)
 
@@ -141,12 +144,20 @@ class UserIdealMatch(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.idealmatch
+        return str(self.idealmatch)+','+str(self.user.name)
 
 class UserInterest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
-    interest = models.ForeignKey(Interest, on_delete=models.CASCADE , related_name= 'user_interest')
+    # interest = models.ForeignKey(Interest, on_delete=models.CASCADE , related_name= 'user_interest')
+    interest = models.ManyToManyField(Interest,  related_name= 'user_interest')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.interest
+        return str(self.interest)+','+str(self.user.name)
+
+
+class ProfileCount(models.Model):
+
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_profile_count')
+    viewcount = models.IntegerField(default=0)
+    

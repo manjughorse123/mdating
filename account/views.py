@@ -418,7 +418,7 @@ class AddIdealMatchView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
-        idealMatch =UserIdealMatch.objects.all()
+        idealMatch =IdealMatch.objects.all()
         serializer = IdealMatchSerializer(idealMatch, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -427,7 +427,7 @@ class AddIdealMatchView(APIView):
         
         if serializer.is_valid():
             idealmatch = serializer.validated_data['idealmatch']
-            check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
+            check_name =IdealMatch.objects.filter(idealmatch=idealmatch).first()
             
             if check_name:
                 return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
@@ -475,24 +475,229 @@ class AddIdealMatchdetailView(APIView):
 
 
 
-# class AddUserImageView(APIView):
-#     # permission_classes = (AllowAny,)
+class AddUserImageView(APIView):
+    # permission_classes = (AllowAny,)
 
-#     def get(self, request):
-#         idealMatch =User.objects.all()
-#         serializer = UserImageSerializer(idealMatch, many=True)
-#         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+    def get(self, request):
+        idealMatch =User.objects.all()
+        serializer = UserImageSerializer(idealMatch, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
-#     def post(self, request, format='json'):
-#         serializer = UserImageSerializer(data=request.data)
+    def post(self, request, format='json'):
+        # import pdb;pdb.set_trace()
+        serializer = UserImageSerializer(data=request.data)
         
-#         if serializer.is_valid():
-#             # idealmatch = serializer.validated_data['idealmatch']
-#             # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
+        if serializer.is_valid():
+            # idealmatch = serializer.validated_data['idealmatch']
+            # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
             
-#             # if check_name:
-#             #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
-#             serializer.save()
-#             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            # if check_name:
+            #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# API FOR USER IDEAL  MATCH
+class AddUserIdealMatchView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        useridealMatch =UserIdealMatch.objects.all()
+        serializer = UserIdealMatchSerializer(useridealMatch, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserIdealMatchSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class AddUserIdealMatchdetailView(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+    def get_object(self, pk):
+        try:
+            return UserIdealMatch.objects.get(pk=pk)
+        except UserIdealMatch.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        adduserIdealMatch.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# API FOR USER INTERSET API
+class AddUserInterestView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userInterest =UserInterest.objects.all()
+        serializer = UserInterestSerializer(userInterest, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserInterestSerializer(data=request.data)
+        
+        if serializer.is_valid():        
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class AddUserInterestdetailView(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+    def get_object(self, pk):
+        try:
+            return UserInterest.objects.get(pk=pk)
+        except UserInterest.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        import pdb;pdb.set_trace()
+        adduserInterest = self.get_object(pk)
+        serializer = UserInterestSerializer(adduserInterest)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+        adduserInterest = self.get_object(pk)
+        serializer = UserInterestSerializer(adduserInterest, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        adduserInterest = self.get_object(pk)
+        serializer = UserInterestSerializer(adduserInterest, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, pk, format=None):
+        adduserInterest = self.get_object(pk)
+        adduserInterest.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class AddUserInterestView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userInterest =UserInterest.objects.all()
+        serializer = UserInterestSerializer(userInterest, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserInterestSerializer(data=request.data)
+        
+        if serializer.is_valid():        
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class MatchProfileView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        
+        # if in
+        lista = []
+        data1 ={}
+        if UserInterest.objects.filter(interest=3):
+            
+            user_ideal =  UserInterest.objects.filter(interest=3)
+            print ("datasdd",user_ideal)
+        
+        
+        if UserInterest.objects.filter(interest=5):
+            user_ideal1 =  UserInterest.objects.filter(interest=5)
+            print ("data",user_ideal1)
+
+        if UserIdealMatch.objects.filter(idealmatch=2):
+            user_ideal =  UserIdealMatch.objects.filter(idealmatch=2)
+            print ("datdadada",user_ideal)
+        #     for i in range(len(user_ideal)):
+        #         user = User.objects.filter(email =user_ideal[i].user)
+        #         for j in range(len(user)):
+        #             data1['name']=user[j].email
+        #             lista.append(data1)
+        #         # lista.append(user)
+        # print ("datacdscdscdc",lista)
+        # json_string = json.dumps(lista)
+
+        return Response({"success": "True"}, status=status.HTTP_200_OK)
+
+   
+
+class ProfileCountView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, pk ,request):
+        user = User.objects.filter(pk = pk)
+        # user.update(viewcount)
+
+        return Response({"success": "True"}, status=status.HTTP_200_OK)
+
+
+
+# class FriendRequestSend(APIView):
+
+
+
+
+
+#     @login_required
+# def friendship_add_friend(
+#     request, to_username, template_name="friendship/friend/add.html"
+# ):
+#     """ Create a FriendshipRequest """
+#     ctx = {"to_username": to_username}
+
+#     if request.method == "POST":
+#         to_user = user_model.objects.get(username=to_username)
+#         from_user = request.user
+#         try:
+#             Friend.objects.add_friend(from_user, to_user)
+#         except AlreadyExistsError as e:
+#             ctx["errors"] = ["%s" % e]
 #         else:
-#             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+#             return redirect("friendship_request_list")
+
+#     return render(request, template_name, ctx)
