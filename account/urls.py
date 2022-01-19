@@ -30,7 +30,7 @@ urlpatterns = [
     path('user_interest_detail/<int:pk>/',  AddUserInterestdetailView.as_view(), name='interest_detail'),
     
     path('match_profile/',  MatchProfileView.as_view(), name='match_detail'),
-    re_path(r'^profile/count/(?P<pk>[0-9a-f-]+)',  ProfileCountView.as_view(), name='match_detail'),
+    # re_path(r'^profile/count/(?P<pk>[0-9a-f-]+)',  ProfileCountView.as_view(), name='match_detail'),
 
 
     # path('user_iamge/', AddUseriamgeView.as_view(), name='ideal_matchView'),

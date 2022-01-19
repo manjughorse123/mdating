@@ -1,5 +1,8 @@
 
+from email.mime import image
 from enum import unique
+
+from django.urls import exceptions
 from .models import *
 from rest_framework import serializers
 
@@ -113,7 +116,7 @@ class UserImageSerializer(serializers.ModelSerializer):
     images = UserMediaSerializer(many=True)
 
     # def create(self, validated_data):
-    #     import pdb;pdb.set_trace()
+    
     #     images_data = validated_data.pop('Prices')
     #     user = User.objects.create(**validated_data)
     #     for image_data in images_data:
@@ -123,33 +126,6 @@ class UserImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields ='__all__'
-
-# class PriceSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = Price
-#         fields = ('price_price',)
-
-# class ArticleSerializer(serializers.ModelSerializer):
-
-#     Prices = PriceSerializer(many=True)
-
-#     def create(self, validated_data):
-#         prices_data = validated_data.pop('Prices')
-#         article = Article.objects.create(**validated_data)
-#         for price_data in prices_data:
-#             Price.objects.create(article_id=article, **price_data)
-#         return article
-    # def update(self, instance, validated_data):
-    #         prices_data = validated_data.pop('Prices')
-    #         Article.objects.filter(article_id=instance.article_id).update(**validated_data)
-    #         for price_data in prices_data:
-    #             Price.objects.get_or_create(article_id=instance, **price_data)
-    #         return instance
-
-    # class Meta:
-    #     model = Article
-    #     fields = '__all__'
 
 # class UserMediaSerializer(serializers.ModelSerializer):
 
@@ -163,27 +139,61 @@ class UserIdealMatchSerializer(serializers.ModelSerializer):
     """
     Serializer for User Ideal Match
     """
+    #  def create(self, validated_data):
+    
 
+    #     interest = validated_data.pop('interest')
+    #     user_inter = UserInterest.objects.create( **validated_data)
+    #     user_inter.tags.add(*interest)
+    #     return user_inter
     class Meta:
         model = UserIdealMatch
         fields = '__all__'
 
 
+# class UserInterestSerializer(serializers.ModelSerializer):
+#     """
+#     Serializer for User UserInterest
+#     """
+
+#     class Meta:
+#         model = UserInterest
+#         fields = '__all__'
+
+
 class UserInterestSerializer(serializers.ModelSerializer):
+    # image = serializers.CharField()
     """
     Serializer for User UserInterest
     """
-
     class Meta:
         model = UserInterest
-        fields = '__all__'
+        fields = ('user','interest')
 
+    def create(self, validated_dat
+        try:
+            # Remove nested and M2m relationships from validated_data
+            interests = validated_data.pop('interest') if 'interest' in validated_data else []
 
-class UserInterestSerializer(serializers.ModelSerializer):
-    """
-    Serializer for User UserInterest
-    """
+            # Create project model
+            instance = User(**validated_data)
+            # if status:
+            #     instance.set_status(status)
 
-    class Meta:
-        model = UserInterest
-        fields = '__all__'
+            user = instance.save()
+
+            # Create relations
+            for interest in interests:
+                UserInterest.objects.create(user=user, **interest)
+
+        except exceptions.ValidationError as e:
+            errors_messages = e.error_dict if hasattr(e, 'error_dict') else e.error_list
+            raise serializers.ValidationError(errors_messages)
+
+        return project
+
+    def create(self, validated_data):
+        interest = validated_data.pop('interest')
+        user_inter = UserInterest.objects.create( **validated_data)
+        user_inter.interest.add(*interest)
+        return user_inter

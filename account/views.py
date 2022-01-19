@@ -484,7 +484,7 @@ class AddUserImageView(APIView):
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
-        # import pdb;pdb.set_trace()
+    
         serializer = UserImageSerializer(data=request.data)
         
         if serializer.is_valid():
@@ -586,7 +586,7 @@ class AddUserInterestdetailView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-        import pdb;pdb.set_trace()
+    
         adduserInterest = self.get_object(pk)
         serializer = UserInterestSerializer(adduserInterest)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
@@ -624,6 +624,7 @@ class AddUserInterestView(APIView):
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
+    
         serializer = UserInterestSerializer(data=request.data)
         
         if serializer.is_valid():        
@@ -653,14 +654,6 @@ class MatchProfileView(APIView):
         if UserIdealMatch.objects.filter(idealmatch=2):
             user_ideal =  UserIdealMatch.objects.filter(idealmatch=2)
             print ("datdadada",user_ideal)
-        #     for i in range(len(user_ideal)):
-        #         user = User.objects.filter(email =user_ideal[i].user)
-        #         for j in range(len(user)):
-        #             data1['name']=user[j].email
-        #             lista.append(data1)
-        #         # lista.append(user)
-        # print ("datacdscdscdc",lista)
-        # json_string = json.dumps(lista)
 
         return Response({"success": "True"}, status=status.HTTP_200_OK)
 

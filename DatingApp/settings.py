@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'ckeditor',
     'main',
     'account',
+    'friend',
 
 ]
 
