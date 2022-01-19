@@ -1,5 +1,4 @@
 
-from email.mime import image
 from enum import unique
 
 from django.urls import exceptions
@@ -116,7 +115,7 @@ class UserImageSerializer(serializers.ModelSerializer):
     images = UserMediaSerializer(many=True)
 
     # def create(self, validated_data):
-    
+    #     import pdb;pdb.set_trace()
     #     images_data = validated_data.pop('Prices')
     #     user = User.objects.create(**validated_data)
     #     for image_data in images_data:
@@ -140,7 +139,7 @@ class UserIdealMatchSerializer(serializers.ModelSerializer):
     Serializer for User Ideal Match
     """
     #  def create(self, validated_data):
-    
+    #     import pdb;pdb.set_trace()
 
     #     interest = validated_data.pop('interest')
     #     user_inter = UserInterest.objects.create( **validated_data)
@@ -162,35 +161,13 @@ class UserIdealMatchSerializer(serializers.ModelSerializer):
 
 
 class UserInterestSerializer(serializers.ModelSerializer):
-    # image = serializers.CharField()
+    
     """
     Serializer for User UserInterest
     """
     class Meta:
         model = UserInterest
         fields = ('user','interest')
-
-    def create(self, validated_dat
-        try:
-            # Remove nested and M2m relationships from validated_data
-            interests = validated_data.pop('interest') if 'interest' in validated_data else []
-
-            # Create project model
-            instance = User(**validated_data)
-            # if status:
-            #     instance.set_status(status)
-
-            user = instance.save()
-
-            # Create relations
-            for interest in interests:
-                UserInterest.objects.create(user=user, **interest)
-
-        except exceptions.ValidationError as e:
-            errors_messages = e.error_dict if hasattr(e, 'error_dict') else e.error_list
-            raise serializers.ValidationError(errors_messages)
-
-        return project
 
     def create(self, validated_data):
         interest = validated_data.pop('interest')
