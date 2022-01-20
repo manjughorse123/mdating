@@ -1,3 +1,4 @@
+from pyexpat import model
 import uuid
 from datetime import datetime
 import random
@@ -46,14 +47,14 @@ class LocationManager(models.Manager):
 #     def __str__(self):
 #         return self.name
 
-class Interest(models.Model):
-    interest = models.CharField(max_length=40,unique = True)
+class Passion(models.Model):
+    passion = models.CharField(max_length=40,unique = True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return str(self.interest)
+        return str(self.passion)
 
 
 class IdealMatch(models.Model):
@@ -115,7 +116,8 @@ class User(AbstractBaseUser):
     first_count = models.IntegerField(default=0,
                                       help_text='It is 0, if the user is totally new and 1 if the user has saved his '
                                                 'standard once', blank=True, null=True)
-
+    about = models.TextField(blank=True, null=True)
+    interest_in = models.ForeignKey(Gender,on_delete=models.CASCADE, related_name='interest_in_gender',blank=True, null=True)
     # create_at = models.DateTimeField(auto_now_add=True)
     # update_at = models.DateTimeField(auto_now=True)
     # objects = LocationManager()
@@ -142,22 +144,21 @@ class UserIdealMatch(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_ideal')
     idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE , related_name= 'user_match')
     create_at = models.DateTimeField(auto_now_add=True)
-
+    # idealmatch = models.TextField(blank=True, null=True)
+    
     def __str__(self):
         return str(self.idealmatch)+','+str(self.user.name)
 
-class UserInterest(models.Model):
+class UserPassion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
-    # interest = models.ForeignKey(Interest, on_delete=models.CASCADE , related_name= 'user_interest')
-    interest = models.ManyToManyField(Interest,  related_name= 'user_interest')
+    passion = models.ForeignKey(Passion, on_delete=models.CASCADE , related_name= 'user_Passion')
     create_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return str(self.interest)+','+str(self.user.name)
-
-
-class ProfileCount(models.Model):
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_profile_count')
-    viewcount = models.IntegerField(default=0)
+    # passion = models.TextField(blank=True, null=True)
     
+    def __str__(self):
+        return str(self.passion)+','+str(self.user.name)
+    
+    def add_passion(self):
+
+        return ",".join([str(p) for p in self.passion.all()])
+

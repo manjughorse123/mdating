@@ -11,8 +11,8 @@ urlpatterns = [
     path('user/data', UserData.as_view(), name='UserData'),
     re_path(r'^user/update/(?P<pk>[0-9a-f-]+)', UserUpdate.as_view(), name="userupdate"),
     #Master Api Urls 
-    path('interest/', AddInterestView.as_view(), name='_interestView'),
-    path('interest_detail/<int:pk>/', AddInterestdetailView.as_view(), name='interest_detail'),
+    path('passion/', AddPassionView.as_view(), name='passion_view'),
+    path('passion_detail/<int:pk>/', AddPassiondetailView.as_view(), name='passion_detail'),
     path('gender/', AddGenderView.as_view(), name='_genderView'),
     path('gender_detail/<int:pk>/', AddGenderdetailView.as_view(), name='gender_detail'),
     path('merital_status/', AddMaritalStatusView.as_view(), name='merital_statusView'),
@@ -26,9 +26,10 @@ urlpatterns = [
     # path('user_image/', AddUserImageView.as_view(), name='user_iamge'),
     path('user_ideal_match/', AddUserIdealMatchView.as_view(), name='ideal_matchView'),
     path('user_ideal_match_detail/<int:pk>/',  AddUserIdealMatchdetailView.as_view(), name='ideal_match_detail'),
-    path('user_interest/', AddUserInterestView.as_view(), name='interestView'),
-    path('user_interest_detail/<int:pk>/',  AddUserInterestdetailView.as_view(), name='interest_detail'),
+    path('user_passion/', AddUserPassionView.as_view(), name='passionView'),
+    path('user_passion_detail/<int:pk>/',  AddUserPassiondetailView.as_view(), name='passion_detail'),
     
+    # path('match_profile/',  MatchProfileView.as_view({'get': 'list'}), name='match_detail'),
     path('match_profile/',  MatchProfileView.as_view(), name='match_detail'),
     # re_path(r'^profile/count/(?P<pk>[0-9a-f-]+)',  ProfileCountView.as_view(), name='match_detail'),
 

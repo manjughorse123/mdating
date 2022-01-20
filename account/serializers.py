@@ -57,14 +57,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
 
-class InterestSerializer(serializers.ModelSerializer):
-    interest = serializers.CharField(max_length=100)
+class PassionSerializer(serializers.ModelSerializer):
+    passion = serializers.CharField(max_length=100)
     icon = serializers.ImageField(
         max_length=None, use_url=True,
     )
 
     class Meta:
-        model = Interest
+        model = Passion
         fields = "__all__"
 
 
@@ -108,7 +108,7 @@ class UserMediaSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = UserMedia
-        fields = ('user','image',)
+        fields = ('id','user','image',)
 
 
 class UserImageSerializer(serializers.ModelSerializer):
@@ -138,39 +138,24 @@ class UserIdealMatchSerializer(serializers.ModelSerializer):
     """
     Serializer for User Ideal Match
     """
-    #  def create(self, validated_data):
-    #     import pdb;pdb.set_trace()
 
-    #     interest = validated_data.pop('interest')
-    #     user_inter = UserInterest.objects.create( **validated_data)
-    #     user_inter.tags.add(*interest)
-    #     return user_inter
     class Meta:
         model = UserIdealMatch
         fields = '__all__'
 
 
-# class UserInterestSerializer(serializers.ModelSerializer):
-#     """
-#     Serializer for User UserInterest
-#     """
 
-#     class Meta:
-#         model = UserInterest
-#         fields = '__all__'
-
-
-class UserInterestSerializer(serializers.ModelSerializer):
+class UserPassionSerializer(serializers.ModelSerializer):
     
     """
-    Serializer for User UserInterest
+    Serializer for User UserPassion
     """
     class Meta:
-        model = UserInterest
-        fields = ('user','interest')
+        model = UserPassion
+        fields = ('user','passion')
 
-    def create(self, validated_data):
-        interest = validated_data.pop('interest')
-        user_inter = UserInterest.objects.create( **validated_data)
-        user_inter.interest.add(*interest)
-        return user_inter
+    # def create(self, validated_data):
+    #     passion = validated_data.pop('passion')
+    #     user_inter = Userpassion.objects.create( **validated_data)
+    #     user_inter.passion.add(*passion)
+    #     return user_inter

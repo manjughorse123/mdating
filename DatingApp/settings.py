@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'main',
     'account',
     'friend',
+    'matchprofile',
+    'django_filters',
 
 ]
 

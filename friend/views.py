@@ -142,7 +142,28 @@ class GetFollowerView(APIView):
         follower_info.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+# Get Following View
+class GetFollowingView(APIView):
+    """
+    Retrieve, update or delete a Get Follower instance.
+    """
 
+    def get_object(self, pk):
+        try:
+            return FollowAccept.objects.filter(user_id=pk)
+        except FollowAccept.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):    
+        following_list = self.get_object(pk)
+        serializer = FollowListFollowingSerializer(following_list, many=True)
+        
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def delete(self, request, pk, format=None):
+        following_list = self.get_object(pk)
+        following_list.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 

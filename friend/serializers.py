@@ -162,4 +162,10 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
         class Meta:
             model  = FriendRequest
             fields = ('sender',)
-        
+
+
+class FollowListFollowingSerializer(serializers.ModelSerializer):
+
+        class Meta:
+            model  = FollowAccept
+            fields = ('follow',)
