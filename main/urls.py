@@ -4,4 +4,12 @@ from .views import *
 
 urlpatterns = [
 
+<<<<<<< HEAD
 ]
+=======
+
+urlpatterns=[
+
+  
+]
+>>>>>>> origin/dev1

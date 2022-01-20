@@ -1,7 +1,9 @@
+from pyexpat import model
 import uuid
 from datetime import datetime
 import random
 import os
+from django.db.models.base import Model
 
 from django.db.models.deletion import CASCADE
 from ckeditor.fields import RichTextField
@@ -45,14 +47,19 @@ class LocationManager(models.Manager):
 #     def __str__(self):
 #         return self.name
 
+<<<<<<< HEAD
 class Interest(models.Model):
     interest = models.CharField(max_length=40, unique=True)
+=======
+class Passion(models.Model):
+    passion = models.CharField(max_length=40,unique = True)
+>>>>>>> origin/dev1
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.interest
+        return str(self.passion)
 
 
 class IdealMatch(models.Model):
@@ -62,7 +69,7 @@ class IdealMatch(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.idealmatch
+        return str(self.idealmatch)
 
 
 class Gender(models.Model):
@@ -116,7 +123,8 @@ class User(AbstractBaseUser):
     first_count = models.IntegerField(default=0,
                                       help_text='It is 0, if the user is totally new and 1 if the user has saved his '
                                                 'standard once', blank=True, null=True)
-
+    about = models.TextField(blank=True, null=True)
+    interest_in = models.ForeignKey(Gender,on_delete=models.CASCADE, related_name='interest_in_gender',blank=True, null=True)
     # create_at = models.DateTimeField(auto_now_add=True)
     # update_at = models.DateTimeField(auto_now=True)
     # objects = LocationManager()
@@ -126,12 +134,21 @@ class User(AbstractBaseUser):
     def age(self):
         return int((datetime.date.today() - self.birth_date).days / 365.25)
 
+    def __str__(self):
+        return str(self.email)
 
 class UserMedia(models.Model):
+<<<<<<< HEAD
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_image_profile')
     title = models.CharField(max_length=255, blank=True, null=True)
     image = models.URLField(blank=True, null=True)
 
+=======
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
+    title =  models.CharField(max_length = 255,blank=True, null=True)
+    image = models.TextField(blank=True, null=True)
+    
+>>>>>>> origin/dev1
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -142,15 +159,32 @@ class UserIdealMatch(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_ideal')
     idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE, related_name='user_match')
     create_at = models.DateTimeField(auto_now_add=True)
-
+    # idealmatch = models.TextField(blank=True, null=True)
+    
     def __str__(self):
-        return self.idealmatch
+        return str(self.idealmatch)+','+str(self.user.name)
 
+<<<<<<< HEAD
 
 class UserInterest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_inter')
     interest = models.ForeignKey(Interest, on_delete=models.CASCADE, related_name='user_interest')
+=======
+class UserPassion(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
+    passion = models.ForeignKey(Passion, on_delete=models.CASCADE , related_name= 'user_Passion')
+>>>>>>> origin/dev1
     create_at = models.DateTimeField(auto_now_add=True)
-
+    # passion = models.TextField(blank=True, null=True)
+    
     def __str__(self):
+<<<<<<< HEAD
         return self.interest
+=======
+        return str(self.passion)+','+str(self.user.name)
+    
+    def add_passion(self):
+
+        return ",".join([str(p) for p in self.passion.all()])
+
+>>>>>>> origin/dev1

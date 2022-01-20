@@ -1,4 +1,6 @@
 from enum import unique
+
+from django.urls import exceptions
 from .models import *
 from rest_framework import serializers
 
@@ -22,11 +24,23 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confrim_password']:
+<<<<<<< HEAD
             raise serializers.ValidationError({"password": "Password fields didn't match."})
 
         if int(attrs['mobile']) < 10:
             raise serializers.ValidationError({"Mobile no": "no  should be  10 digit."})
 
+=======
+
+            raise serializers.ValidationError(
+                {"password": "Password fields didn't match."})
+
+        if int(attrs['mobile']) < 10:
+
+            raise serializers.ValidationError(
+                {"Mobile no": "no  should be  10 digit."})
+
+>>>>>>> origin/dev1
         return attrs
 
     def create(self, validated_data):
@@ -50,14 +64,14 @@ class RegisterSerializer(serializers.ModelSerializer):
         }
 
 
-class InterestSerializer(serializers.ModelSerializer):
-    interest = serializers.CharField(max_length=100)
+class PassionSerializer(serializers.ModelSerializer):
+    passion = serializers.CharField(max_length=100)
     icon = serializers.ImageField(
         max_length=None, use_url=True,
     )
 
     class Meta:
-        model = Interest
+        model = Passion
         fields = "__all__"
 
 
@@ -98,21 +112,19 @@ class MaritalStatusSerializer(serializers.ModelSerializer):
 
 
 class UserMediaSerializer(serializers.ModelSerializer):
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/dev1
     class Meta:
         model = UserMedia
-        fields = ('image')
+        fields = ('id','user','image',)
 
 
 class UserImageSerializer(serializers.ModelSerializer):
-    image = UserMediaSerializer(many=True)
+    images = UserMediaSerializer(many=True)
 
-    def create(self, validated_data):
-        images_data = validated_data.pop('Prices')
-        user = User.objects.create(**validated_data)
-        for image_data in images_data:
-            UserMedia.objects.create(user=user, **image_data)
-        return user
-
+<<<<<<< HEAD
     class Meta:
         model = User
         fields = ('image',)
@@ -143,6 +155,19 @@ class UserImageSerializer(serializers.ModelSerializer):
 # class Meta:
 #     model = Article
 #     fields = '__all__'
+=======
+    # def create(self, validated_data):
+    #     import pdb;pdb.set_trace()
+    #     images_data = validated_data.pop('Prices')
+    #     user = User.objects.create(**validated_data)
+    #     for image_data in images_data:
+    #         UserMedia.objects.create(user=user, **image_data)
+    #     return user
+
+    class Meta:
+        model = User
+        fields ='__all__'
+>>>>>>> origin/dev1
 
 # class UserMediaSerializer(serializers.ModelSerializer):
 
@@ -150,3 +175,33 @@ class UserImageSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = UserMedia
 #         fields = "__all__"
+<<<<<<< HEAD
+=======
+
+
+class UserIdealMatchSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Ideal Match
+    """
+
+    class Meta:
+        model = UserIdealMatch
+        fields = '__all__'
+
+
+
+class UserPassionSerializer(serializers.ModelSerializer):
+    
+    """
+    Serializer for User UserPassion
+    """
+    class Meta:
+        model = UserPassion
+        fields = ('user','passion')
+
+    # def create(self, validated_data):
+    #     passion = validated_data.pop('passion')
+    #     user_inter = Userpassion.objects.create( **validated_data)
+    #     user_inter.passion.add(*passion)
+    #     return user_inter
+>>>>>>> origin/dev1

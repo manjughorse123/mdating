@@ -43,8 +43,14 @@ INSTALLED_APPS = [
     'ckeditor',
     'main',
     'account',
+<<<<<<< HEAD
     'post',
     'usermedia',
+=======
+    'friend',
+    'matchprofile',
+    'django_filters',
+>>>>>>> origin/dev1
 
 ]
 

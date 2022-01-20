@@ -1,3 +1,11 @@
+<<<<<<< HEAD
+=======
+from operator import add
+from django.conf import settings
+from rest_framework.generics import *
+from .serializers import *
+import random
+>>>>>>> origin/dev1
 import http.client
 
 from rest_framework.generics import *
@@ -136,7 +144,7 @@ class OTPVerify(APIView):
                  'body_type': user_obj.body_type,
                  'gender': user_obj.gender,
                  # 'image':user_obj.image,
-                 # 'userIntrest':user_obj.userinterest,
+                 # 'userIntrest':user_obj.userPassion,
                  # 'idealmatch':user_obj.idealmatch,
                  'height': user_obj.height,
                  'location': user_obj.location,
@@ -175,6 +183,7 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
+<<<<<<< HEAD
 
 class AddInterestView(APIView):
     # permission_classes = (AllowAny,)
@@ -187,49 +196,72 @@ class AddInterestView(APIView):
     def post(self, request, format='json'):
 
         serializer = InterestSerializer(data=request.data)
+=======
+class AddPassionView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        passion = Passion.objects.all()
+        serializer = PassionSerializer(passion, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        
+        serializer = PassionSerializer(data=request.data)
+>>>>>>> origin/dev1
         if serializer.is_valid():
             serializer.save()
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+<<<<<<< HEAD
 
 class AddInterestdetailView(APIView):
+=======
+class AddPassiondetailView(APIView):
+>>>>>>> origin/dev1
     """
-    Retrieve, update or delete  a Interest instance.
+    Retrieve, update or delete  a Passion instance.
     """
 
     def get_object(self, pk):
         try:
-            return Interest.objects.get(pk=pk)
-        except Interest.DoesNotExist:
+            return Passion.objects.get(pk=pk)
+        except Passion.DoesNotExist:
             raise Http404
 
     def get(self, request, pk, format=None):
-        addInterest = self.get_object(pk)
-        serializer = InterestSerializer(addInterest)
+        addPassion = self.get_object(pk)
+        serializer = PassionSerializer(addPassion)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
-        addInterest = self.get_object(pk)
-        serializer = InterestSerializer(addInterest, data=request.data)
+        addPassion = self.get_object(pk)
+        serializer = PassionSerializer(addPassion, data=request.data)
         if serializer.is_valid():
             serializer.save()
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
+<<<<<<< HEAD
         addInterest = self.get_object(pk)
         serializer = InterestSerializer(
             addInterest, data=request.data, partial=True)
+=======
+        addPassion = self.get_object(pk)
+        serializer = PassionSerializer(
+            addPassion,data=request.data, partial=True)
+>>>>>>> origin/dev1
         if serializer.is_valid():
             serializer.save()
             return Response({"status": "success", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
-        addInterest = self.get_object(pk)
-        addInterest.delete()
+        addPassion = self.get_object(pk)
+        addPassion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
@@ -337,6 +369,7 @@ class AddUserMediadetailView(APIView):
         serializer = UserMediaSerializer(addUserMedia)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
+<<<<<<< HEAD
     def put(self, request, pk, format=None):
         addUserMedia = self.get_object(pk)
         serializer = UserMediaSerializer(addUserMedia, data=request.data)
@@ -353,8 +386,11 @@ class AddUserMediadetailView(APIView):
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+=======
+>>>>>>> origin/dev1
     def delete(self, request, pk, format=None):
         addUserMedia = self.get_object(pk)
+        # addUserMedia['image'] =  
         addUserMedia.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
@@ -426,7 +462,11 @@ class AddIdealMatchView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
+<<<<<<< HEAD
         idealMatch = UserIdealMatch.objects.all()
+=======
+        idealMatch =IdealMatch.objects.all()
+>>>>>>> origin/dev1
         serializer = IdealMatchSerializer(idealMatch, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
@@ -435,8 +475,13 @@ class AddIdealMatchView(APIView):
 
         if serializer.is_valid():
             idealmatch = serializer.validated_data['idealmatch']
+<<<<<<< HEAD
             check_name = UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
 
+=======
+            check_name =IdealMatch.objects.filter(idealmatch=idealmatch).first()
+            
+>>>>>>> origin/dev1
             if check_name:
                 return Response({"message": "idealmatch Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -483,15 +528,162 @@ class AddIdealMatchdetailView(APIView):
         addIdealMatch.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+<<<<<<< HEAD
 # class AddUserImageView(APIView):
+=======
+
+
+class AddUserImageView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        idealMatch =User.objects.all()
+        serializer = UserImageSerializer(idealMatch, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+    
+        serializer = UserImageSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            # idealmatch = serializer.validated_data['idealmatch']
+            # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
+            
+            # if check_name:
+            #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+# API FOR USER IDEAL  MATCH
+class AddUserIdealMatchView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        useridealMatch =UserIdealMatch.objects.all()
+        serializer = UserIdealMatchSerializer(useridealMatch, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserIdealMatchSerializer(data=request.data)
+        
+        if serializer.is_valid():
+            
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class AddUserIdealMatchdetailView(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+    def get_object(self, pk):
+        try:
+            return UserIdealMatch.objects.get(pk=pk)
+        except UserIdealMatch.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, pk, format=None):
+        adduserIdealMatch = self.get_object(pk)
+        adduserIdealMatch.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# API FOR USER INTERSET API
+class AddUserPassionView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userPassion =UserPassion.objects.all()
+        serializer = UserPassionSerializer(userPassion, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserPassionSerializer(data=request.data)
+        
+        if serializer.is_valid():        
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class AddUserPassiondetailView(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+    def get_object(self, pk):
+        try:
+            return UserPassion.objects.get(pk=pk)
+        except UserPassion.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+    
+        adduserPassion = self.get_object(pk)
+        serializer = UserPassionSerializer(adduserPassion)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def put(self, request, pk, format=None):
+        adduserPassion = self.get_object(pk)
+        serializer = UserPassionSerializer(adduserPassion, data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    def patch(self, request, pk, format=None):
+        adduserPassion = self.get_object(pk)
+        serializer = UserPassionSerializer(adduserPassion, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def delete(self, request, pk, format=None):
+        adduserPassion = self.get_object(pk)
+        adduserPassion.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+# class AddUserPassionView(APIView):
+>>>>>>> origin/dev1
 #     # permission_classes = (AllowAny,)
 
 #     def get(self, request):
-#         idealMatch =User.objects.all()
-#         serializer = UserImageSerializer(idealMatch, many=True)
+#         userInterest =UserInterest.objects.all()
+#         serializer = UserInterestSerializer(userInterest, many=True)
 #         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
 #     def post(self, request, format='json'):
+<<<<<<< HEAD
 #         serializer = UserImageSerializer(data=request.data)
 
 #         if serializer.is_valid():
@@ -500,7 +692,78 @@ class AddIdealMatchdetailView(APIView):
 
 #             # if check_name:
 #             #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
+=======
+    
+#         serializer = UserInterestSerializer(data=request.data)
+        
+#         if serializer.is_valid():        
+>>>>>>> origin/dev1
 #             serializer.save()
 #             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
 #         else:
 #             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+# class MatchProfileView(APIView):
+#     # permission_classes = (AllowAny,)
+
+#     def get(self, request):
+#         lsit1 = []
+        
+#         if UserPassion.objects.filter(passion="[Art]"):
+#             user_ideal =  UserPassion.objects.filter(passion=3)
+#             lsit1.append(user_ideal)
+        
+        
+#         if UserPassion.objects.filter(passion=5):
+#             user_ideal1 =  UserPassion.objects.filter(passion=5)
+#             lsit1.append(user_ideal1)
+
+#         if UserIdealMatch.objects.filter(idealmatch=2):
+#             user_ideal =  UserIdealMatch.objects.filter(idealmatch=2)
+#             lsit1.append(user_ideal)
+
+#         return Response({"success": "True" , "data" : lsit1}, status=status.HTTP_200_OK)
+
+# from django.db.models import Q
+# class MatchProfileView(ModelViewSet):
+#     queryset = UserPassion.objects.order_by("-passion")
+#     serializer_class = UserPassionSerializer
+#     # filterset_class = UserPassionMatchFilter
+   
+#     def get_queryset(self):
+#         import pdb;pdb.set_trace()
+#         queryset = self.queryset
+
+#         q_name = Q()
+#         rel_name = self.request.query_params.get("[Technology]", None)
+#         if rel_name:
+#             q_name = Q(users__name=rel_name)
+
+#         # q_groups = Q()
+#         # rel_groups = self.request.query_params.get("Techlogy", "").split(",")
+#         # if any(rel_groups):
+#         #     q_groups = Q(groups__name__in=rel_groups)
+
+#         qs = queryset.filter(q_name).distinct()
+#         return qs
+
+class MatchProfileView(APIView):
+
+    def get(self, request):
+      
+        if UserPassion.objects.filter(passion=1):
+            userPassion =UserPassion.objects.filter(passion=1)
+            serializer = UserPassionSerializer(userPassion, many=True)
+
+        if UserPassion.objects.filter(passion=2):
+            userPassion =UserPassion.objects.filter(passion=2)
+            serializer = UserPassionSerializer(userPassion, many=True)
+     
+
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+
+
+
+
+
