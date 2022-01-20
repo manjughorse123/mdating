@@ -37,16 +37,16 @@ class LocationManager(models.Manager):
 
 # class UserMedia(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE) 
-    
+
 #     image = models.URLField(blank=True, null=True)
-    
+
 #     create_at = models.DateTimeField(auto_now_add=True)
 
 #     def __str__(self):
 #         return self.name
 
 class Interest(models.Model):
-    interest = models.CharField(max_length=40,unique = True)
+    interest = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -56,7 +56,7 @@ class Interest(models.Model):
 
 
 class IdealMatch(models.Model):
-    idealmatch = models.CharField(max_length=40,unique = True)
+    idealmatch = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -65,9 +65,8 @@ class IdealMatch(models.Model):
         return self.idealmatch
 
 
-
 class Gender(models.Model):
-    gender = models.CharField(max_length=40, unique = True)
+    gender = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -75,14 +74,16 @@ class Gender(models.Model):
     def __str__(self):
         return self.gender
 
+
 class MaritalStatus(models.Model):
-    status = models.CharField(max_length=40, unique = True)
+    status = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.status
+
 
 class User(AbstractBaseUser):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
@@ -98,10 +99,11 @@ class User(AbstractBaseUser):
     password = None
     last_login = None
 
-    relationship_status = models.ForeignKey(MaritalStatus,on_delete=models.CASCADE ,related_name='user_merital_status',blank=True, null=True)
+    relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
+                                            blank=True, null=True)
     education = models.CharField(max_length=50, blank=True, null=True)
     body_type = models.CharField(max_length=50, blank=True, null=True)
-    gender = models.ForeignKey(Gender,on_delete=models.CASCADE, related_name='user_gender',blank=True, null=True)
+    gender = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='user_gender', blank=True, null=True)
     image = models.URLField(blank=True, null=True)
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
     location = models.CharField(max_length=100, default='', blank=True, null=True)
@@ -126,26 +128,28 @@ class User(AbstractBaseUser):
 
 
 class UserMedia(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
-    title =  models.CharField(max_length = 255,blank=True, null=True)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_image_profile')
+    title = models.CharField(max_length=255, blank=True, null=True)
     image = models.URLField(blank=True, null=True)
-    
+
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.title
 
+
 class UserIdealMatch(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_ideal')
-    idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE , related_name= 'user_match')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_ideal')
+    idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE, related_name='user_match')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.idealmatch
 
+
 class UserInterest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
-    interest = models.ForeignKey(Interest, on_delete=models.CASCADE , related_name= 'user_interest')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_inter')
+    interest = models.ForeignKey(Interest, on_delete=models.CASCADE, related_name='user_interest')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

@@ -1,0 +1,400 @@
+
+        # post_instance = self.get_object(userid)
+        # if not post_instance:
+        #     return Response(
+        #         {"res": "Object with todo id does not exists"},
+        #         status=status.HTTP_400_BAD_REQUEST
+        #     )
+        # serializer = Postserializers(post_instance)
+        # return Response(serializer.data, status=status.HTTP_200_OK)
+
+        https://github.com/mertyildiran/echo/blob/master/core/views.py{profile card liked}
+        https://github.com/codingforentrepreneurs/Django-Likes/blob/master/src/posts/views.py{post like}
+        https://github.com/sdil/yafig-django-rest/blob/master/backend/posts/elasticsearch.py{elasticsearch}
+
+
+
+
+
+ class PostReactionApi(ModelViewSet):
+    serializer_class = PostReactionSerializers
+    queryset = PostReaction.objects.order_by('post_id')
+
+    def retrieve(self, request, *args, **kwargs):
+        post = self.get_object()
+        post.is_view = post.is_view + 1
+        post.save(update_fields=("view_count",))
+        return super().retrieve(request, *args, **kwargs)
+
+    def list(self, request, *args, **kwargs):
+        queryset = self.filter_queryset(self.get_queryset())
+        for obj in queryset:
+            obj.is_view = obj.is_view + 1
+            obj.save(update_fields=("is_view",))
+        return super().list(request, *args, **kwargs)
+
+
+
+
+
+
+
+                    # userlike = PostReaction.objects.get(user=userdata.is_like)
+                    # print(userlike)
+                    # userlike = PostReaction.objects.filter(userdata=userdata.is_like)
+                    # print("user like data:-", userlike)
+                    # for i in userdata:
+                    #     if i.user is None:
+                    # obj.is_like = obj.is_like + 1
+                    # obj.save()
+                    # return Response({"message": "User Liked", "status": True}, status=status.HTTP_200_OK)
+                    #     # else:
+                        #     return Response({"message": "User Already Liked", "status": False},
+                        #                     status=status.HTTP_400_BAD_REQUEST)
+
+
+
+                                            userdata = PostReaction.objects.filter(id=id)
+                    for i in userdata:
+                        liked = int(i.is_view)
+                        if liked == 0:
+                            obj.is_view = obj.is_view + 1
+                            obj.save()
+                            return Response({"message": "User Post View", "status": True},
+                                            status=status.HTTP_200_OK)
+                        elif liked == 1:
+                            return Response({"message": "User Post Already View", "status": False},
+                                            status=status.HTTP_400_BAD_REQUEST)
+                        else:
+                            return Response({"message": "User Not Capabel for View", "status": False},
+                                            status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+
+
+
+class PetViewSet(ModelViewSet):
+    # queryset = pet.objects.all()
+    queryset = PostData.objects.annotate(
+        likes=Coalesce(Sum('like__isLike'), Value(0)),
+        dislikes=Coalesce(Count('like') - Sum('like__isLike'), Value(0))
+    )
+    serializer_class = PetSerializer
+
+
+class LikesViewSet(ModelViewSet):
+    queryset = Like.objects.all()
+    serializer_class = LikesSerializer
+
+
+class CountlikesViewSet(ModelViewSet):
+    queryset = CountLike.objects.all()
+    serializer_class = CountlikesSerializer
+
+
+
+
+admin.site.register(PostData)
+admin.site.register(Like)
+admin.site.register(CountLike)
+
+
+
+
+
+class PetSerializer(ModelSerializer):
+    likes = IntegerField()
+    dislikes = IntegerField()
+
+    class Meta:
+        model = PostData
+        fields = ('id', 'name', 'likes', 'dislikes')
+
+
+class LikesSerializer(ModelSerializer):
+    class Meta:
+        model = Like
+        fields = '__all__'
+
+
+class CountlikesSerializer(ModelSerializer):
+
+    class Meta:
+        model = CountLike
+        fields = '__all__'
+
+
+
+
+
+
+
+class PostData(models.Model):
+    name = models.CharField(max_length=50)
+
+
+class Like(models.Model):
+    petId = models.ForeignKey(PostData, on_delete=models.CASCADE, null=True)
+    liker = models.ForeignKey(User, on_delete=models.CASCADE, null=True)
+    isLike = models.BooleanField(default=False)
+
+
+class CountLike(models.Model):
+    petId = models.ForeignKey(PostData, on_delete=models.CASCADE, null=True)
+    numOfLikes = models.PositiveSmallIntegerField(default=0)
+
+
+https://github.com/mertyildiran/echo/blob/master/core/views.py
+https://github.com/colby-anderson/Facebook-Clone-Django/blob/master/facebook/apps/posts/views.py
+
+
+class AddPostUserUpdateView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userInterest =PostUserUpdate.objects.all()
+        serializer = PostUserUpdateSerializer(userInterest, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = PostUserUpdateSerializer(data=request.data)
+
+        if serializer.is_valid():
+
+            serializer.save()
+
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class PostUserReactSerializerView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userInterest =PostUserReact.objects.all()
+        serializer = PostUserReactSerializer(userInterest, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        import pdb;pdb.set_trace()
+        serializer = PostUserReactSerializer(data=request.data)
+
+        if serializer.is_valid():
+            obj = PostUserUpdate.objects.filter(id=1)
+            obj = obj[0]
+            obj.is_view = obj.is_view + 1
+            obj.save(update_fields=("is_view", ))
+            serializer.save()
+
+            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class PostUserUpdate(models.Model):
+
+	user 	= models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_user")
+	is_view = models.IntegerField(default=0)
+	post = models.TextField(blank=True,null=True)
+
+	def _str_(self):
+		return self.user.name
+
+class PostUserReact(models.Model):
+
+	user 	= models.ForeignKey(User, on_delete=models.CASCADE, related_name="post_user_visit")
+
+	post = models.ForeignKey(PostUserUpdate, on_delete=models.CASCADE, related_name="post_react")
+
+	def _str_(self):
+		return self.user
+
+
+
+
+class PostUserUpdateSerializer(serializers.ModelSerializer):
+
+        class Meta:
+            model  = PostUserUpdate
+            fields = '_all_'
+
+
+class PostUserReactSerializer(serializers.ModelSerializer):
+
+        class Meta:
+            model  = PostUserReact
+            fields = '_all_'
+
+
+
+
+# class PostReactionApi(APIView):
+#     # serializer_class = PostReactionSerializers
+#     # queryset = PostReaction.objects.order_by('post_id')
+#
+#     def post(self, request, *args, **kwargs):
+#         data = {
+#             'post': request.data.get('post'),
+#             'user': request.data.get('user')
+#         }
+#         serializer = PostReactionSerializers(data=data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED)
+#         return Response({"message": "User Not Found"}, status=status.HTTP_404_NOT_FOUND)
+#
+#     def put(self, request, id, *args, **kwargs):
+#         flag = request.POST.get('flag')
+#         user = request.POST.get('user')
+#         data = int(flag)
+#
+#         post = PostReaction.objects.filter(post_id=id)
+#         obj = PostReaction.objects.filter(id=id).first()
+#         if obj is not None:
+#             if data <= 4:
+#
+#                 if data == 1:
+#                     userdata = PostReaction.objects.filter(id=id)
+#                     for i in userdata:
+#                         viewed = int(i.is_view)
+#                         if viewed == 0:
+#                             obj.is_view = obj.is_view + 1
+#                             obj.save()
+#                             return Response({"message": "User Post View", "status": True},
+#                                             status=status.HTTP_200_OK)
+#
+#                         else:
+#                             return Response({"message": "User Not Capabel for View", "status": False},
+#                                             status=status.HTTP_400_BAD_REQUEST)
+#
+#                 if data == 2:
+#                     userdata = PostReaction.objects.filter(id=id)
+#                     for i in userdata:
+#                         liked = int(i.is_like)
+#
+#                         if liked == 0:
+#                             obj.is_like = obj.is_like + 1
+#                             obj.save()
+#                             return Response({"message": "User Post Liked", "status": True},
+#                                             status=status.HTTP_200_OK)
+#                         elif liked == 1:
+#                             return Response({"message": "User Post Already Liked", "status": False},
+#                                             status=status.HTTP_400_BAD_REQUEST)
+#                         else:
+#                             return Response({"message": "User Not Capabel for Liked", "status": False},
+#                                             status=status.HTTP_400_BAD_REQUEST)
+#
+#                 if data == 3:
+#                     obj.is_share = obj.is_share + 1
+#                     obj.save()
+#                     return Response({"message": "User Post Shared", "status": True}, status=status.HTTP_200_OK)
+#
+#                 if data == 4:
+#                     userdata = PostReaction.objects.filter(id=id)
+#                     for i in userdata:
+#                         liked = int(i.is_like)
+#                         if liked == 1:
+#                             obj.is_like = obj.is_like - 1
+#                             obj.save()
+#                             return Response({"message": "User Post Dislike", "status": True},
+#                                             status=status.HTTP_200_OK)
+#                         elif liked == 0:
+#                             return Response({"message": "User Post Already Dislike", "status": False},
+#                                             status=status.HTTP_400_BAD_REQUEST)
+#                         else:
+#                             return Response({"message": "User Not Capabel for Dislike", "status": False},
+#                                             status=status.HTTP_400_BAD_REQUEST)
+#
+#
+#
+#             else:
+#                 return Response({"message": "Flag Not Valid! Please Enter Valid Flag id (0,1,2,3,4)", "status": False},
+#                                 status=status.HTTP_400_BAD_REQUEST)
+#
+#
+#         else:
+#             return Response({"message": "Post Not Available", "status": False},
+#                             status=status.HTTP_203_NON_AUTHORITATIVE_INFORMATION)
+#
+#     def get(self, request, id, *args, **kwargs):
+#         post = PostReaction.objects.filter(post_id=id)
+#         serializer = PostReactionSerializers(post, many=True)
+#         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+
+
+
+
+
+class PostReactionApi(APIView):
+
+    def get(self, request):
+        userReaction = PostReaction.objects.all()
+        serializer = PostReactionSerializers(userReaction, many=True)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        data = {
+            'user': request.data.get('user'),
+            'post': request.data.get('post')
+        }
+        post = request.POST.get('post')
+        postdata = int(post)
+        flag = request.POST.get('flag')
+        flagdata = int(flag)
+        serializer = PostReactionSerializers(data=request.data)
+        if serializer.is_valid():
+            obj = PostUpload.objects.filter(id=postdata)
+            if flagdata == 1:
+                obj = obj[0]
+                obj.is_view = obj.is_view + 1
+                obj.save(update_fields=("is_view",))
+                serializer.save()
+
+                return Response({"message": "User Post View Successfully", "success": "True", "data": serializer.data},
+                                status=status.HTTP_201_CREATED)
+            if flagdata == 2:
+                obj = obj[0]
+                obj.is_like = obj.is_like + 1
+                obj.save(update_fields=("is_like",))
+                serializer.save()
+
+                return Response({"message": "User Post Like Successfully", "success": "True", "data": serializer.data},
+                                status=status.HTTP_201_CREATED)
+
+            if flagdata == 3:
+                obj = obj[0]
+                obj.is_share = obj.is_share + 1
+                obj.save(update_fields=("is_share",))
+                serializer.save()
+
+                return Response(
+                    {"message": "User Post Shared Successfully", "success": "True", "data": serializer.data},
+                    status=status.HTTP_201_CREATED)
+            try:
+                if flagdata == 4:
+                    obj = obj[0]
+                    obj.is_like = obj.is_like - 1
+                    obj.save(update_fields=("is_like",))
+                    serializer.save()
+
+                    return Response(
+                        {"message": "User Post Dislike Successfully", "success": "True", "data": serializer.data},
+                        status=status.HTTP_201_CREATED)
+            except Exception as e:
+                print(e)
+                return Response({"message": "User Post Already Disliked", "success": "False", "data": serializer.data},
+                                status=status.HTTP_201_CREATED)
+
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
