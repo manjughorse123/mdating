@@ -14,45 +14,27 @@ from rest_framework.parsers import *
 from rest_framework.permissions import *
 
 
-class PostUploadApi(APIView):
+class UserMediaAPI(APIView):
     def get(self, request, id, *args, **kwargs):
-        posts = PostUpload.objects.filter(id=id)
-        serializer = PostUploadSerializers(posts, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
-
-    def post(self, request, *args, **kwargs):
-        data = {
-            'title': request.data.get('title'),
-            'message': request.data.get('message'),
-            'post': request.data.get('post'),
-            'user': request.data.get('user')
-
-        }
-        serializer = PostUploadSerializers(data=data)
-        if serializer.is_valid():
-            serializer.save()
-
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserImages(APIView):
-    def get(self, request, id, *args, **kwargs):
-        user = PostUpload.objects.filter(user_id=id)
-        serializer = PostUploadSerializers(user, many=True)
+        user = MediaPost.objects.filter(user_id=id)
+        serializer = MediaPostSerializers(user, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
+class UserMediaAPIPost(ListCreateAPIView):
+    queryset = MediaPost.objects.all()
+    serializer_class = MediaPostSerializers
 
-class PostReactionApi(APIView):
+
+class MediaReactionApi(APIView):
 
     def get(self, request):
-        userView = PostView.objects.all()
-        userLike = PostLike.objects.all()
-        userShare = PostShare.objects.all()
-        serializerView = PostViewSerializers(userView, many=True)
-        serializerLike = PostLikeSerializers(userLike, many=True)
-        serializerShare = PostShareSerializers(userShare, many=True)
+        userView = MediaView.objects.all()
+        userLike = MediaLike.objects.all()
+        userShare = MediaShare.objects.all()
+        serializerView = MediaViewSerializers(userView, many=True)
+        serializerLike = MediaLikeSerializers(userLike, many=True)
+        serializerShare = MediaShareSerializers(userShare, many=True)
         return Response({"success": "True", "data View": serializerView.data, "data Like": serializerLike.data,
                          "data share": serializerShare.data}, status=status.HTTP_200_OK)
 
@@ -62,17 +44,17 @@ class PostReactionApi(APIView):
             'post': request.data.get('post')
         }
         user = request.POST.get('user')
-        post = request.POST.get('post')
-        postdata = int(post)
+        media = request.POST.get('media')
+        postdata = int(media)
         flag = request.POST.get('flag')
         flagdata = int(flag)
-        obj = PostUpload.objects.filter(id=postdata)
-        serializerView = PostViewSerializers(data=request.data)
-        serializerLike = PostLikeSerializers(data=request.data)
-        serializerShare = PostShareSerializers(data=request.data)
+        obj = MediaPost.objects.filter(id=postdata)
+        serializerView = MediaViewSerializers(data=request.data)
+        serializerLike = MediaLikeSerializers(data=request.data)
+        serializerShare = MediaShareSerializers(data=request.data)
         if serializerView.is_valid():
             if flagdata == 1:
-                if PostView.objects.filter(user=user).exists():
+                if MediaView.objects.filter(user=user).exists():
                     return Response(
                         {"message": "User Already Post Viewed", "success": "False", "data": serializerView.data},
                         status=status.HTTP_201_CREATED)
@@ -88,7 +70,7 @@ class PostReactionApi(APIView):
                         status=status.HTTP_201_CREATED)
         if serializerLike.is_valid():
             if flagdata == 2:
-                if PostLike.objects.filter(user=user).exists():
+                if MediaLike.objects.filter(user=user).exists():
                     return Response(
                         {"message": "User Already Post Liked", "success": "False", "data": serializerLike.data},
                         status=status.HTTP_201_CREATED)
@@ -128,14 +110,10 @@ class PostReactionApi(APIView):
         #                         status=status.HTTP_201_CREATED)
 
         else:
-            return Response({"success": "error", "data": serializerView.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"message": "Data Not Valid", "success": "error", "flag": False},
+                            status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": "Internal Server Error", "success": "error"},
                         status=status.HTTP_400_BAD_REQUEST)
-
-
-class AllPostAPI(ListAPIView):
-    queryset = PostUpload.objects.all()
-    serializer_class = PostUploadSerializers

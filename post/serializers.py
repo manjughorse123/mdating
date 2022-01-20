@@ -11,19 +11,22 @@ class PostUploadSerializers(ModelSerializer):
         fields = '__all__'
 
 
-class PostReactionSerializers(ModelSerializer):
+class PostViewSerializers(ModelSerializer):
     class Meta:
-        model = PostReaction
+        model = PostView
         fields = "__all__"
 
 
-class MediaPostSerializers(ModelSerializer):
+class PostLikeSerializers(ModelSerializer):
     class Meta:
-        model = MediaPost
+        model = PostLike
         fields = "__all__"
 
 
-class MediaReactionSerializers(ModelSerializer):
+class PostShareSerializers(ModelSerializer):
     class Meta:
-        model = MediaReaction
+        model = PostShare
         fields = "__all__"
+
+
+

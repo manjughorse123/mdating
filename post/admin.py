@@ -12,25 +12,25 @@ class PostUploadAdmin(admin.ModelAdmin):
 admin.site.register(PostUpload, PostUploadAdmin)
 
 
-class PostReactionAdmin(admin.ModelAdmin):
+class PostLikeAdmin(admin.ModelAdmin):
     list_display = ('user', 'post_id', 'id', 'create_at')
     list_filter = ('create_at',)
 
 
-admin.site.register(PostReaction, PostReactionAdmin)
+admin.site.register(PostLike, PostLikeAdmin)
 
 
-class MediaPostAdmin(admin.ModelAdmin):
-    list_display = ('user', 'media', 'id', 'is_view', 'is_like', 'is_share', 'create_at')
-    list_filter = ('create_at', 'user')
-
-
-admin.site.register(MediaPost, MediaPostAdmin)
-
-
-class MediaReactionAdmin(admin.ModelAdmin):
-    list_display = ('user', 'media_id', 'id', 'create_at')
+class PostViewAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post_id', 'id', 'create_at')
     list_filter = ('create_at',)
 
 
-admin.site.register(MediaReaction, MediaReactionAdmin)
+admin.site.register(PostView, PostViewAdmin)
+
+
+class PostShareAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post_id', 'id', 'create_at')
+    list_filter = ('create_at',)
+
+
+admin.site.register(PostShare, PostShareAdmin)

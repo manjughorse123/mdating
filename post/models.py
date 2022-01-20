@@ -18,25 +18,19 @@ class PostUpload(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
 
-class PostReaction(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="Reaction")
-    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE, related_name="Reaction")
-    # is_view = models.IntegerField(default=0, blank=True, null=True)
-    # is_like = models.IntegerField(default=0, blank=True, null=True)
-    # is_share = models.IntegerField(default=0, blank=True, null=True)
+class PostView(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
-class MediaPost(models.Model):
+class PostLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    caption = models.CharField(max_length=300, null=True, blank=True)
-    media = models.TextField(max_length=500, null=True, blank=True)
-    is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
-    is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
-    is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
     create_at = models.DateTimeField(auto_now_add=True)
 
-class MediaReaction(models.Model):
+
+class PostShare(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    media = models.ForeignKey(MediaPost, on_delete=models.CASCADE)
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
     create_at = models.DateTimeField(auto_now_add=True)

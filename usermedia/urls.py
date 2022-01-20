@@ -1,0 +1,9 @@
+from django.urls import path, re_path
+from .views import *
+
+
+urlpatterns = [
+    re_path(r'^user/all/media/(?P<id>[0-9a-f-]+)', UserMediaAPI.as_view(), name="usermediaapi"),
+    path('user/media/add', UserMediaAPIPost.as_view(),name="usermediaapipost"),
+    path('user/media/reaction', MediaReactionApi.as_view(),name="mediareactionapi"),
+]

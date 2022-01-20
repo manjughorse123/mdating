@@ -9,7 +9,11 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/', include('main.urls')),
     path('account/', include('account.urls')),
-    path('post/api/', include('post.urls'))
+    path('post/api/', include('post.urls')),
+    path('media/api/', include('usermedia.urls')),
+
+
+
     # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
     # path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
     # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
