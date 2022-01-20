@@ -12,29 +12,24 @@ urlpatterns = [
     re_path(r'^user/update/(?P<pk>[0-9a-f-]+)', UserUpdate.as_view(), name="userupdate"),
     #Master Api Urls 
     path('passion/', AddPassionView.as_view(), name='passion_view'),
-    path('passion_detail/<int:pk>/', AddPassiondetailView.as_view(), name='passion_detail'),
+    path('passion-detail/<int:pk>/', AddPassiondetailView.as_view(), name='passion_detail'),
     path('gender/', AddGenderView.as_view(), name='_genderView'),
-    path('gender_detail/<int:pk>/', AddGenderdetailView.as_view(), name='gender_detail'),
-    path('merital_status/', AddMaritalStatusView.as_view(), name='merital_statusView'),
-    path('merital_status_detail/<int:pk>/', AddMaritalStatusView.as_view(), name='merital_status_detail'),
-    path('ideal_match/', AddIdealMatchView.as_view(), name='ideal_matchView'),
-    path('ideal_match_detail/<int:pk>/',  AddIdealMatchdetailView.as_view(), name='ideal_match_detail'),
+    path('gender-detail/<int:pk>/', AddGenderdetailView.as_view(), name='gender_detail'),
+    path('merital-status/', AddMaritalStatusView.as_view(), name='merital_statusView'),
+    path('merital-status-detail/<int:pk>/', AddMaritalStatusView.as_view(), name='merital_status_detail'),
+    path('ideal-match/', AddIdealMatchView.as_view(), name='ideal_matchView'),
+    path('ideal-match-detail/<int:pk>/',  AddIdealMatchdetailView.as_view(), name='ideal_match_detail'),
     
     #user Fetch api 
-    path('user_media/', AddUserMediaView.as_view(), name='user_mediaView'),
-    path('user_media_detail/<int:pk>/', AddUserMediadetailView.as_view(), name='user_media_detail'),
+    path('user-media/', AddUserMediaView.as_view(), name='user_mediaView'),
+    path('user-media-detail/<int:pk>/', AddUserMediadetailView.as_view(), name='user_media_detail'),
     # path('user_image/', AddUserImageView.as_view(), name='user_iamge'),
-    path('user_ideal_match/', AddUserIdealMatchView.as_view(), name='ideal_matchView'),
-    path('user_ideal_match_detail/<int:pk>/',  AddUserIdealMatchdetailView.as_view(), name='ideal_match_detail'),
-    path('user_passion/', AddUserPassionView.as_view(), name='passionView'),
-    path('user_passion_detail/<int:pk>/',  AddUserPassiondetailView.as_view(), name='passion_detail'),
+    path('user-ideal-match/', AddUserIdealMatchView.as_view(), name='ideal_matchView'),
+    path('user-ideal-match-detail/<int:pk>/',  AddUserIdealMatchdetailView.as_view(), name='ideal_match_detail'),
+    path('user-passion/', AddUserPassionView.as_view(), name='passionView'),
+    path('user-passion-detail/<int:pk>/',  AddUserPassiondetailView.as_view(), name='passion_detail'),
     
     # path('match_profile/',  MatchProfileView.as_view({'get': 'list'}), name='match_detail'),
-    path('match_profile/',  MatchProfileView.as_view(), name='match_detail'),
-    # re_path(r'^profile/count/(?P<pk>[0-9a-f-]+)',  ProfileCountView.as_view(), name='match_detail'),
-
-
-    # path('user_iamge/', AddUseriamgeView.as_view(), name='ideal_matchView'),
-    # path('user_iamdasdge/', AddUsermedia.as_view(), name='ideal_matchView'),
-
+    path('match-profile/',  MatchProfileView.as_view(), name='match_detail'),
+    
 ]

@@ -5,8 +5,8 @@ from .views import *
 
 urlpatterns=[
 
-    path('post_update_user/', AddPostUserUpdateView.as_view(), name='post_update'),
-    path('react_count/', PostUserReactSerializerView.as_view(), name='accept'),
-    path('match_user_profile/', MatchProfileUserViewSet.as_view({'get': 'list'}), name='accept_saj'),
+    path('post-update_user/', AddPostUserUpdateView.as_view(), name='post_update'),
+    path('react-count/', PostUserReactSerializerView.as_view(), name='accept'),
+    path('match-user-profile/', MatchProfileUserViewSet.as_view({'get': 'list'}), name='accept_saj'),
     
 ]
