@@ -47,13 +47,9 @@ class LocationManager(models.Manager):
 #     def __str__(self):
 #         return self.name
 
-<<<<<<< HEAD
-class Interest(models.Model):
-    interest = models.CharField(max_length=40, unique=True)
-=======
+
 class Passion(models.Model):
     passion = models.CharField(max_length=40,unique = True)
->>>>>>> origin/dev1
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -138,17 +134,12 @@ class User(AbstractBaseUser):
         return str(self.email)
 
 class UserMedia(models.Model):
-<<<<<<< HEAD
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_image_profile')
-    title = models.CharField(max_length=255, blank=True, null=True)
-    image = models.URLField(blank=True, null=True)
 
-=======
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
     title =  models.CharField(max_length = 255,blank=True, null=True)
     image = models.TextField(blank=True, null=True)
     
->>>>>>> origin/dev1
+
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -164,27 +155,19 @@ class UserIdealMatch(models.Model):
     def __str__(self):
         return str(self.idealmatch)+','+str(self.user.name)
 
-<<<<<<< HEAD
 
-class UserInterest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_inter')
-    interest = models.ForeignKey(Interest, on_delete=models.CASCADE, related_name='user_interest')
-=======
 class UserPassion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
     passion = models.ForeignKey(Passion, on_delete=models.CASCADE , related_name= 'user_Passion')
->>>>>>> origin/dev1
+
     create_at = models.DateTimeField(auto_now_add=True)
     # passion = models.TextField(blank=True, null=True)
     
     def __str__(self):
-<<<<<<< HEAD
-        return self.interest
-=======
+
         return str(self.passion)+','+str(self.user.name)
     
     def add_passion(self):
 
         return ",".join([str(p) for p in self.passion.all()])
 
->>>>>>> origin/dev1

@@ -24,13 +24,7 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         if attrs['password'] != attrs['confrim_password']:
-<<<<<<< HEAD
-            raise serializers.ValidationError({"password": "Password fields didn't match."})
 
-        if int(attrs['mobile']) < 10:
-            raise serializers.ValidationError({"Mobile no": "no  should be  10 digit."})
-
-=======
 
             raise serializers.ValidationError(
                 {"password": "Password fields didn't match."})
@@ -40,7 +34,6 @@ class RegisterSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(
                 {"Mobile no": "no  should be  10 digit."})
 
->>>>>>> origin/dev1
         return attrs
 
     def create(self, validated_data):
@@ -112,10 +105,7 @@ class MaritalStatusSerializer(serializers.ModelSerializer):
 
 
 class UserMediaSerializer(serializers.ModelSerializer):
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/dev1
     class Meta:
         model = UserMedia
         fields = ('id','user','image',)
@@ -124,38 +114,7 @@ class UserMediaSerializer(serializers.ModelSerializer):
 class UserImageSerializer(serializers.ModelSerializer):
     images = UserMediaSerializer(many=True)
 
-<<<<<<< HEAD
-    class Meta:
-        model = User
-        fields = ('image',)
 
-# class PriceSerializer(serializers.ModelSerializer):
-
-#     class Meta:
-#         model = Price
-#         fields = ('price_price',)
-
-# class ArticleSerializer(serializers.ModelSerializer):
-
-#     Prices = PriceSerializer(many=True)
-
-#     def create(self, validated_data):
-#         prices_data = validated_data.pop('Prices')
-#         article = Article.objects.create(**validated_data)
-#         for price_data in prices_data:
-#             Price.objects.create(article_id=article, **price_data)
-#         return article
-# def update(self, instance, validated_data):
-#         prices_data = validated_data.pop('Prices')
-#         Article.objects.filter(article_id=instance.article_id).update(**validated_data)
-#         for price_data in prices_data:
-#             Price.objects.get_or_create(article_id=instance, **price_data)
-#         return instance
-
-# class Meta:
-#     model = Article
-#     fields = '__all__'
-=======
     # def create(self, validated_data):
     #     import pdb;pdb.set_trace()
     #     images_data = validated_data.pop('Prices')
@@ -167,7 +126,7 @@ class UserImageSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields ='__all__'
->>>>>>> origin/dev1
+
 
 # class UserMediaSerializer(serializers.ModelSerializer):
 
@@ -175,8 +134,6 @@ class UserImageSerializer(serializers.ModelSerializer):
 #     class Meta:
 #         model = UserMedia
 #         fields = "__all__"
-<<<<<<< HEAD
-=======
 
 
 class UserIdealMatchSerializer(serializers.ModelSerializer):
@@ -204,4 +161,4 @@ class UserPassionSerializer(serializers.ModelSerializer):
     #     user_inter = Userpassion.objects.create( **validated_data)
     #     user_inter.passion.add(*passion)
     #     return user_inter
->>>>>>> origin/dev1
+
