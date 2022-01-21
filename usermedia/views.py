@@ -21,9 +21,32 @@ class UserMediaAPI(APIView):
         return Response(serializer.data, status=status.HTTP_200_OK)
 
 
-class UserMediaAPIPost(ListCreateAPIView):
-    queryset = MediaPost.objects.all()
-    serializer_class = MediaPostSerializers
+class UserMediaAPIPost(APIView):
+    def get(self, request, *args, **kwargs):
+        media = MediaPost.objects.all()
+        serializer = MediaPostSerializers(media, many=True)
+        return Response({"success": "True", "post": [serializer.data]}, status=status.HTTP_200_OK)
+
+
+class MediaUploadApi(APIView):
+    def get(self, request, id, *args, **kwargs):
+        posts = MediaPost.objects.filter(id=id)
+        serializer = MediaPostSerializers(posts, many=True)
+        return Response({"message": True, "post": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        data = {
+            'caption': request.data.get('caption'),
+            'media': request.data.get('media'),
+            'user': request.data.get('user')
+
+        }
+        serializer = MediaPostSerializers(data=data)
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({"message": True, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
+        return Response({"message": False, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaReactionApi(APIView):
@@ -117,3 +140,29 @@ class MediaReactionApi(APIView):
 
         return Response({"message": "Internal Server Error", "success": "error"},
                         status=status.HTTP_400_BAD_REQUEST)
+
+
+class MediaViewAPI(APIView):
+    def get(self, request, id, *args, **kwargs):
+        media = MediaView.objects.filter(media_id=id)
+        print(media)
+        serializer = MediaViewSerializers(media, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MediaLikeAPI(APIView):
+    def get(self, request, id, *args, **kwargs):
+        media = MediaLike.objects.filter(media_id=id)
+        print(media)
+        serializer = MediaLikeSerializers(media, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class MediaShareAPI(APIView):
+    def get(self, request, id, *args, **kwargs):
+        media = MediaShare.objects.filter(media_id=id)
+        print(media)
+        serializer = MediaShareSerializers(media, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+# /Users/apple/Desktop/Dating-Backend
