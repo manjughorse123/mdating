@@ -147,18 +147,18 @@ class PostViewAPI(APIView):
         post = PostView.objects.filter(post_id=id)
         serializer = PostViewSerializers(post, many=True)
 
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "user": [serializer.data]}, status=status.HTTP_200_OK)
 
 
 class PostLikeAPI(APIView):
     def get(self, request, id, *args, **kwargs):
         post = PostLike.objects.filter(post_id=id)
         serializer = PostLikeSerializers(post, many=True)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "user": [serializer.data]}, status=status.HTTP_200_OK)
 
 
 class PostShareAPI(APIView):
     def get(self, request, id, *args, **kwargs):
         post = PostShare.objects.filter(post_id=id)
         serializer = PostShareSerializers(post, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"success": True, "user": [serializer.data]}, status=status.HTTP_200_OK)
