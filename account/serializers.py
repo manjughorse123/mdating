@@ -19,15 +19,15 @@ class RegisterSerializer(serializers.ModelSerializer):
         required=True,
     )
 
-    password = serializers.CharField(write_only=True, required=True)
-    confrim_password = serializers.CharField(write_only=True, required=True)
+    # password = serializers.CharField(write_only=True, required=True)
+    # confrim_password = serializers.CharField(write_only=True, required=True)
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['confrim_password']:
-
-
-            raise serializers.ValidationError(
-                {"password": "Password fields didn't match."})
+        # if attrs['password'] != attrs['confrim_password']:
+        #
+        #
+        #     raise serializers.ValidationError(
+        #         {"password": "Password fields didn't match."})
 
         if int(attrs['mobile']) < 10:
 
@@ -43,7 +43,7 @@ class RegisterSerializer(serializers.ModelSerializer):
             email=validated_data['email']
         )
 
-        user.set_password(validated_data['password'])
+        # user.set_password(validated_data['password'])
         user.save()
 
         return user

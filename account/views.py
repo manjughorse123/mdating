@@ -8,10 +8,12 @@ import http.client
 
 from rest_framework.generics import *
 from rest_framework.views import *
-
+from post.serializers import *
+from usermedia.serializers import *
 from .models import *
 from .serializers import *
-
+from friend.models import *
+from friend.serializers import *
 
 def send_otp(mobile, otp):
     conn = http.client.HTTPSConnection("api.msg91.com")
@@ -41,7 +43,7 @@ class Login(APIView):
             otp = 1234
             user.otp = otp
             user.save()
-            return Response({"message": "Done", "success": True, 'is_register': True, "user":[{
+            return Response({"message": "Done", "success": True, 'is_register': True, "user":{
                                  'id': user.id,
                                  'email': user.email,
                                  'mobile': user.mobile,
@@ -64,7 +66,7 @@ class Login(APIView):
                                  'address': user.address,
                                  'city': user.city,
                                  'is_premium': user.is_premium,
-                                 'is_verified': user.is_verified}]},
+                                 'is_verified': user.is_verified}},
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -99,7 +101,7 @@ class Registration(APIView):
             print(type(user))
             user.save()
             return Response({"message": "Your Registrations is successfully", "success": True, 'is_register': True,
-                             "user": [{
+                             "user": {
                                  'id': user.id,
                                  'email': user.email,
                                  'mobile': user.mobile,
@@ -122,7 +124,7 @@ class Registration(APIView):
                                  'address': user.address,
                                  'city': user.city,
                                  'is_premium': user.is_premium,
-                                 'is_verified': user.is_verified}]},
+                                 'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -177,7 +179,7 @@ class OTPVerify(APIView):
 
             user_obj.save()
             return Response(
-                {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": [{
+                {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": {
                     'id': user_obj.id,
                     'email': user_obj.email,
                     'mobile': user_obj.mobile,
@@ -200,7 +202,7 @@ class OTPVerify(APIView):
                     'address': user_obj.address,
                     'city': user_obj.city,
                     'is_premium': user_obj.is_premium,
-                    'is_verified': user_obj.is_verified, }]
+                    'is_verified': user_obj.is_verified, }
 
                  },
                 status=status.HTTP_200_OK)
@@ -213,20 +215,38 @@ class OTPVerify(APIView):
         #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class UserData(ListCreateAPIView):
-    # authentication_classes = [JWTAuthentication]
-    # print(authentication_classes)
-    # permission_classes = [IsAuthenticated]
-    # print(permission_classes)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserData(APIView):
+    # def get(self, request, id, *args, **kwargs):
+    #     user = User.objects.filter(id=id)
+    #     post = PostUpload.objects.filter(user_id=id)
+    #     media = UserMedia.objects.filter(user_id=id)
+    #     userserializer = UserSerializer(user, many=True)
+    #     postsrializer = PostUploadSerializers(post, many=True)
+    #     mediaserializer = UserMediaSerializer(media, many=True)
+    #     return Response({"message": True, "user": userserializer.data, "post":postsrializer.data, "media":mediaserializer.data}, status=status.HTTP_200_OK)
 
+    def get_object(self, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        user = self.get_object(id)
+        post = PostUpload.objects.filter(user_id=id)
+        media = MediaPost.objects.filter(user_id=id)
+        follow = FollowRequest.objects.filter(user_id=id)
+        followaccept = FollowAccept.objects.filter(user_id=id)
+
+        userserializer = UserSerializer(user)
+        postsrializer = PostUploadSerializers(post, many=True)
+        followserializer = FollowRequestSerializer(follow, many=True)
+        followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
+        mediaserializer = MediaPostSerializers(media, many=True)
+        return Response({"message": True, "user": userserializer.data, "PostCount":len(postsrializer.data),  "post":postsrializer.data,"MediaCount":len(mediaserializer.data) ,"media":mediaserializer.data, "followCount   ":len(followserializer.data),"follow":followserializer.data, "FollowAcceptCount":len(followacceptserializer.data),"followaccept":followacceptserializer.data}, status=status.HTTP_200_OK)
 
 class UserUpdate(RetrieveUpdateDestroyAPIView):
-    # authentication_classes = [JWTAuthentication]
-    # print(authentication_classes)
-    # permission_classes = [IsAuthenticated]
-    # print(permission_classes)
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
