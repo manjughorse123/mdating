@@ -7,7 +7,7 @@ from .models import *
 
 
 class UserAdmin(admin.ModelAdmin):
-    list_display = ('email', 'mobile', 'name', 'otp', 'is_phone_verified', 'id')
+    list_display = ('email', 'mobile', 'name', 'otp', 'is_phone_verified', 'location','id')
     list_filter = ('email', 'mobile', 'name')
 
 # class UserInterestAdmin(admin.ModelAdmin):
