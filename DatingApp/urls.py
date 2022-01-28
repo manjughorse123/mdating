@@ -14,6 +14,7 @@ urlpatterns = [
 
     path('friend/', include('friend.urls')),
     path('matchprofile/', include('matchprofile.urls')),
+    path('verify/', include('userverify.urls')),
 
     # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
     # path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),

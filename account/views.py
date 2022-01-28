@@ -626,11 +626,6 @@ class AddUserPassiondetailView(APIView):
 
     
 
-#             serializer.save()
-#             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
 # class MatchProfileView(APIView):
 #     # permission_classes = (AllowAny,)
 

@@ -50,6 +50,7 @@ INSTALLED_APPS = [
     'friend',
     'matchprofile',
     'django_filters',
+    'userverify',
 
 
 ]

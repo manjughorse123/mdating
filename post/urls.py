@@ -11,7 +11,7 @@ urlpatterns = [
     # path('post/reaction/<int:id>', PostReactionApi.as_view(), name="postreactionapi"),
     path('all/post/api', AllPostAPI.as_view(), name="allpostapi"),
 
-
+    re_path(r'^get-post-detail/(?P<pk>[0-9a-f-]+)', GetPostViewdetailView.as_view(), name="get-detail-post"),
     # re_path(r'^post/reaction/(?P<id>[0-9a-f-]+)', PostReactionApi.as_view(), name="postreactionapi"),
     # re_path(r'^post/(?P<id>[0-9a-f-]+)', PostUploadApi.as_view(), name="postapi"),
 
