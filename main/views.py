@@ -10,7 +10,8 @@ from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework_gis.filters import DistanceToPointOrderingFilter
-from django_filters import rest_framework as filters, IsoDateTimeFilter, DurationFilter, DateFromToRangeFilter
+from django_filters import rest_framework as filters, IsoDateTimeFilter, DurationFilter, DateFromToRangeFilter, \
+    MultipleChoiceFilter, TypedChoiceFilter, ModelChoiceFilter, RangeFilter, ModelMultipleChoiceFilter
 from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from .models import *
@@ -22,6 +23,7 @@ from rest_framework import status
 
 class UserFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
+
     # birth_date = DateFromToRangeFilter
 
     class Meta:
@@ -36,7 +38,9 @@ class UserFilterAPI(ListAPIView):
     # filterset_fields = ('name', 'address')
     filterset_class = UserFilter
     filter_backends = (
-        DistanceToPointFilter, SearchFilter,DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
+        DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
+
+
 # DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter
 
 # class BirthDateFilter(ListAPIView):
@@ -46,3 +50,68 @@ class UserFilterAPI(ListAPIView):
 #     distance_filter_field = 'geometry'
 #
 #     filter_backends = [DjangoFilterBackend, TMSTileFilter, OrderingFilter, SearchFilter]
+
+
+class FollowDetails(APIView):
+    def post(self, request, *args, **kwargs):
+        data = {
+            'user': request.data.get('user'),
+        }
+        flag = request.POST.get('flag')
+        flagdata = int(flag)
+        serializerRequest = FollowRequestSerializer(data=request.data)
+        serializerAccept = FollowAcceptSerializer(data=request.data)
+        return Response(status=status.HTTP_200_OK)
+
+
+class FollowResquestAPI(APIView):
+    def get(self, request, id, flag, *args, **kwargs):
+        # import pdb;pdb.set_trace()
+        # flag = kwargs.get(flag)
+        # print("sjkdhkj", flag)
+        # import pdb;pdb.set_trace()
+        # flag = request..get("1")
+        # flag = "1"
+        data = int(flag)
+        if data == 1:
+            follow = FollowRequest.objects.filter(user_id=id)
+            serializer = FollowRequestSerializer(follow, many=True)
+            return Response({"message": "Follow Request", "success": "True", "user": [serializer.data]},
+                            status=status.HTTP_200_OK)
+        if data == 2:
+            follow = FollowAccept.objects.filter(user_id=id)
+            serializer = FollowAcceptSerializer(follow, many=True)
+            return Response({"message": "Follow Accept", "success": "True", "user": [serializer.data]},
+                            status=status.HTTP_200_OK)
+
+#
+# class IdealMatchFilter(filters.FilterSet):
+#     idealmatch = ModelChoiceFilter()
+#     class Meta:
+#         model = UserIdealMatch
+#         fields = ['idealmatch']
+#         # fields = {'idealmatch': ['MultipleChoiceFilter'], }
+#
+#
+# class IdealMatchFilterAPI(ListAPIView):
+#     queryset = UserIdealMatch.objects.all()
+#     serializer_class = UserIdealMatchSerializer
+#     filterset_class = IdealMatchFilter
+#     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
+#
+#
+# class UserPassionFilter(filters.FilterSet):
+#     class Meta:
+#         model = UserPassion
+#         fields = ('passion',)
+#
+#
+# class UserPassionFilterAPI(ListAPIView):
+#     queryset = UserPassion.objects.all()
+#     serializer_class = UserPassionSerializer
+#     filterset_class = UserPassionFilter
+#     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
+
+
+
+

@@ -1,4 +1,3 @@
-
 from operator import add
 from django.conf import settings
 from rest_framework.generics import *
@@ -14,6 +13,7 @@ from .models import *
 from .serializers import *
 from friend.models import *
 from friend.serializers import *
+
 
 def send_otp(mobile, otp):
     conn = http.client.HTTPSConnection("api.msg91.com")
@@ -43,30 +43,30 @@ class Login(APIView):
             otp = 1234
             user.otp = otp
             user.save()
-            return Response({"message": "Done", "success": True, 'is_register': True, "user":{
-                                 'id': user.id,
-                                 'email': user.email,
-                                 'mobile': user.mobile,
-                                 'country_code': user.country_code,
-                                 'name': user.name,
-                                 'bio': user.bio,
-                                 'birth_date': user.birth_date,
-                                 'otp': user.otp,
-                                 'relationship_status': user.relationship_status,
-                                 'education': user.education,
-                                 'body_type': user.body_type,
-                                 'gender': user.gender,
-                                 # 'image':user_obj.image,
-                                 # 'userIntrest':user_obj.userinterest,
-                                 # 'idealmatch':user_obj.idealmatch,
-                                 'height': user.height,
-                                 'location': user.location,
-                                 'citylat': user.citylat,
-                                 'citylong': user.citylong,
-                                 'address': user.address,
-                                 'city': user.city,
-                                 'is_premium': user.is_premium,
-                                 'is_verified': user.is_verified}},
+            return Response({"message": "Done", "success": True, 'is_register': True, "user": {
+                'id': user.id,
+                'email': user.email,
+                'mobile': user.mobile,
+                'country_code': user.country_code,
+                'name': user.name,
+                'bio': user.bio,
+                'birth_date': user.birth_date,
+                'otp': user.otp,
+                'relationship_status': user.relationship_status,
+                'education': user.education,
+                'body_type': user.body_type,
+                'gender': user.gender,
+                # 'image':user_obj.image,
+                # 'userIntrest':user_obj.userinterest,
+                # 'idealmatch':user_obj.idealmatch,
+                'height': user.height,
+                'location': user.location,
+                # 'citylat': user.citylat,
+                # 'citylong': user.citylong,
+                'address': user.address,
+                'city': user.city,
+                'is_premium': user.is_premium,
+                'is_verified': user.is_verified}},
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -243,10 +243,20 @@ class UserData(APIView):
         followserializer = FollowRequestSerializer(follow, many=True)
         followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
-        return Response({"message": True, "user": userserializer.data, "PostCount":len(postsrializer.data),  "post":postsrializer.data,"MediaCount":len(mediaserializer.data) ,"media":mediaserializer.data, "followCount   ":len(followserializer.data),"follow":followserializer.data, "FollowAcceptCount":len(followacceptserializer.data),"followaccept":followacceptserializer.data}, status=status.HTTP_200_OK)
+        return Response({"message": True, "user": userserializer.data, "PostCount": len(postsrializer.data),
+                         "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
+                         "media": mediaserializer.data, "Following   ": len(followserializer.data),
+                         "Follower": len(followacceptserializer.data),
+                         }, status=status.HTTP_200_OK)
+
+
+
+
+# "follow": followserializer.data,
+# "followaccept": followacceptserializer.data}
+
 
 class UserUpdate(RetrieveUpdateDestroyAPIView):
-
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -260,7 +270,7 @@ class AddPassionView(APIView):
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
-        
+
         serializer = PassionSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -271,7 +281,6 @@ class AddPassionView(APIView):
 
 
 class AddPassiondetailView(APIView):
-
     """
     Retrieve, update or delete  a Passion instance.
     """
@@ -299,7 +308,7 @@ class AddPassiondetailView(APIView):
 
         addPassion = self.get_object(pk)
         serializer = PassionSerializer(
-            addPassion,data=request.data, partial=True)
+            addPassion, data=request.data, partial=True)
 
         if serializer.is_valid():
             serializer.save()
@@ -416,7 +425,6 @@ class AddUserMediadetailView(APIView):
         serializer = UserMediaSerializer(addUserMedia)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
-
     def delete(self, request, pk, format=None):
         addUserMedia = self.get_object(pk)
         # addUserMedia['image'] =  
@@ -492,7 +500,7 @@ class AddIdealMatchView(APIView):
 
     def get(self, request):
 
-        idealMatch =IdealMatch.objects.all()
+        idealMatch = IdealMatch.objects.all()
 
         serializer = IdealMatchSerializer(idealMatch, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
@@ -503,8 +511,8 @@ class AddIdealMatchView(APIView):
         if serializer.is_valid():
             idealmatch = serializer.validated_data['idealmatch']
 
-            check_name =IdealMatch.objects.filter(idealmatch=idealmatch).first()
-            
+            check_name = IdealMatch.objects.filter(idealmatch=idealmatch).first()
+
             if check_name:
                 return Response({"message": "idealmatch Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
@@ -556,18 +564,18 @@ class AddUserImageView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
-        idealMatch =User.objects.all()
+        idealMatch = User.objects.all()
         serializer = UserImageSerializer(idealMatch, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
-    
+
         serializer = UserImageSerializer(data=request.data)
-        
+
         if serializer.is_valid():
             # idealmatch = serializer.validated_data['idealmatch']
             # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
-            
+
             # if check_name:
             #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
@@ -576,30 +584,31 @@ class AddUserImageView(APIView):
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-
 # API FOR USER IDEAL  MATCH
 class AddUserIdealMatchView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
-        useridealMatch =UserIdealMatch.objects.all()
+        useridealMatch = UserIdealMatch.objects.all()
         serializer = UserIdealMatchSerializer(useridealMatch, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserIdealMatchSerializer(data=request.data)
-        
+
         if serializer.is_valid():
-            
+
             serializer.save()
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class AddUserIdealMatchdetailView(APIView):
     """
     Retrieve, update or delete  a media instance.
     """
+
     def get_object(self, pk):
         try:
             return UserIdealMatch.objects.get(pk=pk)
@@ -627,7 +636,6 @@ class AddUserIdealMatchdetailView(APIView):
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def delete(self, request, pk, format=None):
         adduserIdealMatch = self.get_object(pk)
         adduserIdealMatch.delete()
@@ -639,23 +647,25 @@ class AddUserPassionView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
-        userPassion =UserPassion.objects.all()
+        userPassion = UserPassion.objects.all()
         serializer = UserPassionSerializer(userPassion, many=True)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserPassionSerializer(data=request.data)
-        
-        if serializer.is_valid():        
+
+        if serializer.is_valid():
             serializer.save()
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+
 class AddUserPassiondetailView(APIView):
     """
     Retrieve, update or delete  a media instance.
     """
+
     def get_object(self, pk):
         try:
             return UserPassion.objects.get(pk=pk)
@@ -663,7 +673,7 @@ class AddUserPassiondetailView(APIView):
             raise Http404
 
     def get(self, request, pk, format=None):
-    
+
         adduserPassion = self.get_object(pk)
         serializer = UserPassionSerializer(adduserPassion)
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
@@ -684,16 +694,11 @@ class AddUserPassiondetailView(APIView):
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
     def delete(self, request, pk, format=None):
         adduserPassion = self.get_object(pk)
         adduserPassion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-
-
-    
 
 #             serializer.save()
 #             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -705,12 +710,12 @@ class AddUserPassiondetailView(APIView):
 
 #     def get(self, request):
 #         lsit1 = []
-        
+
 #         if UserPassion.objects.filter(passion="[Art]"):
 #             user_ideal =  UserPassion.objects.filter(passion=3)
 #             lsit1.append(user_ideal)
-        
-        
+
+
 #         if UserPassion.objects.filter(passion=5):
 #             user_ideal1 =  UserPassion.objects.filter(passion=5)
 #             lsit1.append(user_ideal1)
@@ -726,7 +731,7 @@ class AddUserPassiondetailView(APIView):
 #     queryset = UserPassion.objects.order_by("-passion")
 #     serializer_class = UserPassionSerializer
 #     # filterset_class = UserPassionMatchFilter
-   
+
 #     def get_queryset(self):
 #         import pdb;pdb.set_trace()
 #         queryset = self.queryset
@@ -747,20 +752,13 @@ class AddUserPassiondetailView(APIView):
 class MatchProfileView(APIView):
 
     def get(self, request):
-      
+
         if UserPassion.objects.filter(passion=1):
-            userPassion =UserPassion.objects.filter(passion=1)
+            userPassion = UserPassion.objects.filter(passion=1)
             serializer = UserPassionSerializer(userPassion, many=True)
 
         if UserPassion.objects.filter(passion=2):
-            userPassion =UserPassion.objects.filter(passion=2)
+            userPassion = UserPassion.objects.filter(passion=2)
             serializer = UserPassionSerializer(userPassion, many=True)
-     
 
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
-
-
-
-
-
-
