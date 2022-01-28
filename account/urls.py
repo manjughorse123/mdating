@@ -8,8 +8,10 @@ urlpatterns = [
     path('registration', Registration.as_view(), name='Registration'),
     path('signup/', UserCreateView.as_view(), name='SignUP'),
     
-    path('user/data', UserData.as_view(), name='UserData'),
+    re_path(r'^user/data/(?P<id>[0-9a-f-]+)', UserData.as_view(), name='UserData'),
+    # path('user/data/', UserData.as_view(), name='UserData'),
     re_path(r'^user/update/(?P<pk>[0-9a-f-]+)', UserUpdate.as_view(), name="userupdate"),
+
     #Master Api Urls 
     path('passion/', AddPassionView.as_view(), name='passion_view'),
     path('passion-detail/<int:pk>/', AddPassiondetailView.as_view(), name='passion_detail'),

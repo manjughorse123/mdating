@@ -8,10 +8,12 @@ import http.client
 
 from rest_framework.generics import *
 from rest_framework.views import *
-
+from post.serializers import *
+from usermedia.serializers import *
 from .models import *
 from .serializers import *
-
+from friend.models import *
+from friend.serializers import *
 
 def send_otp(mobile, otp):
     conn = http.client.HTTPSConnection("api.msg91.com")
@@ -27,6 +29,7 @@ def send_otp(mobile, otp):
 
 class Login(APIView):
     def post(self, request, *args, **kwargs):
+
         try:
             mobile = request.POST.get('mobile')
             country_code = request.POST.get('country_code')
@@ -37,10 +40,33 @@ class Login(APIView):
                     {"message": "mobile no. not registered", "success": False, 'is_register': False},
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
-            otp = str(1234)
+            otp = 1234
             user.otp = otp
             user.save()
-            return Response({"message": "Done", "success": True, 'is_register': True},
+            return Response({"message": "Done", "success": True, 'is_register': True, "user":{
+                                 'id': user.id,
+                                 'email': user.email,
+                                 'mobile': user.mobile,
+                                 'country_code': user.country_code,
+                                 'name': user.name,
+                                 'bio': user.bio,
+                                 'birth_date': user.birth_date,
+                                 'otp': user.otp,
+                                 'relationship_status': user.relationship_status,
+                                 'education': user.education,
+                                 'body_type': user.body_type,
+                                 'gender': user.gender,
+                                 # 'image':user_obj.image,
+                                 # 'userIntrest':user_obj.userinterest,
+                                 # 'idealmatch':user_obj.idealmatch,
+                                 'height': user.height,
+                                 'location': user.location,
+                                 'citylat': user.citylat,
+                                 'citylong': user.citylong,
+                                 'address': user.address,
+                                 'city': user.city,
+                                 'is_premium': user.is_premium,
+                                 'is_verified': user.is_verified}},
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
@@ -60,11 +86,13 @@ class Registration(APIView):
             check_email = User.objects.filter(email=email).first()
 
             if check_mobile:
-                return Response({"message": "mobile Already Exists", 'success': False, 'is_register': False},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "mobile Already Exists", 'success': False, 'is_register': False, "mobile": mobile},
+                    status=status.HTTP_400_BAD_REQUEST)
             if check_email:
-                return Response({"message": "email Already Exists", 'success': False, 'is_register': False},
-                                status=status.HTTP_400_BAD_REQUEST)
+                return Response(
+                    {"message": "email Already Exists", 'success': False, 'is_register': False, "email": email},
+                    status=status.HTTP_400_BAD_REQUEST)
 
             # otp = str(random.randint(999, 9999))
             otp = str(1234)
@@ -73,7 +101,30 @@ class Registration(APIView):
             print(type(user))
             user.save()
             return Response({"message": "Your Registrations is successfully", "success": True, 'is_register': True,
-                             },
+                             "user": {
+                                 'id': user.id,
+                                 'email': user.email,
+                                 'mobile': user.mobile,
+                                 'country_code': user.country_code,
+                                 'name': user.name,
+                                 'bio': user.bio,
+                                 'birth_date': user.birth_date,
+                                 'otp': user.otp,
+                                 'relationship_status': user.relationship_status,
+                                 'education': user.education,
+                                 'body_type': user.body_type,
+                                 'gender': user.gender,
+                                 # 'image':user_obj.image,
+                                 # 'userIntrest':user_obj.userinterest,
+                                 # 'idealmatch':user_obj.idealmatch,
+                                 'height': user.height,
+                                 'location': user.location,
+                                 'citylat': user.citylat,
+                                 'citylong': user.citylong,
+                                 'address': user.address,
+                                 'city': user.city,
+                                 'is_premium': user.is_premium,
+                                 'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
         except Exception as e:
@@ -111,9 +162,9 @@ class UserCreateView(APIView):
                                  "status": status.HTTP_201_CREATED,
                                  "msg": msg})
             else:
-                return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OTPVerify(APIView):
@@ -128,35 +179,35 @@ class OTPVerify(APIView):
 
             user_obj.save()
             return Response(
-                {'success': True, 'message': 'your OTP is verified', 'is_register': True,
-                 'id': user_obj.id,
-                 'email': user_obj.email,
-                 'mobile': user_obj.mobile,
-                 'country_code': user_obj.country_code,
-                 'name': user_obj.name,
-                 'bio': user_obj.bio,
-                 'birth_date': user_obj.birth_date,
-                 'otp': user_obj.otp,
-                 'relationship_status': user_obj.relationship_status,
-                 'education': user_obj.education,
-                 'body_type': user_obj.body_type,
-                 'gender': user_obj.gender,
-                 # 'image':user_obj.image,
-                 # 'userIntrest':user_obj.userPassion,
-                 # 'idealmatch':user_obj.idealmatch,
-                 'height': user_obj.height,
-                 'location': user_obj.location,
-                 'citylat': user_obj.citylat,
-                 'citylong': user_obj.citylong,
-                 'address': user_obj.address,
-                 'city': user_obj.city,
-                 'is_premium': user_obj.is_premium,
-                 'is_verified': user_obj.is_verified,
-                 'first_count': user_obj.first_count
+                {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": {
+                    'id': user_obj.id,
+                    'email': user_obj.email,
+                    'mobile': user_obj.mobile,
+                    'country_code': user_obj.country_code,
+                    'name': user_obj.name,
+                    'bio': user_obj.bio,
+                    'birth_date': user_obj.birth_date,
+                    'otp': user_obj.otp,
+                    'relationship_status': user_obj.relationship_status,
+                    'education': user_obj.education,
+                    'body_type': user_obj.body_type,
+                    'gender': user_obj.gender,
+                    # 'image':user_obj.image,
+                    # 'userIntrest':user_obj.userinterest,
+                    # 'idealmatch':user_obj.idealmatch,
+                    'height': user_obj.height,
+                    'location': user_obj.location,
+                    'citylat': user_obj.citylat,
+                    'citylong': user_obj.citylong,
+                    'address': user_obj.address,
+                    'city': user_obj.city,
+                    'is_premium': user_obj.is_premium,
+                    'is_verified': user_obj.is_verified, }
 
                  },
                 status=status.HTTP_200_OK)
-        return Response({'success': "success", 'message': 'Wrong OTP'}, status=status.HTTP_403_FORBIDDEN)
+        return Response({'success': "success", 'message': 'Wrong OTP', "data": serializers.data},
+                        status=status.HTTP_403_FORBIDDEN)
 
         # except Exception as e:
         #     print(e)
@@ -164,20 +215,38 @@ class OTPVerify(APIView):
         #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-class UserData(ListCreateAPIView):
-    # authentication_classes = [JWTAuthentication]
-    # print(authentication_classes)
-    # permission_classes = [IsAuthenticated]
-    # print(permission_classes)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+class UserData(APIView):
+    # def get(self, request, id, *args, **kwargs):
+    #     user = User.objects.filter(id=id)
+    #     post = PostUpload.objects.filter(user_id=id)
+    #     media = UserMedia.objects.filter(user_id=id)
+    #     userserializer = UserSerializer(user, many=True)
+    #     postsrializer = PostUploadSerializers(post, many=True)
+    #     mediaserializer = UserMediaSerializer(media, many=True)
+    #     return Response({"message": True, "user": userserializer.data, "post":postsrializer.data, "media":mediaserializer.data}, status=status.HTTP_200_OK)
 
+    def get_object(self, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, id, format=None):
+        user = self.get_object(id)
+        post = PostUpload.objects.filter(user_id=id)
+        media = MediaPost.objects.filter(user_id=id)
+        follow = FollowRequest.objects.filter(user_id=id)
+        followaccept = FollowAccept.objects.filter(user_id=id)
+
+        userserializer = UserSerializer(user)
+        postsrializer = PostUploadSerializers(post, many=True)
+        followserializer = FollowRequestSerializer(follow, many=True)
+        followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
+        mediaserializer = MediaPostSerializers(media, many=True)
+        return Response({"message": True, "user": userserializer.data, "PostCount":len(postsrializer.data),  "post":postsrializer.data,"MediaCount":len(mediaserializer.data) ,"media":mediaserializer.data, "followCount   ":len(followserializer.data),"follow":followserializer.data, "FollowAcceptCount":len(followacceptserializer.data),"followaccept":followacceptserializer.data}, status=status.HTTP_200_OK)
 
 class UserUpdate(RetrieveUpdateDestroyAPIView):
-    # authentication_classes = [JWTAuthentication]
-    # print(authentication_classes)
-    # permission_classes = [IsAuthenticated]
-    # print(permission_classes)
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

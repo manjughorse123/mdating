@@ -66,7 +66,7 @@ class GetFriendRequestListView(APIView):
         friend_req_list = self.get_object(pk)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
         
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "data": serializer.data, 'data_count' :len(serializer.data)}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         friend_req_list = self.get_object(pk)
@@ -134,8 +134,8 @@ class GetFollowerView(APIView):
         # import pdb;pdb.set_trace()
         follower_info = self.get_object(pk)
         serializer = FollowRequestFollowerSerializer(follower_info, many=True)
-        
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+        return Response({"success": "True", "data": serializer.data, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         follower_info = self.get_object(pk)
@@ -158,7 +158,7 @@ class GetFollowingView(APIView):
         following_list = self.get_object(pk)
         serializer = FollowListFollowingSerializer(following_list, many=True)
         
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "data": serializer.data ,'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         following_list = self.get_object(pk)

@@ -5,7 +5,7 @@ from .models import *
 
 
 class PostUploadAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'message', 'id', 'create_at')
+    list_display = ('title', 'user', 'message', 'is_view', 'is_like', 'is_share', 'id', 'create_at')
     list_filter = ('create_at',)
 
 

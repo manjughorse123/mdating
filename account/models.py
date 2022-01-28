@@ -12,6 +12,7 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 from django.db.models.expressions import RawSQL
 from rest_framework.authtoken.models import Token
+from django.contrib.gis.db.models import *
 
 
 class LocationManager(models.Manager):
@@ -49,7 +50,7 @@ class LocationManager(models.Manager):
 
 
 class Passion(models.Model):
-    passion = models.CharField(max_length=40,unique = True)
+    passion = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
     icon_color = models.CharField(max_length=40)
     create_at = models.DateTimeField(auto_now_add=True)
@@ -109,18 +110,17 @@ class User(AbstractBaseUser):
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='user_gender', blank=True, null=True)
     image = models.URLField(blank=True, null=True)
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
-    location = models.CharField(max_length=100, default='', blank=True, null=True)
-    citylat = models.DecimalField(max_digits=9, decimal_places=6, default='-2.0180319', blank=True, null=True)
-    citylong = models.DecimalField(max_digits=9, decimal_places=6, default='52.5525525', blank=True, null=True)
-    address = models.CharField(max_length=900, blank=True, null=True)
-    city = models.CharField(max_length=30, blank=True, null=True)
+    location = PointField(srid=4326, blank=True, null=True)
+    address = models.CharField(max_length=100, blank=True, null=True)
+    city = models.CharField(max_length=50, blank=True, null=True)
     is_premium = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False, blank=True, null=True)
     first_count = models.IntegerField(default=0,
                                       help_text='It is 0, if the user is totally new and 1 if the user has saved his '
                                                 'standard once', blank=True, null=True)
     about = models.TextField(blank=True, null=True)
-    interest_in = models.ForeignKey(Gender,on_delete=models.CASCADE, related_name='interest_in_gender',blank=True, null=True)
+    interest_in = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='interest_in_gender', blank=True,
+                                    null=True)
     # create_at = models.DateTimeField(auto_now_add=True)
     # update_at = models.DateTimeField(auto_now=True)
     # objects = LocationManager()
@@ -133,12 +133,11 @@ class User(AbstractBaseUser):
     def __str__(self):
         return str(self.email)
 
-class UserMedia(models.Model):
 
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_image_profile') 
-    title =  models.CharField(max_length = 255,blank=True, null=True)
+class UserMedia(models.Model):
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_image_profile')
+    title = models.CharField(max_length=255, blank=True, null=True)
     image = models.TextField(blank=True, null=True)
-    
 
     create_at = models.DateTimeField(auto_now_add=True)
 
@@ -150,24 +149,23 @@ class UserIdealMatch(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_ideal')
     idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE, related_name='user_match')
     create_at = models.DateTimeField(auto_now_add=True)
+
     # idealmatch = models.TextField(blank=True, null=True)
-    
+
     def __str__(self):
-        return str(self.idealmatch)+','+str(self.user.name)
+        return str(self.idealmatch) + ',' + str(self.user.name)
 
 
 class UserPassion(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE , related_name= 'user_inter')
-    passion = models.ForeignKey(Passion, on_delete=models.CASCADE , related_name= 'user_Passion')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_inter')
+    passion = models.ForeignKey(Passion, on_delete=models.CASCADE, related_name='user_Passion')
 
     create_at = models.DateTimeField(auto_now_add=True)
+
     # passion = models.TextField(blank=True, null=True)
-    
+
     def __str__(self):
+        return str(self.passion) + ',' + str(self.user.name)
 
-        return str(self.passion)+','+str(self.user.name)
-    
     def add_passion(self):
-
         return ",".join([str(p) for p in self.passion.all()])
-

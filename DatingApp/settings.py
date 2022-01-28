@@ -43,14 +43,16 @@ INSTALLED_APPS = [
     'ckeditor',
     'main',
     'account',
-
+    'django.contrib.gis',
     'post',
     'usermedia',
-
     'friend',
     'matchprofile',
     'django_filters',
     'userverify',
+    'rest_framework_gis',
+    'rest_framework_json_api',
+
 
 
 ]
@@ -111,9 +113,11 @@ WSGI_APPLICATION = 'DatingApp.wsgi.application'
 # }
 
 
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
+        # 'ENGINE': 'django.db.backends.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
@@ -174,4 +178,16 @@ JAZZMIN_SETTINGS = {
 
 # Sms gateway Authentication Keys
 AUTH_KEY = 'YOUR_KEY_HERE'
+
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': (
+        'rest_framework_json_api.filters.QueryParameterValidationFilter',
+        'rest_framework_json_api.filters.OrderingFilter',
+        'rest_framework_json_api.django_filters.DjangoFilterBackend',
+        'rest_framework.filters.SearchFilter',
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ),
+
+}
 
