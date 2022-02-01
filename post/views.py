@@ -134,6 +134,34 @@ class PostReactionApi(APIView):
         return Response({"message": "Internal Server Error! or Not Valid Input !!", "success": "error"},
                         status=status.HTTP_400_BAD_REQUEST)
 
+# class AllPostAPI(ListAPIView):
+#     queryset = PostUpload.objects.all()
+#     serializer_class = PostUploadSerializers
+
+
+    
+
+class GetPostViewdetailView(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+    def get_object(self, pk):
+        try:
+            return PostView.objects.get(pk=pk)
+        except PostView.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+    
+        post_view = self.get_object(pk)
+        serializer = PostViewSerializers(post_view)
+        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+    
+    def delete(self, request, pk, format=None):
+        post_view = self.get_object(pk)
+        post_view.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AllPostAPI(APIView):
     def get(self, request, *args, **kwargs):
@@ -162,3 +190,4 @@ class PostShareAPI(APIView):
         post = PostShare.objects.filter(post_id=id)
         serializer = PostShareSerializers(post, many=True)
         return Response({"success": True, "user": [serializer.data]}, status=status.HTTP_200_OK)
+

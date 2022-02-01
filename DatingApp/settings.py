@@ -49,10 +49,11 @@ INSTALLED_APPS = [
     'friend',
     'matchprofile',
     'django_filters',
+    'userverify',
     'rest_framework_gis',
     'rest_framework_json_api',
-
-
+    'likeuser',
+    'colorfield',
 ]
 
 MIDDLEWARE = [

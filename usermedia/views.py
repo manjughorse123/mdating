@@ -18,7 +18,7 @@ class UserMediaAPI(APIView):
     def get(self, request, id, *args, **kwargs):
         user = MediaPost.objects.filter(user_id=id)
         serializer = MediaPostSerializers(user, many=True)
-        return Response({"media":serializer.data}, status=status.HTTP_200_OK)
+        return Response({"media": serializer.data}, status=status.HTTP_200_OK)
 
 
 class UserMediaAPIPost(APIView):
@@ -42,6 +42,7 @@ class MediaUploadApi(APIView):
 
         }
         serializer = MediaPostSerializers(data=data)
+        print(serializer)
         if serializer.is_valid():
             serializer.save()
 

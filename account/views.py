@@ -49,23 +49,23 @@ class Login(APIView):
                 'mobile': user.mobile,
                 'country_code': user.country_code,
                 'name': user.name,
-                'bio': user.bio,
-                'birth_date': user.birth_date,
-                'otp': user.otp,
-                'relationship_status': user.relationship_status,
-                'education': user.education,
-                'body_type': user.body_type,
-                'gender': user.gender,
-                # 'image':user_obj.image,
-                # 'userIntrest':user_obj.userinterest,
-                # 'idealmatch':user_obj.idealmatch,
-                'height': user.height,
-                'location': user.location,
-                # 'citylat': user.citylat,
-                # 'citylong': user.citylong,
-                'address': user.address,
-                'city': user.city,
-                'is_premium': user.is_premium,
+                # 'bio': user.bio,
+                # 'birth_date': user.birth_date,
+                # 'otp': user.otp,
+                # 'relationship_status': user.relationship_status,
+                # 'education': user.education,
+                # 'body_type': user.body_type,
+                # 'gender': user.gender,
+                # # 'image':user_obj.image,
+                # # 'userIntrest':user_obj.userinterest,
+                # # 'idealmatch':user_obj.idealmatch,
+                # 'height': user.height,
+                # 'location': user.location,
+                # # 'citylat': user.citylat,
+                # # 'citylong': user.citylong,
+                # 'address': user.address,
+                # 'city': user.city,
+                # 'is_premium': user.is_premium,
                 'is_verified': user.is_verified}},
                             status=status.HTTP_200_OK)
         except Exception as e:
@@ -107,23 +107,23 @@ class Registration(APIView):
                                  'mobile': user.mobile,
                                  'country_code': user.country_code,
                                  'name': user.name,
-                                 'bio': user.bio,
-                                 'birth_date': user.birth_date,
-                                 'otp': user.otp,
-                                 'relationship_status': user.relationship_status,
-                                 'education': user.education,
-                                 'body_type': user.body_type,
-                                 'gender': user.gender,
-                                 # 'image':user_obj.image,
-                                 # 'userIntrest':user_obj.userinterest,
-                                 # 'idealmatch':user_obj.idealmatch,
-                                 'height': user.height,
-                                 'location': user.location,
-                                 'citylat': user.citylat,
-                                 'citylong': user.citylong,
-                                 'address': user.address,
-                                 'city': user.city,
-                                 'is_premium': user.is_premium,
+                                 # 'bio': user.bio,
+                                 # 'birth_date': user.birth_date,
+                                 # 'otp': user.otp,
+                                 # 'relationship_status': user.relationship_status,
+                                 # 'education': user.education,
+                                 # 'body_type': user.body_type,
+                                 # 'gender': user.gender,
+                                 # # 'image':user_obj.image,
+                                 # # 'userIntrest':user_obj.userinterest,
+                                 # # 'idealmatch':user_obj.idealmatch,
+                                 # 'height': user.height,
+                                 # 'location': user.location,
+                                 # 'citylat': user.citylat,
+                                 # 'citylong': user.citylong,
+                                 # 'address': user.address,
+                                 # 'city': user.city,
+                                 # 'is_premium': user.is_premium,
                                  'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
@@ -169,50 +169,50 @@ class UserCreateView(APIView):
 
 class OTPVerify(APIView):
     def post(self, request):
-        # try:
-        mobile = request.POST.get("mobile")
-        otp = request.POST.get("otp")
-        country_code = request.POST.get("country_code")
-        user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
-        if user_obj.otp == otp:
-            user_obj.is_phone_verified = True
+        try:
+            mobile = request.POST.get("mobile")
+            otp = request.POST.get("otp")
+            country_code = request.POST.get("country_code")
+            user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
+            if user_obj.otp == otp:
+                user_obj.is_phone_verified = True
 
-            user_obj.save()
-            return Response(
-                {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": {
-                    'id': user_obj.id,
-                    'email': user_obj.email,
-                    'mobile': user_obj.mobile,
-                    'country_code': user_obj.country_code,
-                    'name': user_obj.name,
-                    'bio': user_obj.bio,
-                    'birth_date': user_obj.birth_date,
-                    'otp': user_obj.otp,
-                    'relationship_status': user_obj.relationship_status,
-                    'education': user_obj.education,
-                    'body_type': user_obj.body_type,
-                    'gender': user_obj.gender,
-                    # 'image':user_obj.image,
-                    # 'userIntrest':user_obj.userinterest,
-                    # 'idealmatch':user_obj.idealmatch,
-                    'height': user_obj.height,
-                    'location': user_obj.location,
-                    'citylat': user_obj.citylat,
-                    'citylong': user_obj.citylong,
-                    'address': user_obj.address,
-                    'city': user_obj.city,
-                    'is_premium': user_obj.is_premium,
-                    'is_verified': user_obj.is_verified, }
+                user_obj.save()
+                return Response(
+                    {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": {
+                        'id': user_obj.id,
+                        'email': user_obj.email,
+                        'mobile': user_obj.mobile,
+                        'country_code': user_obj.country_code,
+                        'name': user_obj.name,
+                        # 'bio': user_obj.bio,
+                        # 'birth_date': user_obj.birth_date,
+                        # 'otp': user_obj.otp,
+                        # 'relationship_status': user_obj.relationship_status,
+                        # 'education': user_obj.education,
+                        # 'body_type': user_obj.body_type,
+                        # 'gender': user_obj.gender,
+                        # # 'image':user_obj.image,
+                        # # 'userIntrest':user_obj.userinterest,
+                        # # 'idealmatch':user_obj.idealmatch,
+                        # 'height': user_obj.height,
+                        # 'location': user_obj.location,
+                        # 'citylat': user_obj.citylat,
+                        # 'citylong': user_obj.citylong,
+                        # 'address': user_obj.address,
+                        # 'city': user_obj.city,
+                        # 'is_premium': user_obj.is_premium,
+                        'is_verified': user_obj.is_verified, }
 
-                 },
-                status=status.HTTP_200_OK)
-        return Response({'success': "success", 'message': 'Wrong OTP', "data": serializers.data},
+                     },
+                    status=status.HTTP_200_OK)
+            return Response({'success': "success", 'message': 'Wrong OTP', "data": serializers.data},
                         status=status.HTTP_403_FORBIDDEN)
 
-        # except Exception as e:
-        #     print(e)
-        # return Response({'success': False, 'message': 'internal server error', 'is_register': False},
-        #                 status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        except Exception as e:
+            print(e)
+        return Response({'success': False, 'message': 'internal server error ! or Mobile No. Not Registered', 'is_register': False},
+                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserData(APIView):
@@ -699,11 +699,17 @@ class AddUserPassiondetailView(APIView):
         adduserPassion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-#             serializer.save()
-#             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-#         else:
-#             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+#
+# <<<<<<< HEAD
+# #             serializer.save()
+# #             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+# #         else:
+# #             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+# =======
+#
+#
+#
+# >>>>>>> b5e5b2d31123a3f0cda62178ca3edc335ec0c3d2
 
 # class MatchProfileView(APIView):
 #     # permission_classes = (AllowAny,)

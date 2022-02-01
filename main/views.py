@@ -1,5 +1,8 @@
+import json
+
 import django_filters
 from django.db.models import F
+from django.http import HttpResponse
 from django.shortcuts import render, get_object_or_404
 from rest_framework import status
 from rest_framework.generics import *
@@ -19,12 +22,11 @@ import random
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
+from matchprofile.models import *
 
 
 class UserFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
-
-    # birth_date = DateFromToRangeFilter
 
     class Meta:
         model = User
@@ -35,7 +37,6 @@ class UserFilterAPI(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
-    # filterset_fields = ('name', 'address')
     filterset_class = UserFilter
     filter_backends = (
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
@@ -84,6 +85,7 @@ class FollowResquestAPI(APIView):
             return Response({"message": "Follow Accept", "success": "True", "user": [serializer.data]},
                             status=status.HTTP_200_OK)
 
+
 #
 # class IdealMatchFilter(filters.FilterSet):
 #     idealmatch = ModelChoiceFilter()
@@ -113,5 +115,16 @@ class FollowResquestAPI(APIView):
 #     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
 
 
+class UserMatchProfileFilter(filters.FilterSet):
+
+    class Meta:
+        model = NewUserMatchProfile
+        fields = ['user', 'like_profile_user']
+        # fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], }
 
 
+class UserMatchProfileFilterAPI(ListAPIView):
+    queryset = NewUserMatchProfile.objects.all()
+    serializer_class = NewUserMatchProfileFilterSerializer
+    filterset_class = UserMatchProfileFilter
+    filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)

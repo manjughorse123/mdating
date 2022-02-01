@@ -4,7 +4,7 @@ from datetime import datetime
 import random
 import os
 from django.db.models.base import Model
-
+from colorfield.fields import ColorField
 from django.db.models.deletion import CASCADE
 from ckeditor.fields import RichTextField
 from django.contrib.auth.base_user import AbstractBaseUser
@@ -15,28 +15,28 @@ from rest_framework.authtoken.models import Token
 from django.contrib.gis.db.models import *
 
 
-class LocationManager(models.Manager):
-
-    # Assistance from https://stackoverflow.com/questions/19703975/django-sort-by-distance
-    def nearby_locations(self, citylat, citylong, max_distance=None):
-        """
-        Return objects sorted by distance to specified coordinates
-        which distance is less than max_distance given in kilometers
-        """
-        gcd_formula = "6371 * acos(cos(radians(%s)) * \
-        cos(radians(citylat)) \
-        * cos(radians(citylong) - radians(%s)) + \
-        sin(radians(%s)) * sin(radians(citylat)))"
-        distance_raw_sql = RawSQL(
-            gcd_formula,
-            (citylat, citylong, citylat)
-        )
-
-        if max_distance is not None:
-            return self.annotate(distance=distance_raw_sql).filter(distance__lt=max_distance)
-        else:
-            return self.annotate(distance=distance_raw_sql)
-
+# class LocationManager(models.Manager):
+#
+#     # Assistance from https://stackoverflow.com/questions/19703975/django-sort-by-distance
+#     def nearby_locations(self, citylat, citylong, max_distance=None):
+#         """
+#         Return objects sorted by distance to specified coordinates
+#         which distance is less than max_distance given in kilometers
+#         """
+#         gcd_formula = "6371 * acos(cos(radians(%s)) * \
+#         cos(radians(citylat)) \
+#         * cos(radians(citylong) - radians(%s)) + \
+#         sin(radians(%s)) * sin(radians(citylat)))"
+#         distance_raw_sql = RawSQL(
+#             gcd_formula,
+#             (citylat, citylong, citylat)
+#         )
+#
+#         if max_distance is not None:
+#             return self.annotate(distance=distance_raw_sql).filter(distance__lt=max_distance)
+#         else:
+#             return self.annotate(distance=distance_raw_sql)
+#
 
 # class UserMedia(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE) 
@@ -51,8 +51,8 @@ class LocationManager(models.Manager):
 
 class Passion(models.Model):
     passion = models.CharField(max_length=40, unique=True)
-    icon = models.URLField(blank=True, null=True)
-    icon_color = models.CharField(max_length=40)
+    icon = models.ImageField(upload_to='passion_icon/')
+    icon_color = ColorField(format='hexa')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -61,8 +61,8 @@ class Passion(models.Model):
 
 class IdealMatch(models.Model):
     idealmatch = models.CharField(max_length=40, unique=True)
-    icon = models.URLField(blank=True, null=True)
-    icon_color = models.CharField(max_length=40)
+    icon = models.ImageField(upload_to='idealMatch_icon/')
+    icon_color = ColorField(format='hexa')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -72,7 +72,8 @@ class IdealMatch(models.Model):
 class Gender(models.Model):
     gender = models.CharField(max_length=40, unique=True)
     icon = models.URLField(blank=True, null=True)
-    icon_color = models.CharField(max_length=40)
+    icon = models.ImageField(upload_to='gender_icon/')
+    icon_color = ColorField(format='hexa')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -81,8 +82,8 @@ class Gender(models.Model):
 
 class MaritalStatus(models.Model):
     status = models.CharField(max_length=40, unique=True)
-    icon = models.URLField(blank=True, null=True)
-    icon_color = models.CharField(max_length=40)
+    icon = models.ImageField(upload_to='maritalstatus_icon/')
+    icon_color = ColorField(format='hexa')
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -105,22 +106,35 @@ class User(AbstractBaseUser):
 
     relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
                                             blank=True, null=True)
+    relationship_status_field = models.BooleanField(default=False)
+
     education = models.CharField(max_length=50, blank=True, null=True)
     body_type = models.CharField(max_length=50, blank=True, null=True)
+
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='user_gender', blank=True, null=True)
+    gender_field = models.BooleanField(default=False)
+
     image = models.URLField(blank=True, null=True)
+
     height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
+    height_field = models.BooleanField(default=False)
+
     location = PointField(srid=4326, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True)
+    location_field = models.BooleanField(default=False)
+
     is_premium = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False, blank=True, null=True)
-    first_count = models.IntegerField(default=0,
-                                      help_text='It is 0, if the user is totally new and 1 if the user has saved his '
-                                                'standard once', blank=True, null=True)
+    # first_count = models.IntegerField(default=0,
+    #                                   help_text='It is 0, if the user is totally new and 1 if the user has saved his '
+    #                                             'standard once', blank=True, null=True)
     about = models.TextField(blank=True, null=True)
+
     interest_in = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='interest_in_gender', blank=True,
                                     null=True)
+    interest_in_field = models.BooleanField(default=False)
+
     # create_at = models.DateTimeField(auto_now_add=True)
     # update_at = models.DateTimeField(auto_now=True)
     # objects = LocationManager()

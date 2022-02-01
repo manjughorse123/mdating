@@ -3,8 +3,13 @@ from .views import *
 
 urlpatterns = [
 
-    path('post-update_user/', AddPostUserUpdateView.as_view(), name='post_update'),
-    path('react-count/', PostUserReactSerializerView.as_view(), name='accept'),
-    path('match-user-profile/', MatchProfileUserViewSet.as_view({'get': 'list'}), name='accept_saj'),
+# <<<<<<< HEAD
+    path('match-like-user/', AddMatchLikeUserProfileView.as_view(), name='match-like-user'),
+    path('like-to-like/', AddLikeToLikeView.as_view(), name='post_list_list'),
+    path('like-count/', PostCountLikeView.as_view(), name='count'),
 
 ]
+# =======
+    ##############################################################################
+
+# >>>>>>> b5e5b2d31123a3f0cda62178ca3edc335ec0c3d2
