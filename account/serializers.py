@@ -5,10 +5,64 @@ from .models import *
 from rest_framework import serializers
 
 
+class PassionAddSerializer(serializers.ModelSerializer):
+    class Meta(object):
+        model = Passion
+        fields = ('id', 'passion')
+
+    # def display_value(self, instance):
+    #     return instance
+    #
+    # def to_representation(self, value):
+    #     return str(value)
+    #
+    # def to_internal_value(self, data):
+    #     return Passion.objects.get(passion=data)
+
+    # class Meta:
+    #     model = Passion
+    #     fields = ('id', 'passion')
+
+
 class UserSerializer(serializers.ModelSerializer):
-    class Meta:
+    # passion = serializers.ListSerializer(child=serializers.CharField(), required=False)
+    # passion = PassionAddSerializer(many=True, required=False)
+    # passion = serializers.ListField(child=serializers.PrimaryKeyRelatedField(many=True, queryset=Passion.objects.all()))
+    class Meta(object):
         model = User
         fields = "__all__"
+    #
+    # def create(self, validated_data):
+    #     passions_data = validated_data.pop('passion', [])
+    #     user = super(UserSerializer, self).create(validated_data)
+    #     for passions_data in passions_data:
+    #         user.phone_set.create(passion=passions_data['passion'])
+    #     return user
+    #
+    # def update(self, instance, validated_data):
+    #     passion_data = validated_data.pop('passion', [])
+    #     user = super(UserSerializer, self).update(instance, validated_data)
+    #     # delete old
+    #     user.passion.exclude(passion__in=[p['passion'] for p in passion_data]).delete()
+    #     # create new
+    #     for pass_data in passion_data:
+    #         user.phone_set.get_or_create(passion=pass_data['passion'])
+    #     return user
+
+        # fields = ('passion',)
+    #
+    # def create(self, validated_data):
+    #     passion = validated_data.pop('passion', [])
+    #     movie = super().create(validated_data)
+    #     passion_qs = Passion.objects.filter(passion__in=passion)
+    #     movie.passion.add(*passion_qs)
+    #     return movie
+
+    # def validate(self, data):
+    #     passion = data.get('genre', [])
+    #     genre_obj_list = [Passion.objects.get(passion=passion) for passion in passion.all()]
+    #     data.update({'genre': genre_obj_list})
+    #     return data
 
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -30,14 +84,12 @@ class RegisterSerializer(serializers.ModelSerializer):
         #         {"password": "Password fields didn't match."})
 
         if int(attrs['mobile']) < 10:
-
             raise serializers.ValidationError(
                 {"Mobile no": "no  should be  10 digit."})
 
         return attrs
 
     def create(self, validated_data):
-
         user = User.objects.create(
             name=validated_data['name'],
             email=validated_data['email']
@@ -105,15 +157,13 @@ class MaritalStatusSerializer(serializers.ModelSerializer):
 
 
 class UserMediaSerializer(serializers.ModelSerializer):
-
     class Meta:
         model = UserMedia
-        fields = ('id','user','image',)
+        fields = ('id', 'user', 'image',)
 
 
 class UserImageSerializer(serializers.ModelSerializer):
     images = UserMediaSerializer(many=True)
-
 
     # def create(self, validated_data):
     #     import pdb;pdb.set_trace()
@@ -125,7 +175,7 @@ class UserImageSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields ='__all__'
+        fields = '__all__'
 
 
 # class UserMediaSerializer(serializers.ModelSerializer):
@@ -146,19 +196,17 @@ class UserIdealMatchSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 
-
 class UserPassionSerializer(serializers.ModelSerializer):
-    
     """
     Serializer for User UserPassion
     """
+
     class Meta:
         model = UserPassion
-        fields = ('user','passion')
+        fields = ('user', 'passion')
 
     # def create(self, validated_data):
     #     passion = validated_data.pop('passion')
     #     user_inter = Userpassion.objects.create( **validated_data)
     #     user_inter.passion.add(*passion)
     #     return user_inter
-

@@ -51,6 +51,7 @@ from django.contrib.gis.db.models import *
 
 class Passion(models.Model):
     passion = models.CharField(max_length=40, unique=True)
+    slug_field = models.SlugField(max_length=220)
     icon = models.ImageField(upload_to='passion_icon/')
     icon_color = ColorField(format='hexa')
     create_at = models.DateTimeField(auto_now_add=True)
@@ -104,6 +105,8 @@ class User(AbstractBaseUser):
     password = None
     last_login = None
 
+    is_profile = models.BooleanField(default=False)
+
     relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
                                             blank=True, null=True)
     relationship_status_field = models.BooleanField(default=False)
@@ -135,8 +138,15 @@ class User(AbstractBaseUser):
                                     null=True)
     interest_in_field = models.BooleanField(default=False)
 
-    # create_at = models.DateTimeField(auto_now_add=True)
-    # update_at = models.DateTimeField(auto_now=True)
+    passion = models.ManyToManyField(Passion, blank=True, db_column='passion')
+    passion_field = models.BooleanField(default=False)
+
+    idealmatch = models.ManyToManyField(IdealMatch, blank=True, db_column='IdealMatch' )
+    idealmatch_field = models.BooleanField(default=False)
+    # passion_in_field = models.BooleanField(default=False)
+
+    create_at = models.DateTimeField(auto_now_add=True)
+    update_at = models.DateTimeField(auto_now=True)
     # objects = LocationManager()
 
     USERNAME_FIELD = 'mobile'
@@ -146,6 +156,9 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return str(self.email)
+
+    # def written_by(self):
+    #     return ",".join([str(p) for p in self.passion_in.all()])
 
 
 class UserMedia(models.Model):
@@ -162,6 +175,7 @@ class UserMedia(models.Model):
 class UserIdealMatch(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_ideal')
     idealmatch = models.ForeignKey(IdealMatch, on_delete=models.CASCADE, related_name='user_match')
+    is_idealmatch = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     # idealmatch = models.TextField(blank=True, null=True)
@@ -173,7 +187,7 @@ class UserIdealMatch(models.Model):
 class UserPassion(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_inter')
     passion = models.ForeignKey(Passion, on_delete=models.CASCADE, related_name='user_Passion')
-
+    is_Passion = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     # passion = models.TextField(blank=True, null=True)

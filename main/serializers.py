@@ -6,6 +6,8 @@ from rest_framework_gis.serializers import GeoFeatureModelSerializer
 
 
 class UserFilterSerializer(GeoFeatureModelSerializer):
+# class FollowRequestSerializer(ModelSerializer):
+
     class Meta:
         model = User
         geo_field = "location"

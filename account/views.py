@@ -1,5 +1,6 @@
 from operator import add
 from django.conf import settings
+from rest_framework import viewsets
 from rest_framework.generics import *
 from .serializers import *
 import random
@@ -207,12 +208,13 @@ class OTPVerify(APIView):
                      },
                     status=status.HTTP_200_OK)
             return Response({'success': "success", 'message': 'Wrong OTP', "data": serializers.data},
-                        status=status.HTTP_403_FORBIDDEN)
+                            status=status.HTTP_403_FORBIDDEN)
 
         except Exception as e:
             print(e)
-        return Response({'success': False, 'message': 'internal server error ! or Mobile No. Not Registered', 'is_register': False},
-                        status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        return Response(
+            {'success': False, 'message': 'internal server error ! or Mobile No. Not Registered', 'is_register': False},
+            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 class UserData(APIView):
@@ -250,8 +252,6 @@ class UserData(APIView):
                          }, status=status.HTTP_200_OK)
 
 
-
-
 # "follow": followserializer.data,
 # "followaccept": followacceptserializer.data}
 
@@ -259,6 +259,17 @@ class UserData(APIView):
 class UserUpdate(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
+
+class UserPassionUpdate(viewsets.ModelViewSet):
+    serializer_class = PassionAddSerializer
+
+    def get_queryset(self):
+        user = User.objects.all()
+        return user
+
+    def create(self, request, *args, **kwargs):
+        data = request.data
 
 
 class AddPassionView(APIView):
@@ -438,7 +449,7 @@ class AddMaritalStatusView(APIView):
     def get(self, request):
         meritalstatus = MaritalStatus.objects.all()
         serializer = MaritalStatusSerializer(meritalstatus, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -471,7 +482,7 @@ class AddMaritalStatusdetailView(APIView):
     def get(self, request, pk, format=None):
         merital_status = self.get_object(pk)
         serializer = MaritalStatusSerializer(merital_status)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True",  "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         merital_status = self.get_object(pk)
@@ -503,7 +514,7 @@ class AddIdealMatchView(APIView):
         idealMatch = IdealMatch.objects.all()
 
         serializer = IdealMatchSerializer(idealMatch, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True","base_url": "http://18.224.254.170/media/", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = IdealMatchSerializer(data=request.data)
@@ -566,7 +577,7 @@ class AddUserImageView(APIView):
     def get(self, request):
         idealMatch = User.objects.all()
         serializer = UserImageSerializer(idealMatch, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -699,6 +710,7 @@ class AddUserPassiondetailView(APIView):
         adduserPassion.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
+
 #
 # <<<<<<< HEAD
 # #             serializer.save()
@@ -768,3 +780,7 @@ class MatchProfileView(APIView):
             serializer = UserPassionSerializer(userPassion, many=True)
 
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+
+
+class PassionUpdate(APIView):
+    pass

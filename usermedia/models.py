@@ -12,6 +12,7 @@ class MediaPost(models.Model):
     is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
     is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
     is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
+    is_media = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
 

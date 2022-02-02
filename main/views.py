@@ -14,7 +14,7 @@ from rest_framework_gis.filters import InBBoxFilter, TMSTileFilter
 from rest_framework_gis.filters import DistanceToPointFilter
 from rest_framework_gis.filters import DistanceToPointOrderingFilter
 from django_filters import rest_framework as filters, IsoDateTimeFilter, DurationFilter, DateFromToRangeFilter, \
-    MultipleChoiceFilter, TypedChoiceFilter, ModelChoiceFilter, RangeFilter, ModelMultipleChoiceFilter
+    MultipleChoiceFilter, TypedChoiceFilter, ModelChoiceFilter, RangeFilter, ModelMultipleChoiceFilter, CharFilter
 from .serializers import *
 from rest_framework.permissions import IsAuthenticated
 from .models import *
@@ -116,6 +116,7 @@ class FollowResquestAPI(APIView):
 
 
 class UserMatchProfileFilter(filters.FilterSet):
+    user__user__name = CharFilter(field_name='id')
 
     class Meta:
         model = NewUserMatchProfile
@@ -128,3 +129,20 @@ class UserMatchProfileFilterAPI(ListAPIView):
     serializer_class = NewUserMatchProfileFilterSerializer
     filterset_class = UserMatchProfileFilter
     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
+
+
+class UserPassionFilter(filters.FilterSet):
+    birth_date = DateFromToRangeFilter()
+    class Meta:
+        model = User
+        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
+
+
+class UserPassionFilterAPI(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserFilterSerializer
+    distance_filter_field = 'location'
+    filterset_class = UserPassionFilter
+    filter_backends = (
+         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
+# DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter,

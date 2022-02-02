@@ -4,6 +4,7 @@ from .views import *
 
 urlpatterns = [
     path('userfilter/', UserFilterAPI.as_view(), name='userfilter'),
+    path('data/userfilter/', UserPassionFilterAPI.as_view(), name='userpassionfilter'),
     # path('userdate/', BirthDateFilter.as_view(), name='userdate'),
     path('follow/detail', FollowDetails.as_view(), name='followdetails'),
     re_path(r'^follow/request/(?P<id>[0-9a-f-]+)/flag=(?P<flag>[0-9a-f-]+)', FollowResquestAPI.as_view(), name="followresquestapi"),
