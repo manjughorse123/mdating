@@ -38,13 +38,13 @@ class Login(APIView):
             user = User.objects.filter(mobile=mobile, country_code=country_code).first()
             if user is None:
                 return Response(
-                    {"message": "mobile no. not registered", "success": False, 'is_register': False},
+                    {"message": "mobile no. not registered", "success": False, 'is_register': False,"status" : 404},
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
             otp = 1234
             user.otp = otp
             user.save()
-            return Response({"message": "Done", "success": True, 'is_register': True, "user": {
+            return Response({"message": "User Login Successfully!", "status": 200 ,"success": True, 'is_register': True, "user": {
                 'id': user.id,
                 'email': user.email,
                 'mobile': user.mobile,
@@ -71,7 +71,7 @@ class Login(APIView):
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
-            return Response({'success': False, 'message': 'internal server error'},
+            return Response({'success': False, "status" : 500 ,'message': 'internal server error'},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -88,11 +88,11 @@ class Registration(APIView):
 
             if check_mobile:
                 return Response(
-                    {"message": "mobile Already Exists", 'success': False, 'is_register': False, "mobile": mobile},
+                    {"message": "Mobile Number Already Exists!", 'status' : 404,'success': False, 'is_register': False, "mobile": mobile},
                     status=status.HTTP_400_BAD_REQUEST)
             if check_email:
                 return Response(
-                    {"message": "email Already Exists", 'success': False, 'is_register': False, "email": email},
+                    {"message": "email Already Exists", 'success': False, 'status' : 404,'is_register': False, "email": email},
                     status=status.HTTP_400_BAD_REQUEST)
 
             # otp = str(random.randint(999, 9999))
@@ -101,7 +101,7 @@ class Registration(APIView):
                         country_code=country_code)
             print(type(user))
             user.save()
-            return Response({"message": "Your Registrations is successfully", "success": True, 'is_register': True,
+            return Response({"message": "Your Registrations is successfully","status" : 201, "success": True, 'is_register': True,
                              "user": {
                                  'id': user.id,
                                  'email': user.email,
@@ -130,7 +130,7 @@ class Registration(APIView):
 
         except Exception as e:
             print(e)
-            return Response({'success': False, 'message': 'internal server error', 'is_register': False},
+            return Response({'success': False, "status" : 500,'message': 'internal server error', 'is_register': False},
                             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -160,12 +160,12 @@ class UserCreateView(APIView):
             data = serializer.data
             if user:
                 return Response({'data': data,
-                                 "status": status.HTTP_201_CREATED,
-                                 "msg": msg})
+                                 "status": 201,
+                                 "msg": msg},status =status.HTTP_201_CREATED)
             else:
-                return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"data": serializer.errors,"status": 400 }, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": serializer.errors,"status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class OTPVerify(APIView):
@@ -180,7 +180,7 @@ class OTPVerify(APIView):
 
                 user_obj.save()
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'is_register': True, "user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True, "user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -207,13 +207,13 @@ class OTPVerify(APIView):
 
                      },
                     status=status.HTTP_200_OK)
-            return Response({'success': "success", 'message': 'Wrong OTP', "data": serializers.data},
+            return Response({'success': "success", 'message': 'Wrong OTP', "status": 403,"data": serializers.data},
                             status=status.HTTP_403_FORBIDDEN)
 
         except Exception as e:
             print(e)
         return Response(
-            {'success': False, 'message': 'internal server error ! or Mobile No. Not Registered', 'is_register': False},
+            {'success': False, 'message': 'internal server error ! or Mobile No. Not Registered','status': 500, 'is_register': False},
             status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -245,7 +245,7 @@ class UserData(APIView):
         followserializer = FollowRequestSerializer(follow, many=True)
         followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
-        return Response({"message": True, "user": userserializer.data, "PostCount": len(postsrializer.data),
+        return Response({"message": True, "user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
                          "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
                          "media": mediaserializer.data, "Following   ": len(followserializer.data),
                          "Follower": len(followacceptserializer.data),
@@ -278,7 +278,7 @@ class AddPassionView(APIView):
     def get(self, request):
         passion = Passion.objects.all()
         serializer = PassionSerializer(passion, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "base_url": "http://18.224.254.170" , "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -286,9 +286,9 @@ class AddPassionView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": "True", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddPassiondetailView(APIView):
@@ -305,14 +305,14 @@ class AddPassiondetailView(APIView):
     def get(self, request, pk, format=None):
         addPassion = self.get_object(pk)
         serializer = PassionSerializer(addPassion)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         addPassion = self.get_object(pk)
         serializer = PassionSerializer(addPassion, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": "True", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -338,7 +338,7 @@ class AddGenderView(APIView):
     def get(self, request):
         gender = Gender.objects.all()
         serializer = GenderSerializer(gender, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True", "base_url": "http://18.224.254.170/media/" , "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -349,10 +349,11 @@ class AddGenderView(APIView):
             check_gender = Gender.objects.filter(gender=gender).first()
 
             if check_gender:
-                return Response({"message": "gender Already Exists with  This name! "},
+                return Response({"message": "Gender Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": "True","base_url": "http://18.224.254.170/media/" , "status" : 201
+                                , "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -712,16 +713,12 @@ class AddUserPassiondetailView(APIView):
 
 
 #
-# <<<<<<< HEAD
+
 # #             serializer.save()
 # #             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
 # #         else:
 # #             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-# =======
-#
-#
-#
-# >>>>>>> b5e5b2d31123a3f0cda62178ca3edc335ec0c3d2
+
 
 # class MatchProfileView(APIView):
 #     # permission_classes = (AllowAny,)

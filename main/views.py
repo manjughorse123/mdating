@@ -77,12 +77,12 @@ class FollowResquestAPI(APIView):
         if data == 1:
             follow = FollowRequest.objects.filter(user_id=id)
             serializer = FollowRequestSerializer(follow, many=True)
-            return Response({"message": "Follow Request", "success": "True", "user": [serializer.data]},
+            return Response({"message": "Follow Request", "status": 200,"success": "True", "user": [serializer.data]},
                             status=status.HTTP_200_OK)
         if data == 2:
             follow = FollowAccept.objects.filter(user_id=id)
             serializer = FollowAcceptSerializer(follow, many=True)
-            return Response({"message": "Follow Accept", "success": "True", "user": [serializer.data]},
+            return Response({"message": "Follow Accept", "status": 200,"success": "True", "user": [serializer.data]},
                             status=status.HTTP_200_OK)
 
 
