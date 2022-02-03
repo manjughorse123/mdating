@@ -105,7 +105,7 @@ class User(AbstractBaseUser):
     password = None
     last_login = None
 
-    is_profile = models.BooleanField(default=False)
+    is_media_field = models.BooleanField(default=False)
 
     relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
                                             blank=True, null=True)
