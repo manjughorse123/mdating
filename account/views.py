@@ -71,8 +71,8 @@ class Login(APIView):
                             status=status.HTTP_200_OK)
         except Exception as e:
             print(e)
-            return Response({'success': False, "status" : 500 ,'message': 'internal server error'},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'success': False, "status" : 404 ,'message': 'internal server error'},
+                            status=status.HTTP_404_NOT_FOUND)
 
 
 class Registration(APIView):
@@ -88,11 +88,11 @@ class Registration(APIView):
 
             if check_mobile:
                 return Response(
-                    {"message": "Mobile Number Already Exists!", 'status' : 404,'success': False, 'is_register': False, "mobile": mobile},
+                    {"message": "Mobile Number Already Exists!", 'status' : 400,'success': False, 'is_register': False, "mobile": mobile},
                     status=status.HTTP_400_BAD_REQUEST)
             if check_email:
                 return Response(
-                    {"message": "email Already Exists", 'success': False, 'status' : 404,'is_register': False, "email": email},
+                    {"message": "email Already Exists", 'success': False, 'status' : 400,'is_register': False, "email": email},
                     status=status.HTTP_400_BAD_REQUEST)
 
             # otp = str(random.randint(999, 9999))
@@ -130,8 +130,8 @@ class Registration(APIView):
 
         except Exception as e:
             print(e)
-            return Response({'success': False, "status" : 500,'message': 'internal server error', 'is_register': False},
-                            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'success': False,  'status' :400 ,  'message': 'User Not Register','is_register': False},
+                            status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserCreateView(APIView):
@@ -213,8 +213,8 @@ class OTPVerify(APIView):
         except Exception as e:
             print(e)
         return Response(
-            {'success': False, 'message': 'internal server error ! or Mobile No. Not Registered','status': 500, 'is_register': False},
-            status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            {'success': False, 'message': ' Mobile Number Not Registered','status': 404, 'is_register': False},
+            status=status.HTTP_404_NOT_FOUND)
 
 
 class UserData(APIView):
