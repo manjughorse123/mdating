@@ -197,3 +197,11 @@ class UserPassion(models.Model):
 
     def add_passion(self):
         return ",".join([str(p) for p in self.passion.all()])
+
+class Heigth(models.Model):
+
+    height = models.CharField(max_length=255)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.height

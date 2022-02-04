@@ -205,7 +205,7 @@ class OTPVerify(APIView):
                         # # 'idealmatch':user_obj.idealmatch,
                         # 'height': user_obj.height,
                         # 'location': user_obj.location,
-                        # 'citylat': user_obj.citylat,
+                        # 'citylat': user_obj.citylat,F
                         # 'citylong': user_obj.citylong,
                         # 'address': user_obj.address,
                         # 'city': user_obj.city,
@@ -296,7 +296,7 @@ class AddPassionView(APIView):
     def get(self, request):
         passion = Passion.objects.all()
         serializer = PassionSerializer(passion, many=True)
-        return Response({"success": "True", "base_url": "http://18.224.254.170" , "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "base_url": "http://18.224.254.170" , "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -304,7 +304,7 @@ class AddPassionView(APIView):
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -323,14 +323,14 @@ class AddPassiondetailView(APIView):
     def get(self, request, pk, format=None):
         addPassion = self.get_object(pk)
         serializer = PassionSerializer(addPassion)
-        return Response({"success": "True", "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         addPassion = self.get_object(pk)
         serializer = PassionSerializer(addPassion, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -356,7 +356,7 @@ class AddGenderView(APIView):
     def get(self, request):
         gender = Gender.objects.all()
         serializer = GenderSerializer(gender, many=True)
-        return Response({"success": "True", "base_url": "http://18.224.254.170/media/" , "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "base_url": "http://18.224.254.170/media/" , "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -370,7 +370,7 @@ class AddGenderView(APIView):
                 return Response({"message": "Gender Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True","base_url": "http://18.224.254.170/media/" , "status" : 201
+            return Response({"success": True,"base_url": "http://18.224.254.170/media/" , "status" : 201
                                 , "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
@@ -390,14 +390,14 @@ class AddGenderdetailView(APIView):
     def get(self, request, pk, format=None):
         addGender = self.get_object(pk)
         serializer = GenderSerializer(addGender)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         addGender = self.get_object(pk)
         serializer = GenderSerializer(addGender, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -405,7 +405,7 @@ class AddGenderdetailView(APIView):
         serializer = GenderSerializer(addGender, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -420,7 +420,7 @@ class AddUserMediaView(APIView):
     def get(self, request):
         userMedia = UserMedia.objects.all()
         serializer = UserMediaSerializer(userMedia, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -434,9 +434,9 @@ class AddUserMediaView(APIView):
                 return Response({"message": "media Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status" : 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error","status" : 200,  "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddUserMediadetailView(APIView):
@@ -453,7 +453,7 @@ class AddUserMediadetailView(APIView):
     def get(self, request, pk, format=None):
         addUserMedia = self.get_object(pk)
         serializer = UserMediaSerializer(addUserMedia)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         addUserMedia = self.get_object(pk)
@@ -468,7 +468,7 @@ class AddMaritalStatusView(APIView):
     def get(self, request):
         meritalstatus = MaritalStatus.objects.all()
         serializer = MaritalStatusSerializer(meritalstatus, many=True)
-        return Response({"success": "True", "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200,"base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -482,9 +482,9 @@ class AddMaritalStatusView(APIView):
                 return Response({"message": "media Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True,  "status" : 201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "status" : 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddMaritalStatusdetailView(APIView):
@@ -501,14 +501,14 @@ class AddMaritalStatusdetailView(APIView):
     def get(self, request, pk, format=None):
         merital_status = self.get_object(pk)
         serializer = MaritalStatusSerializer(merital_status)
-        return Response({"success": "True",  "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,  "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         merital_status = self.get_object(pk)
         serializer = MaritalStatusSerializer(merital_status, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -516,7 +516,7 @@ class AddMaritalStatusdetailView(APIView):
         serializer = MaritalStatusSerializer(merital_status, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -533,7 +533,7 @@ class AddIdealMatchView(APIView):
         idealMatch = IdealMatch.objects.all()
 
         serializer = IdealMatchSerializer(idealMatch, many=True)
-        return Response({"success": "True","base_url": "http://18.224.254.170/media/", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,"base_url": "http://18.224.254.170/media/", "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = IdealMatchSerializer(data=request.data)
@@ -547,9 +547,9 @@ class AddIdealMatchView(APIView):
                 return Response({"message": "idealmatch Already Exists with  This name! "},
                                 status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "status" : 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddIdealMatchdetailView(APIView):
@@ -566,14 +566,14 @@ class AddIdealMatchdetailView(APIView):
     def get(self, request, pk, format=None):
         addIdealMatch = self.get_object(pk)
         serializer = IdealMatchSerializer(addIdealMatch)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         addIdealMatch = self.get_object(pk)
         serializer = IdealMatchSerializer(addIdealMatch, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -581,7 +581,7 @@ class AddIdealMatchdetailView(APIView):
         serializer = IdealMatchSerializer(addIdealMatch, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -596,7 +596,7 @@ class AddUserImageView(APIView):
     def get(self, request):
         idealMatch = User.objects.all()
         serializer = UserImageSerializer(idealMatch, many=True)
-        return Response({"success": "True", "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -609,7 +609,7 @@ class AddUserImageView(APIView):
             # if check_name:
             #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -621,7 +621,7 @@ class AddUserIdealMatchView(APIView):
     def get(self, request):
         useridealMatch = UserIdealMatch.objects.all()
         serializer = UserIdealMatchSerializer(useridealMatch, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserIdealMatchSerializer(data=request.data)
@@ -629,7 +629,7 @@ class AddUserIdealMatchView(APIView):
         if serializer.is_valid():
 
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -648,14 +648,14 @@ class AddUserIdealMatchdetailView(APIView):
     def get(self, request, pk, format=None):
         adduserIdealMatch = self.get_object(pk)
         serializer = UserIdealMatchSerializer(adduserIdealMatch)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         adduserIdealMatch = self.get_object(pk)
         serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, pk, format=None):
@@ -663,7 +663,7 @@ class AddUserIdealMatchdetailView(APIView):
         serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -679,14 +679,14 @@ class AddUserPassionView(APIView):
     def get(self, request):
         userPassion = UserPassion.objects.all()
         serializer = UserPassionSerializer(userPassion, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserPassionSerializer(data=request.data)
 
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -706,7 +706,7 @@ class AddUserPassiondetailView(APIView):
 
         adduserPassion = self.get_object(pk)
         serializer = UserPassionSerializer(adduserPassion)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def put(self, request, pk, format=None):
         adduserPassion = self.get_object(pk)
@@ -721,7 +721,7 @@ class AddUserPassiondetailView(APIView):
         serializer = UserPassionSerializer(adduserPassion, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     def delete(self, request, pk, format=None):
@@ -794,8 +794,28 @@ class MatchProfileView(APIView):
             userPassion = UserPassion.objects.filter(passion=2)
             serializer = UserPassionSerializer(userPassion, many=True)
 
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class PassionUpdate(APIView):
     pass
+
+
+class AddHeigthView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        height = Heigth.objects.all()
+        serializer = HeightSerializer(height, many=True)
+        return Response({"success": True,   "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+
+        serializer = HeightSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+            return Response({"success": True , "status" : 201
+                                , "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

@@ -66,3 +66,6 @@ admin.site.register(IdealMatch, IdealMatchAdmin)
 # list_filter = ('email', 'mobile', 'name')
 
 # User = get_user_model()
+class HeightAdmin(admin.ModelAdmin):
+    list_display = ('height', 'id')
+admin.site.register(Heigth, HeightAdmin)

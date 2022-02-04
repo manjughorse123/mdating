@@ -210,3 +210,12 @@ class UserPassionSerializer(serializers.ModelSerializer):
     #     user_inter = Userpassion.objects.create( **validated_data)
     #     user_inter.passion.add(*passion)
     #     return user_inter
+
+class HeightSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Ideal Match
+    """
+
+    class Meta:
+        model = Heigth
+        fields = '__all__'

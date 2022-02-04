@@ -14,6 +14,7 @@ urlpatterns = [
 
     #Master Api Urls 
     path('passion/', AddPassionView.as_view(), name='passion_view'),
+
     path('passion-detail/<int:pk>/', AddPassiondetailView.as_view(), name='passion_detail'),
     path('gender/', AddGenderView.as_view(), name='_genderView'),
     path('gender-detail/<int:pk>/', AddGenderdetailView.as_view(), name='gender_detail'),
@@ -34,4 +35,6 @@ urlpatterns = [
     # path('match_profile/',  MatchProfileView.as_view({'get': 'list'}), name='match_detail'),
     path('match-profile/',  MatchProfileView.as_view(), name='match_detail'),
     # re_path('UserUpdatePassion/(?P<pk>[0-9a-f-]+)',  UserUpdatePassion.as_view({'get':'list'}), name='match_detail'),
+    path('height/',  AddHeigthView.as_view(), name='heigthview'),
+
 ]
