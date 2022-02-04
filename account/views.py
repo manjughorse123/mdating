@@ -261,22 +261,31 @@ class UserData(APIView):
 
 # "follow": followserializer.data,
 # "followaccept": followacceptserializer.data}
-
-
 class UserUpdate(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def update(self, request, *args, **kwargs):
+    # def update(self, request, *args, **kwargs):
+    #     # import pdb;pdb.set_trace()
+    #
+    #     pk = self.kwargs.get('pk')
+    #     if pk:
+    #         object = User.objects.get(pk=kwargs['pk'])
+    #         serializer = UserSerializer(object)
+    #         return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True ,"data":serializer.data})
+    #     else :
+    #         return Response({"success": "error", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+    def patch(self, request, *args, **kwargs):
         pk = self.kwargs.get('pk')
-        if pk:
-            object = User.objects.get(pk=kwargs['pk'])
-            serializer = UserSerializer(object)
-            return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True ,"data":serializer.data})
-        else :
-            return Response({"success": "error", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
+        # object = User.objects.get(pk=pk)
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserPassionUpdate(viewsets.ModelViewSet):
