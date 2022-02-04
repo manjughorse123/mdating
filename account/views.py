@@ -179,6 +179,12 @@ class OTPVerify(APIView):
                 user_obj.is_phone_verified = True
 
                 user_obj.save()
+                if (user_obj.gender_field and user_obj.passion_field and user_obj.height_field  and user_obj.location_field and
+                    user_obj.interest_in_field and user_obj.idealmatch_field and user_obj.relationship_status_field  and user_obj.is_media_field) == True:
+                    is_complete_profile = True
+                else :
+                    is_complete_profile = False
+
                 return Response(
                     {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True, "user": {
                         'id': user_obj.id,
@@ -186,6 +192,7 @@ class OTPVerify(APIView):
                         'mobile': user_obj.mobile,
                         'country_code': user_obj.country_code,
                         'name': user_obj.name,
+                        "is_complete_profile": is_complete_profile,
                         # 'bio': user_obj.bio,
                         # 'birth_date': user_obj.birth_date,
                         # 'otp': user_obj.otp,
@@ -266,7 +273,7 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
         if pk:
             object = User.objects.get(pk=kwargs['pk'])
             serializer = UserSerializer(object)
-            return Response({"message" : "User Data is Successfully Updated!","status":200,"success":True ,"data":serializer.data})
+            return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True ,"data":serializer.data})
         else :
             return Response({"success": "error", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
