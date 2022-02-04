@@ -36,5 +36,6 @@ urlpatterns = [
     path('match-profile/',  MatchProfileView.as_view(), name='match_detail'),
     # re_path('UserUpdatePassion/(?P<pk>[0-9a-f-]+)',  UserUpdatePassion.as_view({'get':'list'}), name='match_detail'),
     path('height/',  AddHeigthView.as_view(), name='heigthview'),
+    re_path(r'^get/user/detail/(?P<pk>[0-9a-f-]+)', GetUserDetail.as_view(), name='getuserdetail'),
 
 ]

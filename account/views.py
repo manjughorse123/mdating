@@ -819,3 +819,22 @@ class AddHeigthView(APIView):
                                 , "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class GetUserDetail(APIView):
+    """
+    Retrieve, update or delete  a media instance.
+    """
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get(self, request, pk, format=None):
+
+        adduserdetail = self.get_object(pk)
+        serializer = UserDetailSerializer(adduserdetail)
+        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)

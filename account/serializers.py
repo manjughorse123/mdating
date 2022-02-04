@@ -219,3 +219,15 @@ class HeightSerializer(serializers.ModelSerializer):
     class Meta:
         model = Heigth
         fields = '__all__'
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Detail
+    """
+
+    class Meta:
+        model = User
+        fields = ('gender_field','passion_field','height_field','location_field','interest_in_field','idealmatch_field','relationship_status_field','is_media_field')
+
+
