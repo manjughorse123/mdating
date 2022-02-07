@@ -280,6 +280,7 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
         pk = self.kwargs.get('pk')
 
         # object = User.objects.get(pk=pk)
+
         question = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(question, data=request.data, partial=True)
         if serializer.is_valid():

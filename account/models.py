@@ -90,6 +90,13 @@ class MaritalStatus(models.Model):
     def __str__(self):
         return self.status
 
+class Heigth(models.Model):
+
+    height = models.CharField(max_length=255)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.height
 
 class User(AbstractBaseUser):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
@@ -119,9 +126,10 @@ class User(AbstractBaseUser):
 
     image = models.URLField(blank=True, null=True)
 
-    height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
+    # height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
     height_field = models.BooleanField(default=False)
-
+    heights = models.ForeignKey(Heigth, on_delete=models.CASCADE, related_name='user_height',
+                                blank=True, null=True)
     location = PointField(srid=4326, blank=True, null=True)
     address = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True)
@@ -198,10 +206,4 @@ class UserPassion(models.Model):
     def add_passion(self):
         return ",".join([str(p) for p in self.passion.all()])
 
-class Heigth(models.Model):
 
-    height = models.CharField(max_length=255)
-    create_at = models.DateTimeField(auto_now_add=True)
-
-    def __str__(self):
-        return self.height
