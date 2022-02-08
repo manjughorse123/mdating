@@ -17,7 +17,7 @@ class UserVerificationView(APIView):
     def get(self, request):
         user_verify =UserVerification.objects.all()
         serializer = UserVerificationSerializer(user_verify, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserVerificationSerializer(data=request.data)
@@ -26,9 +26,9 @@ class UserVerificationView(APIView):
                 
             serializer.save()
             
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -38,7 +38,7 @@ class AdminUserVerifiedView(APIView):
     def get(self, request):
         admin_user_verify =AdminUserVerified.objects.all()
         serializer = AdminUserVerifiedSerializer(admin_user_verify, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = AdminUserVerifiedSerializer(data=request.data)
@@ -47,6 +47,6 @@ class AdminUserVerifiedView(APIView):
                 
             serializer.save()
             
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error","status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

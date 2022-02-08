@@ -35,7 +35,7 @@ class UserLikeView(APIView):
     def get(self, request):
         userInterest = UserLike.objects.all()
         serializer = UserLikeSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         # import pdb;pdb.set_trace()
@@ -50,7 +50,7 @@ class UserLikeView(APIView):
 
             serializer.save()
 
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -62,7 +62,7 @@ class UserLikeNewView(APIView):
         user = request.data.get('user')
         userInterest = UserLike.objects.filter(user)
         serializer = UserLikeNewSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": "True","status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class GetUserLikeView(APIView):
@@ -81,7 +81,7 @@ class GetUserLikeView(APIView):
         friend_req_list = self.get_object(pk)
         serializer = UserLikeflagSerializer(friend_req_list, many=True)
 
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         friend_req_list = self.get_object(pk)
