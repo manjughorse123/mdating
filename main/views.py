@@ -139,6 +139,7 @@ class UserPassionFilter(filters.FilterSet):
 
 
 class UserPassionFilterAPI(ListAPIView):
+
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'

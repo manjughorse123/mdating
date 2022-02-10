@@ -11,7 +11,7 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
     class Meta:
         model = User
         geo_field = "location"
-        fields = ('id', 'gender', 'birth_date', 'location')
+        fields = ('id', 'gender', 'birth_date', 'location','passion','idealmatch','name','image')
 
 
 class FollowRequestSerializer(ModelSerializer):

@@ -37,5 +37,14 @@ urlpatterns = [
     # re_path('UserUpdatePassion/(?P<pk>[0-9a-f-]+)',  UserUpdatePassion.as_view({'get':'list'}), name='match_detail'),
     path('height/',  AddHeigthView.as_view(), name='heigthview'),
     re_path(r'^get/user/detail/(?P<pk>[0-9a-f-]+)', GetUserDetail.as_view(), name='getuserdetail'),
+    re_path(r'^user/update/ideal-match/(?P<pk>[0-9a-f-]+)', UserUpdateIdealMatch.as_view(), name="userupdateidealmatch"),
+    re_path(r'^user/update/passion/(?P<pk>[0-9a-f-]+)', UserUpdatePassion.as_view(), name="userupdatepassion"),
+    re_path(r'^user/update/gender/(?P<pk>[0-9a-f-]+)', UserUpdateGender.as_view(), name="userupdategender"),
+    re_path(r'^user/update/interest/(?P<pk>[0-9a-f-]+)', UserUpdateInterest.as_view(), name="userupdateinterest"),
+    re_path(r'^user/update/hight/(?P<pk>[0-9a-f-]+)', UserUpdateHight.as_view(), name="userupdatehight"),
+    re_path(r'^user/update/location/(?P<pk>[0-9a-f-]+)', UserUpdateLoction.as_view(), name="userupdatelocation"),
+    re_path(r'^user/update/media/(?P<pk>[0-9a-f-]+)', UserUpdateMedia.as_view(), name="userupdatemedia"),
+    re_path(r'^user/update/relationship_status/(?P<pk>[0-9a-f-]+)', UserUpdateMaritalStatus.as_view(), name="userupdatemaritalstatus"),
+
 
 ]

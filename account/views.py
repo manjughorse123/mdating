@@ -277,14 +277,16 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
     #         return Response({"success": "error", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, *args, **kwargs):
-        pk = self.kwargs.get('pk')
 
+        pk = self.kwargs.get('pk')
         # object = User.objects.get(pk=pk)
 
         question = get_object_or_404(User, pk=pk)
         serializer = UserSerializer(question, data=request.data, partial=True)
+
         if serializer.is_valid():
             question = serializer.save()
+
             return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -313,6 +315,7 @@ class AddPassionView(APIView):
         serializer = PassionSerializer(data=request.data)
 
         if serializer.is_valid():
+
             serializer.save()
             return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
@@ -848,3 +851,138 @@ class GetUserDetail(APIView):
         adduserdetail = self.get_object(pk)
         serializer = UserDetailSerializer(adduserdetail)
         return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
+
+
+
+class UserUpdateIdealMatch(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.idealmatch_field = True
+        question.save(update_fields=["idealmatch_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Ideal Match field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class UserUpdatePassion(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.passion_field = True
+        question.save(update_fields=["passion_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Passion field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserUpdateGender(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.gender_field = True
+        question.save(update_fields=["gender_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class UserUpdateInterest(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.interest_in_field = True
+        question.save(update_fields=["interest_in_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserUpdateHight(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.height_field = True
+        question.save(update_fields=["height_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User height_field field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserUpdateLoction(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.location_field = True
+        question.save(update_fields=["location_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User location field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserUpdateMedia(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.is_media_field = True
+        question.save(update_fields=["is_media_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+            return Response({"message" : "User Media field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+class UserUpdateMaritalStatus(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def patch(self, request, *args, **kwargs):
+
+        pk = self.kwargs.get('pk')
+        question = get_object_or_404(User, pk=pk)
+        serializer = UserSerializer(question, data=request.data, partial=True)
+        question.relationship_status_field = True
+        question.save(update_fields=["relationship_status_field"])
+        if serializer.is_valid():
+            question = serializer.save()
+
+            return Response({"message" : "User relationship_status field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
