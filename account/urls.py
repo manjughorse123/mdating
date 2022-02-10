@@ -44,7 +44,7 @@ urlpatterns = [
     re_path(r'^user/update/hight/(?P<pk>[0-9a-f-]+)', UserUpdateHight.as_view(), name="userupdatehight"),
     re_path(r'^user/update/location/(?P<pk>[0-9a-f-]+)', UserUpdateLoction.as_view(), name="userupdatelocation"),
     re_path(r'^user/update/media/(?P<pk>[0-9a-f-]+)', UserUpdateMedia.as_view(), name="userupdatemedia"),
-    re_path(r'^user/update/relationship_status/(?P<pk>[0-9a-f-]+)', UserUpdateMaritalStatus.as_view(), name="userupdatemaritalstatus"),
+    re_path(r'^user/update/relationship-status/(?P<pk>[0-9a-f-]+)', UserUpdateMaritalStatus.as_view(), name="userupdatemaritalstatus"),
 
 
 ]
