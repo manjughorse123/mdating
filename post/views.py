@@ -94,6 +94,7 @@ class PostReactionApi(APIView):
                 else:
                     obj = obj[0]
                     obj.is_like = obj.is_like + 1
+
                     obj.save(update_fields=("is_like",))
                     serializerLike.save()
 
