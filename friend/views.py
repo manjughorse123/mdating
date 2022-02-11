@@ -21,9 +21,9 @@ class AddFriendRequestSendView(APIView):
                 
             serializer.save()
 
-            return Response({"success": True, "status":201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "message": "Friend Request Sent!","status":201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": True, "message": "Friend Request  Was Alraedy Sent!","status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddFriendRequestAcceptView(APIView):
@@ -45,9 +45,9 @@ class AddFriendRequestAcceptView(APIView):
         
             serializer.save()
             
-            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "message": "Friend Request Accepted!", "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "message": "Friend Request was Already Accepted !","status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetFriendRequestListView(APIView):
@@ -64,7 +64,7 @@ class GetFriendRequestListView(APIView):
     def get(self, request, pk, format=None):    
         friend_req_list = self.get_object(pk)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
-        return Response({"success": True, "status": 200 ,"data": serializer.data, 'data_count' :len(serializer.data)}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200 ,"message": "Detail","data": serializer.data, 'data_count' :len(serializer.data)}, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         friend_req_list = self.get_object(pk)
@@ -86,9 +86,9 @@ class  AddFollowRequestView(APIView):
         if serializer.is_valid():   
             serializer.save()
             
-            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "message": "Follow Request Send","status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error",  "message": "Follow Request was Already Send", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class FollowRequestAcceptView(APIView):
@@ -108,9 +108,9 @@ class FollowRequestAcceptView(APIView):
             send_requst.update(is_active = False) 
             serializer.save()
             
-            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "message": "Follow Request Accept", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "message": "Follow Request Already","status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 
