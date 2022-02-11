@@ -12,6 +12,7 @@ from .models import *
 from .serializers import *
 from rest_framework.parsers import *
 from rest_framework.permissions import *
+from account.models import *
 
 
 class UserMediaAPI(APIView):
@@ -35,6 +36,7 @@ class MediaUploadApi(APIView):
         return Response({"message": True, "post": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
+        user=request.data.get('user')
         data = {
             'caption': request.data.get('caption'),
             'media': request.data.get('media'),
@@ -42,8 +44,12 @@ class MediaUploadApi(APIView):
 
         }
         serializer = MediaPostSerializers(data=data)
-        print(serializer)
+
         if serializer.is_valid():
+            obj  = User.objects.filter(id = user)
+
+
+            obj.update(is_media_field = True)
             serializer.save()
 
             return Response({"message": True, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
