@@ -13,7 +13,7 @@ class AddFriendRequestSendView(APIView):
         # import pdb;pdb.set_trace()
         userInterest =FriendRequest.objects.all()
         serializer = FriendRequestSerializer(userInterest, many=True)
-        return Response({"success": True, "status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "message" :" User  Send Request Detail" ,"status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
 
@@ -36,7 +36,7 @@ class AddFriendRequestAcceptView(APIView):
     def get(self, request):
         userInterest =FriendList.objects.all()
         serializer = FriendListSerializer(userInterest, many=True)
-        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "message" :" User Accept Request Detail" ,"status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = FriendListSerializer(data=request.data)
@@ -82,7 +82,7 @@ class  AddFollowRequestView(APIView):
     def get(self, request):
         userInterest =FollowRequest.objects.all()
         serializer = FollowRequestSerializer(userInterest, many=True)
-        return Response({"success": True,"status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,"status": 200,"message" :" User follow Request Detail" , "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = FollowRequestSerializer(data=request.data)
@@ -101,7 +101,7 @@ class FollowRequestAcceptView(APIView):
     def get(self, request):
         follow_accept =FollowAccept.objects.all()
         serializer = FollowAcceptSerializer(follow_accept, many=True)
-        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,"message" :" User  Accept follow Detail" , "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = FollowAcceptSerializer(data=request.data)
@@ -134,7 +134,7 @@ class GetFollowerView(APIView):
         follower_info = self.get_object(pk)
         serializer = FollowRequestFollowerSerializer(follower_info, many=True)
 
-        return Response({"success": True, "data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
+        return Response({"success": True, "message" :" User follow Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         follower_info = self.get_object(pk)
@@ -157,7 +157,7 @@ class GetFollowingView(APIView):
         following_list = self.get_object(pk)
         serializer = FollowListFollowingSerializer(following_list, many=True)
         
-        return Response({"success": True, "status": 200,"data": serializer.data ,'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
+        return Response({"success": True,"message" :" User Following Detail" , "status": 200,"data": serializer.data ,'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
     def delete(self, request, pk, format=None):
         following_list = self.get_object(pk)
@@ -171,7 +171,7 @@ class FAQView(APIView):
     def get(self, request):
         faq = FAQ.objects.all()
         serializer = FAQSerializer(faq, many=True)
-        return Response({"success": True, "status": 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,"message" :" FAQ Data!" , "status": 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = FAQSerializer(data=request.data)
