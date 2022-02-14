@@ -6,9 +6,11 @@ class FriendRequestSerializer(serializers.ModelSerializer):
    
         def validate(self, attrs):
             # import pdb;pdb.set_trace()
-            if FriendRequest.objects.filter(is_active = True):
-                raise serializers.ValidationError(
-                    {"friend request was  already send"})
+            if attrs['receiver']:
+                receiver =attrs['receiver']
+                if FriendRequest.objects.filter(receiver=receiver):
+                    raise serializers.ValidationError(
+                        {"friend request was  already send"})
 
             return attrs
 
@@ -23,7 +25,7 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
         class Meta:
             model = FriendRequest
-            fields = "__all__"
+            fields = '__all__'
 
 
 

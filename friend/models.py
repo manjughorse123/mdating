@@ -62,7 +62,7 @@ class FriendRequest(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver", )
 
-    is_active = models.BooleanField(blank=False, null=False, default=True)
+    friendrequestsent  = models.BooleanField(blank=False, null=False, default=True)
 
     create_at = models.DateTimeField(auto_now_add=True)
 

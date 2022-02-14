@@ -52,7 +52,7 @@ class PostReactionApi(APIView):
         serializerView = PostViewSerializers(userView, many=True)
         serializerLike = PostLikeSerializers(userLike, many=True)
         serializerShare = PostShareSerializers(userShare, many=True)
-        return Response({"success": True, "status":200,"data View": serializerView.data, "data Like": serializerLike.data,
+        return Response({"success": True, "status":200,"data View": serializerView.data,"data View count": len(serializerView.data), "data Like": serializerLike.data,
                          "data share": serializerShare.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):

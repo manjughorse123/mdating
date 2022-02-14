@@ -10,16 +10,20 @@ class AddFriendRequestSendView(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request):
+        # import pdb;pdb.set_trace()
         userInterest =FriendRequest.objects.all()
         serializer = FriendRequestSerializer(userInterest, many=True)
         return Response({"success": True, "status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
+
         serializer = FriendRequestSerializer(data=request.data)
         
-        if serializer.is_valid():   
-                
-            serializer.save()
+        if serializer.is_valid():
+            sender = serializer.validated_data['sender']
+            receiver = serializer.validated_data['receiver']
+            obj = FriendRequest.objects.create(receiver=receiver, sender=sender, friendrequestsent=True)
+            # serializer.save()
 
             return Response({"success": True, "message": "Friend Request Sent!","status":201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
@@ -41,7 +45,7 @@ class AddFriendRequestAcceptView(APIView):
         
             to_user= serializer.validated_data['user']
             send_requst = FriendRequest.objects.filter(sender =to_user )
-            send_requst.update(is_active = False) 
+            send_requst.update(friendrequestsent = False)
         
             serializer.save()
             

@@ -19,21 +19,21 @@ class UserMediaAPI(APIView):
     def get(self, request, id, *args, **kwargs):
         user = MediaPost.objects.filter(user_id=id)
         serializer = MediaPostSerializers(user, many=True)
-        return Response({"media": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"media": serializer.data ,"status":200 ,"success": True}, status=status.HTTP_200_OK)
 
 
 class UserMediaAPIPost(APIView):
     def get(self, request, *args, **kwargs):
         media = MediaPost.objects.all()
         serializer = MediaPostSerializers(media, many=True)
-        return Response({"success": "True", "post": [serializer.data]}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status":200 , "post": serializer.data},status=status.HTTP_200_OK)
 
 
 class MediaUploadApi(APIView):
     def get(self, request, id, *args, **kwargs):
         posts = MediaPost.objects.filter(id=id)
         serializer = MediaPostSerializers(posts, many=True)
-        return Response({"message": True, "post": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         user=request.data.get('user')
@@ -52,8 +52,8 @@ class MediaUploadApi(APIView):
             obj.update(is_media_field = True)
             serializer.save()
 
-            return Response({"message": True, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
-        return Response({"message": False, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": True, "message": "User Media Added!","status": 201,"post": serializer.data}, status=status.HTTP_201_CREATED)
+        return Response({"status": 400 ,"message": False, "post": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaReactionApi(APIView):
@@ -65,7 +65,7 @@ class MediaReactionApi(APIView):
         serializerView = MediaViewSerializers(userView, many=True)
         serializerLike = MediaLikeSerializers(userLike, many=True)
         serializerShare = MediaShareSerializers(userShare, many=True)
-        return Response({"success": "True", "data View": serializerView.data, "data Like": serializerLike.data,
+        return Response({"success": True, "status":200 ,"data View": serializerView.data, "data Like": serializerLike.data,
                          "data share": serializerShare.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
@@ -96,7 +96,7 @@ class MediaReactionApi(APIView):
                     serializerView.save()
 
                     return Response(
-                        {"message": "User Post View Successfully", "success": "True", "data": serializerView.data},
+                        {"message": "User Post View Successfully", "status":200 ,"success": "True", "data": serializerView.data},
                         status=status.HTTP_201_CREATED)
         if serializerLike.is_valid():
             if flagdata == 2:
@@ -121,7 +121,7 @@ class MediaReactionApi(APIView):
                 serializerShare.save()
 
                 return Response(
-                    {"message": "User Post Shared Successfully", "success": "True", "data": serializerShare.data},
+                    {"message": "User Post Shared Successfully", "status" :201,"success": "True", "data": serializerShare.data},
                     status=status.HTTP_201_CREATED)
         # if serializerLike.is_valid():
         #     try:
@@ -140,12 +140,12 @@ class MediaReactionApi(APIView):
         #                         status=status.HTTP_201_CREATED)
 
         else:
-            return Response({"message": "Data Not Valid", "success": "error", "flag": False},
+            return Response({"message": "Data Not Valid","status" : 400, "success": "error", "flag": False},
                             status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Internal Server Error", "success": "error"},
+        return Response({"message": "Bad Request", "status": 400,"success": "error"},
                         status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -154,7 +154,7 @@ class MediaViewAPI(APIView):
         media = MediaView.objects.filter(media_id=id)
         print(media)
         serializer = MediaViewSerializers(media, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"success" : True,"status" : 200 ,"data":serializer.data}, status=status.HTTP_200_OK)
 
 
 class MediaLikeAPI(APIView):
@@ -162,7 +162,7 @@ class MediaLikeAPI(APIView):
         media = MediaLike.objects.filter(media_id=id)
         print(media)
         serializer = MediaLikeSerializers(media, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"success" : True,"status" : 200 ,"data":serializer.data}, status=status.HTTP_200_OK)
 
 
 class MediaShareAPI(APIView):
@@ -170,6 +170,6 @@ class MediaShareAPI(APIView):
         media = MediaShare.objects.filter(media_id=id)
         print(media)
         serializer = MediaShareSerializers(media, many=True)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response({"success" : True,"status" :200 ,"data":serializer.data}, status=status.HTTP_200_OK)
 
 # /Users/apple/Desktop/Dating-Backend
