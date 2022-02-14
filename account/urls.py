@@ -45,6 +45,7 @@ urlpatterns = [
     re_path(r'^user/update/location/(?P<pk>[0-9a-f-]+)', UserUpdateLoction.as_view(), name="userupdatelocation"),
     re_path(r'^user/update/media/(?P<pk>[0-9a-f-]+)', UserUpdateMedia.as_view(), name="userupdatemedia"),
     re_path(r'^user/update/relationship-status/(?P<pk>[0-9a-f-]+)', UserUpdateMaritalStatus.as_view(), name="userupdatemaritalstatus"),
-
+    #for user delete
+    re_path(r'^user/delete/(?P<pk>[0-9a-f-]+)', UserDelete.as_view(), name="userdelete"),
 
 ]

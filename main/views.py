@@ -41,6 +41,11 @@ class UserFilterAPI(ListAPIView):
     filter_backends = (
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
+    def list(self, request):
+        queryset = User.objects.all()
+        serializer = UserFilterSerializer(queryset, many=True)
+        return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+
 
 # DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter
 
@@ -62,7 +67,7 @@ class FollowDetails(APIView):
         flagdata = int(flag)
         serializerRequest = FollowRequestSerializer(data=request.data)
         serializerAccept = FollowAcceptSerializer(data=request.data)
-        return Response(status=status.HTTP_200_OK)
+        return Response({"message": "User Matched Profile","status": 200, "success": True},status=status.HTTP_200_OK)
 
 
 class FollowResquestAPI(APIView):
@@ -129,6 +134,11 @@ class UserMatchProfileFilterAPI(ListAPIView):
     serializer_class = NewUserMatchProfileFilterSerializer
     filterset_class = UserMatchProfileFilter
     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
+
+    def list(self, request):
+        serializer = UserMatchProfileFilter(queryset, many=True)
+        return Response({"message": "User Matched Profile", "status": 200, "success": True, 'data': serializer.data},
+                        status=status.HTTP_200_OK)
 
 
 class UserPassionFilter(filters.FilterSet):

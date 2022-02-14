@@ -986,3 +986,21 @@ class UserUpdateMaritalStatus(RetrieveUpdateDestroyAPIView):
 
             return Response({"message" : "User relationship_status field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+class UserDelete(RetrieveUpdateDestroyAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get_object(self, pk):
+        try:
+            return User.objects.get(pk=pk)
+        except User.DoesNotExist:
+            raise Http404
+
+    def delete(self, request, pk, format=None):
+
+        userdel = self.get_object(pk)
+        userdel.delete()
+        return Response({'status':204,'message':'User Successfully Deleted!' ,'success':True},status=status.HTTP_204_NO_CONTENT)

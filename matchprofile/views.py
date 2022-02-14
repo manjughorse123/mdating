@@ -54,34 +54,6 @@ class PostUserReactSerializerView(APIView):
             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-#
-#
-# <<<<<<< HEAD
-# from django.db.models import Q
-#
-#
-# class MatchProfileUserViewSet(viewsets.ModelViewSet):
-#     queryset = UserPassion.objects.order_by("-passion")
-#     serializer_class = UserPassionMatchSerializer
-#     filterset_class = UserPassionMatchFilter
-#
-#     def get_queryset(self):
-#         # import pdb;pdb.set_trace()
-#         queryset = self.queryset
-#
-#         q_name = Q()
-#         rel_name = self.request.query_params.get("Art", None)
-#         if rel_name:
-#             q_name = Q(users__name=rel_name)
-#
-#         q_groups = Q()
-#         rel_groups = self.request.query_params.get("Techlogy", "").split(",")
-#         if any(rel_groups):
-#             q_groups = Q(groups__name__in=rel_groups)
-#
-#         qs = queryset.filter(q_name | q_groups).distinct()
-#         return qs
-# =======
 
 class AddMatchLikeUserProfileView(APIView):
     # permission_classes = (AllowAny,)
@@ -89,18 +61,17 @@ class AddMatchLikeUserProfileView(APIView):
     def get(self, request):
         userInterest =UserMatchProfile.objects.all()
         serializer = UserMatchProfileSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"message": "Match Profile Data","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserMatchProfileSerializer(data=request.data)
-        
         if serializer.is_valid():   
-                
+
             serializer.save()
             
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True,"status": 201,"message": "User Match Profile Created!", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": False, "status": 400,"message": "Match Profile Data Not Found","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddLikeToLikeView(APIView):
@@ -109,7 +80,7 @@ class AddLikeToLikeView(APIView):
     def get(self, request):
         userInterest =UserToUserLike.objects.all()
         serializer = UserToUserLikeSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"message": "User Profile Liked!","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserToUserLikeSerializer(data=request.data)
@@ -118,7 +89,7 @@ class AddLikeToLikeView(APIView):
                 
             serializer.save()
             
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True,"status": 201,"message": "Liked User Profile", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -129,7 +100,7 @@ class  PostCountLikeView(APIView):
     def get(self, request):
         userInterest =UserToUserUnLike.objects.all()
         serializer = UserToUserUnLikeSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200,"message": "Match Profile Data Count","data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         serializer = UserToUserUnLikeSerializer(data=request.data)
@@ -139,7 +110,7 @@ class  PostCountLikeView(APIView):
             like_profile_user = serializer.validated_data['like_profile_user']
             if request.data['flag'] == '1':
                 if UserToUserLike.objects.get(like_profile_user=like_profile_user):
-                    return Response({"success": "error", "data": "user already like  another user "}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"success": "error","status": 400,"message":  "User Already like Profile "}, status=status.HTTP_400_BAD_REQUEST)
             else:
                 obj = UserToUserLike.objects.get(user=ab)
                 obj.is_like = True
@@ -148,7 +119,7 @@ class  PostCountLikeView(APIView):
             if request.data['flag'] == '2':
                 if UserToUserLike.objects.get(like_profile_user=like_profile_user):
                     
-                    return Response({"success": "error", "data": "user already Dislike Another User "}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"success": "error","status": 400,"message":  "User Already Dislike Profile "}, status=status.HTTP_400_BAD_REQUEST)
                 else :    
                     obj = UserToUserLike.objects.get(user=ab)
                 
@@ -163,9 +134,60 @@ class  PostCountLikeView(APIView):
         
             serializer.save()
             
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True,"status": 201,"message": "Match Profile Data", "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# >>>>>>> b5e5b2d31123a3f0cda62178ca3edc335ec0c3d2
+
+
+class MatchedUserProfileView(APIView):
+    # permission_classes = (AllowAny,)
+
+    def get(self, request):
+        userInterest = UserMatchProfile.objects.all()
+        serializer = UserMatchProfileSerializer(userInterest, many=True)
+        return Response(
+            {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
+            status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = UserMatchProfileSerializer(data=request.data)
+
+        if serializer.is_valid():
+            ab = serializer.validated_data['user']
+            like_profile_user = serializer.validated_data['like_profile_user']
+            if request.data['flag'] == '1':
+                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user):
+                    return Response({"success": "error", "status": 400, "message": "User Already like Profile "},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    obj = UserMatchProfile.objects.create(user = ab,like_profile_user=like_profile_user,is_like = True)
+
+            if request.data['flag'] == '2':
+                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user,is_like =False):
+
+                    return Response({"success": "error", "status": 400, "message": "User Already Dislike Profile "},
+                                    status=status.HTTP_400_BAD_REQUEST)
+                else:
+                    obj = UserMatchProfile.objects.filter(user=ab)
+
+                    obj.is_like = False
+                    # obj.save(update_fields=("is_like",))
+                    obj.update()
+
+            if request.data['flag'] == '3':
+                obj = UserMatchProfile.objects.filter(like_profile_user=like_profile_user)
+                obj = obj[0].id
+                objs = UserMatchProfile.objects.filter(id=obj)
+                objs.delete()
+                return Response({"success": True,"message": "User Dislike !" ,"status": 200},status=status.HTTP_200_OK)
+
+            # serializer.save()
+
+            return Response({"success": True, "status": 201, "message": "Match Profile Data", "data": serializer.data},
+                            status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "status": 400, "data": serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+

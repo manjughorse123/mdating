@@ -8,6 +8,7 @@ class FriendList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     friends = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="friends")
+    create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.name
@@ -63,7 +64,7 @@ class FriendRequest(models.Model):
 
     is_active = models.BooleanField(blank=False, null=False, default=True)
 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.sender.name
@@ -75,7 +76,7 @@ class FollowRequest(models.Model):
     follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user")
     is_active = models.BooleanField(blank=False, null=False, default=True)
 
-    timestamp = models.DateTimeField(auto_now_add=True)
+    create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.user.name
@@ -85,6 +86,7 @@ class FollowAccept(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user_accept")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user_accept")
+    create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.follow.name
