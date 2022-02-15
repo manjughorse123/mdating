@@ -8,6 +8,7 @@ class FriendList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     friends = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="friends")
+    is_accepted = models.BooleanField(blank=False, null=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

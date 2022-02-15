@@ -10,5 +10,5 @@ urlpatterns = [
     path('user/like/<int:id>', MediaLikeAPI.as_view(), name='MediaViewAPI'),
     path('user/share/<int:id>', MediaShareAPI.as_view(), name='MediaViewAPI'),
     path('upload/', MediaUploadApi.as_view(), name='MediaUploadApi'),
-    path('upload/<int:id>', MediaUploadApi.as_view(), name='MediaUploadApi'),
+    path('upload/<int:id>', GetMediaUploadApi.as_view(), name='MediaUploadApi'),
 ]

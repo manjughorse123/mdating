@@ -13,6 +13,7 @@ from .serializers import *
 from rest_framework.parsers import *
 from rest_framework.permissions import *
 from account.models import *
+from . models import *
 
 
 class UserMediaAPI(APIView):
@@ -28,10 +29,15 @@ class UserMediaAPIPost(APIView):
         serializer = MediaPostSerializers(media, many=True)
         return Response({"success": True, "status":200 , "post": serializer.data},status=status.HTTP_200_OK)
 
-
-class MediaUploadApi(APIView):
+class GetMediaUploadApi(APIView):
     def get(self, request, id, *args, **kwargs):
         posts = MediaPost.objects.filter(id=id)
+        serializer = MediaPostSerializers(posts, many=True)
+        return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
+
+class MediaUploadApi(APIView):
+    def get(self, request, *args, **kwargs):
+        posts = MediaPost.objects.all()
         serializer = MediaPostSerializers(posts, many=True)
         return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 

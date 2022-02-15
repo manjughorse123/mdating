@@ -1,14 +1,20 @@
 from .models import *
 from rest_framework import serializers
+from account.serializers import *
 
+
+class UserFriendSerilaizer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('name', 'id', 'image')
 
 class FriendRequestSerializer(serializers.ModelSerializer):
    
         def validate(self, attrs):
             # import pdb;pdb.set_trace()
-            if attrs['receiver']:
-                receiver =attrs['receiver']
-                if FriendRequest.objects.filter(receiver=receiver):
+            if attrs['sender']:
+                sender =attrs['sender']
+                if FriendRequest.objects.filter(sender=sender):
                     raise serializers.ValidationError(
                         {"friend request was  already send"})
 
@@ -28,6 +34,18 @@ class FriendRequestSerializer(serializers.ModelSerializer):
             fields = '__all__'
 
 
+class GetFriendRequestSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendRequest
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['sender'] = UserFriendSerilaizer(instance.sender).data
+        response['receiver'] = UserFriendSerilaizer(instance.receiver).data
+        return response
+
+
 
 # def validate(self, attrs):
 #         if attrs['password'] != attrs['confrim_password']:
@@ -45,14 +63,14 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
 class FriendListSerializer(serializers.ModelSerializer):
    
-        def validate(self, attrs):
-            # import pdb;pdb.set_trace()
-            # to_user= validated_data.get('friends')
-            if FriendList.objects.filter(friends = attrs['friends']):
-                raise serializers.ValidationError(
-                    {"friend request was  already accept"})
-
-            return attrs
+        # def validate(self, attrs):
+        #     # import pdb;pdb.set_trace()
+        #     # to_user= validated_data.get('friends')
+        #     if FriendList.objects.filter(friends = attrs['friends']):
+        #         raise serializers.ValidationError(
+        #             {"friend request was  already accept"})
+        #
+        #     return attrs
     
         def create(self, validated_data):
             # import pdb;pdb.set_trace()
@@ -142,6 +160,10 @@ class FollowAcceptSerializer(serializers.ModelSerializer):
         class Meta:
             model = FollowAccept
             fields = "__all__"
+        def to_representation(self, instance):
+            response = super().to_representation(instance)
+            response['follow'] = UserFriendSerilaizer(instance.follow).data
+            return response
 
 class FAQSerializer(serializers.ModelSerializer):
 
@@ -158,6 +180,7 @@ class FollowRequestFollowerSerializer(serializers.ModelSerializer):
 
 
 
+
 # FriendRequest list
 class FriendRequestListSerializer(serializers.ModelSerializer):
 
@@ -165,9 +188,18 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
             model  = FriendRequest
             fields = ('sender',)
 
+        def to_representation(self, instance):
+            response = super().to_representation(instance)
+            response['sender'] = UserFriendSerilaizer(instance.sender).data
+            return response
+
 
 class FollowListFollowingSerializer(serializers.ModelSerializer):
 
         class Meta:
             model  = FollowAccept
             fields = ('follow',)
+        def to_representation(self, instance):
+            response = super().to_representation(instance)
+            response['follow'] = UserFriendSerilaizer(instance.follow).data
+            return response
