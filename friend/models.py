@@ -87,6 +87,7 @@ class FollowAccept(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user_accept")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user_accept")
+    is_follow_accepted = models.BooleanField(blank=False, null=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -98,17 +99,5 @@ class FAQ(models.Model):
     answer = models.TextField(blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
-# <<<<<<< HEAD
     def __str__(self):
         return self.question
-# =======
-# 	question = models.CharField(max_length=255)
-# 	answer = models.TextField(blank=True ,null=True)
-# 	create_at = models.DateTimeField(auto_now_add=True)
-#
-# 	def __str__(self):
-# 		return self.question
-
-
-
-# >>>>>>> b5e5b2d31123a3f0cda62178ca3edc335ec0c3d2

@@ -146,7 +146,7 @@ class MatchedUserProfileView(APIView):
 
     def get(self, request):
         userInterest = UserMatchProfile.objects.all()
-        serializer = UserMatchProfileSerializer(userInterest, many=True)
+        serializer = GetUserMatchProfileSerializer(userInterest, many=True)
         return Response(
             {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
             status=status.HTTP_200_OK)

@@ -114,17 +114,16 @@ class FollowSerializer(serializers.ModelSerializer):
 
 class FollowRequestSerializer(serializers.ModelSerializer):
    
-        def validate(self, attrs):
-            # import pdb;pdb.set_trace()
-            # follow = validate.get()
-            if FollowRequest.objects.filter(follow= attrs['follow']):
-                raise serializers.ValidationError(
-                    {" user is alrady follow"})
-
-            return attrs
+        # def validate(self, attrs):
+        #     # import pdb;pdb.set_trace()
+        #     # follow = validate.get()
+        #     if FollowRequest.objects.filter(follow= attrs['follow']):
+        #         raise serializers.ValidationError(
+        #             {" user is alrady follow"})
+        #
+        #     return attrs
 
         def create(self, validated_data):
-            # import pdb;pdb.set_trace()
             user= validated_data.get('user')
             follow = validated_data.get('follow')
             follow_request, created = FollowRequest.objects.update_or_create(
@@ -140,13 +139,13 @@ class FollowRequestSerializer(serializers.ModelSerializer):
 
 class FollowAcceptSerializer(serializers.ModelSerializer):
    
-        def validate(self, attrs):
-            # import pdb;pdb.set_trace()
-            if FollowAccept.objects.filter(follow=attrs['follow']):
-                raise serializers.ValidationError(
-                    {" Follower already Added"})
-
-            return attrs
+        # def validate(self, attrs):
+        #     # import pdb;pdb.set_trace()
+        #     if FollowAccept.objects.filter(follow=attrs['follow']):
+        #         raise serializers.ValidationError(
+        #             {" Follower already Added"})
+        #
+        #     return attrs
 
         def create(self, validated_data):
             # import pdb;pdb.set_trace()
@@ -160,10 +159,10 @@ class FollowAcceptSerializer(serializers.ModelSerializer):
         class Meta:
             model = FollowAccept
             fields = "__all__"
-        def to_representation(self, instance):
-            response = super().to_representation(instance)
-            response['follow'] = UserFriendSerilaizer(instance.follow).data
-            return response
+        # def to_representation(self, instance):
+        #     response = super().to_representation(instance)
+        #     response['follow'] = UserFriendSerilaizer(instance.follow).data
+        #     return response
 
 class FAQSerializer(serializers.ModelSerializer):
 
@@ -177,6 +176,10 @@ class FollowRequestFollowerSerializer(serializers.ModelSerializer):
         class Meta:
             model  = FollowRequest
             fields = ('follow',)
+        def to_representation(self, instance):
+            response = super().to_representation(instance)
+            response['follow'] = UserFriendSerilaizer(instance.follow).data
+            return response
 
 
 
@@ -199,6 +202,7 @@ class FollowListFollowingSerializer(serializers.ModelSerializer):
         class Meta:
             model  = FollowAccept
             fields = ('follow',)
+
         def to_representation(self, instance):
             response = super().to_representation(instance)
             response['follow'] = UserFriendSerilaizer(instance.follow).data
