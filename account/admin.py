@@ -18,16 +18,17 @@ class TestModelForm(ModelForm):
 
 class UserAdmin(admin.ModelAdmin):
     form = TestModelForm
-    list_display = ('email', 'mobile', 'name', 'govt_id_pic', 'id', 'is_register_user_verified','is_button','create_at',)
+    list_display = ('email', 'mobile', 'name', 'govt_id_pic', 'id', 'is_register_user_verified','is_govt_id_verified','create_at',)
     list_display_links = ('email', 'name')
     list_filter = ('email', 'mobile', 'name', 'create_at')
     list_per_page = 10
+    list_editable = ('is_govt_id_verified',)
 
 
     def govt_id_pic (self,obj):
         return  format_html(f'<img src= "/media/{obj.govt_id}" style = height:100px;width:100px/>')
-    def is_button (self,obj):
-        return  format_html(f'<button style = height:40px;width:40px/>{obj.is_govt_id_verified}</button>')
+    # def is_button (self,obj):
+    #     return  format_html(f'<button style = height:40px;width:40px/>{obj.is_govt_id_verified}</button>')
         # return format_html(f'<input type="checkbox" style = height:30px;width:30px value ={obj.is_govt_id_verified}/>')
     readonly_fields =  ('email', 'mobile', 'name', 'otp', 'is_phone_verified', 'govt_id_pic', 'location','id', 'create_at', 'update_at')
 admin.site.register(User, UserAdmin)

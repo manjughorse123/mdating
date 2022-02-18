@@ -207,7 +207,7 @@ class UserData(GenericAPIView):
         mediaserializer = MediaPostSerializers(media, many=True)
         return Response({"message": True, "user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
                          "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
-                         "media": mediaserializer.data, "Following   ": len(followserializer.data),
+                         "media": mediaserializer.data, "Following": len(followserializer.data),
                          "Follower": len(followacceptserializer.data),
                          }, status=status.HTTP_200_OK)
 
