@@ -33,12 +33,15 @@ ALLOWED_HOSTS = ['*', '0.0.0.0', '0.0.0.0:80']
 
 INSTALLED_APPS = [
     'jazzmin',
+    'django_toggle_switch_widget',
+
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'drf_yasg',
     'rest_framework',
     'ckeditor',
     'main',
@@ -200,4 +203,11 @@ REST_FRAMEWORK = {
 #             'rest_framework.authentication.SessionAuthentication',
 #             'rest_framework.authentication.BasicAuthentication',),
 # }
+# AUTH_USER_MODEL = 'account.User'
+
+REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    )
+}
 
