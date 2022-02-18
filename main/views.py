@@ -46,19 +46,8 @@ class UserFilterAPI(ListAPIView):
         serializer = UserFilterSerializer(queryset, many=True)
         return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
 
-
-# DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter
-
-# class BirthDateFilter(ListAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserFilterSerializer
-#     filterset_class = UserFilter
-#     distance_filter_field = 'geometry'
-#
-#     filter_backends = [DjangoFilterBackend, TMSTileFilter, OrderingFilter, SearchFilter]
-
-
-class FollowDetails(APIView):
+class FollowDetails(GenericAPIView):
+    serilaizer_class = (FollowRequestSerializer)
     def post(self, request, *args, **kwargs):
         data = {
             'user': request.data.get('user'),
@@ -72,12 +61,7 @@ class FollowDetails(APIView):
 
 class FollowResquestAPI(APIView):
     def get(self, request, id, flag, *args, **kwargs):
-        # import pdb;pdb.set_trace()
-        # flag = kwargs.get(flag)
-        # print("sjkdhkj", flag)
-        # import pdb;pdb.set_trace()
-        # flag = request..get("1")
-        # flag = "1"
+
         data = int(flag)
         if data == 1:
             follow = FollowRequest.objects.filter(user_id=id)
@@ -89,35 +73,6 @@ class FollowResquestAPI(APIView):
             serializer = FollowAcceptSerializer(follow, many=True)
             return Response({"message": "Follow Accept", "status": 200,"success": "True", "user": [serializer.data]},
                             status=status.HTTP_200_OK)
-
-
-#
-# class IdealMatchFilter(filters.FilterSet):
-#     idealmatch = ModelChoiceFilter()
-#     class Meta:
-#         model = UserIdealMatch
-#         fields = ['idealmatch']
-#         # fields = {'idealmatch': ['MultipleChoiceFilter'], }
-#
-#
-# class IdealMatchFilterAPI(ListAPIView):
-#     queryset = UserIdealMatch.objects.all()
-#     serializer_class = UserIdealMatchSerializer
-#     filterset_class = IdealMatchFilter
-#     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
-#
-#
-# class UserPassionFilter(filters.FilterSet):
-#     class Meta:
-#         model = UserPassion
-#         fields = ('passion',)
-#
-#
-# class UserPassionFilterAPI(ListAPIView):
-#     queryset = UserPassion.objects.all()
-#     serializer_class = UserPassionSerializer
-#     filterset_class = UserPassionFilter
-#     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
 
 
 class UserMatchProfileFilter(filters.FilterSet):

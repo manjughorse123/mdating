@@ -31,6 +31,14 @@ class UserSerializer(serializers.ModelSerializer):
     class Meta(object):
         model = User
         fields = "__all__"
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['gender'] = GenderSerializer(instance.gender).data
+
+        # response['passion'] = PassionSerializer(instance.passion).data
+
+        return response
+
     #
     # def create(self, validated_data):
     #     passions_data = validated_data.pop('passion', [])
@@ -231,3 +239,31 @@ class UserDetailSerializer(serializers.ModelSerializer):
         fields = ('gender_field','passion_field','height_field','location_field','interest_in_field','idealmatch_field','relationship_status_field','is_media_field')
 
 
+class UserLoginSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Login
+    """
+
+    class Meta:
+        model = User
+        fields = ('mobile','country_code','otp')
+
+class UserOtpSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Login
+    """
+
+    class Meta:
+        model = User
+        fields = ('mobile','country_code')
+
+
+class UserGenderSerializer(serializers.ModelSerializer):
+    """
+    Serializer for User Login
+    """
+
+    class Meta:
+        model = User
+        fields = ('gender',)
+        read_only_fields = ('id','email','name','mobile',)

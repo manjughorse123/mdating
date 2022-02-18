@@ -16,26 +16,30 @@ from account.models import *
 from . models import *
 
 
-class UserMediaAPI(APIView):
+class UserMediaAPI(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         user = MediaPost.objects.filter(user_id=id)
         serializer = MediaPostSerializers(user, many=True)
         return Response({"media": serializer.data ,"status":200 ,"success": True}, status=status.HTTP_200_OK)
 
 
-class UserMediaAPIPost(APIView):
+class UserMediaAPIPost(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, *args, **kwargs):
         media = MediaPost.objects.all()
         serializer = MediaPostSerializers(media, many=True)
         return Response({"success": True, "status":200 , "post": serializer.data},status=status.HTTP_200_OK)
 
-class GetMediaUploadApi(APIView):
+class GetMediaUploadApi(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         posts = MediaPost.objects.filter(id=id)
         serializer = MediaPostSerializers(posts, many=True)
         return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 
-class MediaUploadApi(APIView):
+class MediaUploadApi(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, *args, **kwargs):
         posts = MediaPost.objects.all()
         serializer = MediaPostSerializers(posts, many=True)
@@ -62,7 +66,8 @@ class MediaUploadApi(APIView):
         return Response({"status": 400 ,"message": False, "post": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MediaReactionApi(APIView):
+class MediaReactionApi(GenericAPIView):
+    serializer_class = MediaPostSerializers
 
     def get(self, request):
         userView = MediaView.objects.all()
@@ -155,7 +160,8 @@ class MediaReactionApi(APIView):
                         status=status.HTTP_400_BAD_REQUEST)
 
 
-class MediaViewAPI(APIView):
+class MediaViewAPI(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaView.objects.filter(media_id=id)
         print(media)
@@ -163,7 +169,8 @@ class MediaViewAPI(APIView):
         return Response({"success" : True,"status" : 200 ,"data":serializer.data}, status=status.HTTP_200_OK)
 
 
-class MediaLikeAPI(APIView):
+class MediaLikeAPI(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaLike.objects.filter(media_id=id)
         print(media)
@@ -171,7 +178,8 @@ class MediaLikeAPI(APIView):
         return Response({"success" : True,"status" : 200 ,"data":serializer.data}, status=status.HTTP_200_OK)
 
 
-class MediaShareAPI(APIView):
+class MediaShareAPI(GenericAPIView):
+    serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaShare.objects.filter(media_id=id)
         print(media)

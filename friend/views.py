@@ -6,7 +6,8 @@ from rest_framework.viewsets import *
 
 
 
-class AddFriendRequestSendView(APIView):
+class AddFriendRequestSendView(GenericAPIView):
+    serializer_class = GetFriendRequestSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -30,7 +31,8 @@ class AddFriendRequestSendView(APIView):
             return Response({"success": True, "message": "Friend Request  Was Alraedy Sent!","status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddFriendRequestAcceptView(APIView):
+class AddFriendRequestAcceptView(GenericAPIView):
+    serializer_class = FriendListSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -54,7 +56,8 @@ class AddFriendRequestAcceptView(APIView):
             return Response({"success": "error", "message": "Friend Request was Already Accepted !","status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetFriendRequestListView(APIView):
+class GetFriendRequestListView(GenericAPIView):
+    serializer_class = FriendRequestListSerializer
     """
     Retrieve, update or delete a Get Follower instance.
     """
@@ -71,14 +74,9 @@ class GetFriendRequestListView(APIView):
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
         return Response({"success": True, "status": 200 ,"message": "Detail","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':[]}, status=status.HTTP_200_OK)
 
-    def delete(self, request, pk, format=None):
-        friend_req_list = self.get_object(pk)
-        friend_req_list.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
 
-
-
-class  AddFollowRequestView(APIView):
+class  AddFollowRequestView(GenericAPIView):
+    serializer_class = FollowRequestSerializer
     # permission_classes = (AllowAny,)
     def get(self, request):
         userInterest =FollowRequest.objects.all()
@@ -95,7 +93,8 @@ class  AddFollowRequestView(APIView):
             return Response({"success": "error",  "message": "Follow Request was Already Send", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class FollowRequestAcceptView(APIView):
+class FollowRequestAcceptView(GenericAPIView):
+    serializer_class = FollowAcceptSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -139,7 +138,8 @@ class FollowRequestAcceptView(APIView):
 
 
 # GetFollowerView
-class GetFollowerView(APIView):
+class GetFollowerView(GenericAPIView):
+    serializer_class = FollowRequestFollowerSerializer
     """
     Retrieve, update or delete a Get Follower instance.
     """
@@ -153,16 +153,11 @@ class GetFollowerView(APIView):
         # import pdb;pdb.set_trace()
         follower_info = self.get_object(pk)
         serializer = FollowRequestFollowerSerializer(follower_info, many=True)
-
         return Response({"success": True, "message" :" User follow Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
-    def delete(self, request, pk, format=None):
-        follower_info = self.get_object(pk)
-        follower_info.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 # Get Following View
-class GetFollowingView(APIView):
+class GetFollowingView(GenericAPIView):
+    serializer_class = FollowListFollowingSerializer
     """
     Retrieve, update or delete a Get Follower instance.
     """
@@ -179,14 +174,15 @@ class GetFollowingView(APIView):
         
         return Response({"success": True,"message" :" User Following Detail" , "status": 200,"data": serializer.data ,'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
-    def delete(self, request, pk, format=None):
-        following_list = self.get_object(pk)
-        following_list.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def delete(self, request, pk, format=None):
+    #     following_list = self.get_object(pk)
+    #     following_list.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class FAQView(APIView):
+class FAQView(GenericAPIView):
     # permission_classes = (AllowAny,)
+    serializer_class = FAQSerializer
 
     def get(self, request):
         faq = FAQ.objects.all()
@@ -244,7 +240,8 @@ class FAQDetailUpdateInfoView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
-class AddFriendRequestAcceptDeatilApiView(APIView):
+class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
+    serializer_class = FriendListSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):

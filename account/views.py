@@ -2,11 +2,9 @@ from operator import add
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import *
-from .serializers import *
-import random
-import http.client
 
-from rest_framework.generics import *
+import http.client
+from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
 from post.serializers import *
 from usermedia.serializers import *
@@ -28,7 +26,8 @@ def send_otp(mobile, otp):
     return None
 
 
-class Login(APIView):
+class Login(GenericAPIView):
+    serializer_class = UserLoginSerializer
     def post(self, request, *args, **kwargs):
 
         try:
@@ -50,39 +49,30 @@ class Login(APIView):
                 'mobile': user.mobile,
                 'country_code': user.country_code,
                 'name': user.name,
-                # 'bio': user.bio,
-                # 'birth_date': user.birth_date,
-                # 'otp': user.otp,
-                # 'relationship_status': user.relationship_status,
-                # 'education': user.education,
-                # 'body_type': user.body_type,
-                # 'gender': user.gender,
-                # # 'image':user_obj.image,
-                # # 'userIntrest':user_obj.userinterest,
-                # # 'idealmatch':user_obj.idealmatch,
-                # 'height': user.height,
-                # 'location': user.location,
-                # # 'citylat': user.citylat,
-                # # 'citylong': user.citylong,
-                # 'address': user.address,
-                # 'city': user.city,
-                # 'is_premium': user.is_premium,
                 'is_verified': user.is_verified}},
                             status=status.HTTP_200_OK)
+            # else :
+            #     return Response({'success': False, "status": 404, 'message': 'Field Required'},
+            #                 status=status.HTTP_404_NOT_FOUND)
+
         except Exception as e:
             print(e)
             return Response({'success': False, "status" : 404 ,'message': 'internal server error'},
                             status=status.HTTP_404_NOT_FOUND)
 
 
-class Registration(APIView):
+class Registration(GenericAPIView):
+    serializer_class = UserSerializer
+
     def post(self, request):
+
         try:
-            email = request.POST.get('email')
-            mobile = request.POST.get('mobile')
-            country_code = request.POST.get('country_code')
-            name = request.POST.get('name')
-            birth_date = request.POST.get('birth_date')
+
+            email = request.data['email']
+            mobile = request.data['mobile']
+            country_code = request.data['country_code']
+            name = request.data['name']
+            birth_date = request.data['birth_date']
             check_mobile = User.objects.filter(mobile=mobile).first()
             check_email = User.objects.filter(email=email).first()
 
@@ -108,23 +98,6 @@ class Registration(APIView):
                                  'mobile': user.mobile,
                                  'country_code': user.country_code,
                                  'name': user.name,
-                                 # 'bio': user.bio,
-                                 # 'birth_date': user.birth_date,
-                                 # 'otp': user.otp,
-                                 # 'relationship_status': user.relationship_status,
-                                 # 'education': user.education,
-                                 # 'body_type': user.body_type,
-                                 # 'gender': user.gender,
-                                 # # 'image':user_obj.image,
-                                 # # 'userIntrest':user_obj.userinterest,
-                                 # # 'idealmatch':user_obj.idealmatch,
-                                 # 'height': user.height,
-                                 # 'location': user.location,
-                                 # 'citylat': user.citylat,
-                                 # 'citylong': user.citylong,
-                                 # 'address': user.address,
-                                 # 'city': user.city,
-                                 # 'is_premium': user.is_premium,
                                  'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
@@ -134,12 +107,14 @@ class Registration(APIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserCreateView(APIView):
+class UserCreateView(GenericAPIView):
+    serializer_class =  RegisterSerializer
     """
     Creates the user.
     """
 
     def post(self, request, format='json'):
+
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
 
@@ -168,7 +143,9 @@ class UserCreateView(APIView):
             return Response({"data": serializer.errors,"status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class OTPVerify(APIView):
+class OTPVerify(GenericAPIView):
+    serializer_class = UserLoginSerializer
+
     def post(self, request):
         try:
             mobile = request.POST.get("mobile")
@@ -193,23 +170,6 @@ class OTPVerify(APIView):
                         'country_code': user_obj.country_code,
                         'name': user_obj.name,
                         "is_complete_profile": is_complete_profile,
-                        # 'bio': user_obj.bio,
-                        # 'birth_date': user_obj.birth_date,
-                        # 'otp': user_obj.otp,
-                        # 'relationship_status': user_obj.relationship_status,
-                        # 'education': user_obj.education,
-                        # 'body_type': user_obj.body_type,
-                        # 'gender': user_obj.gender,
-                        # # 'image':user_obj.image,
-                        # # 'userIntrest':user_obj.userinterest,
-                        # # 'idealmatch':user_obj.idealmatch,
-                        # 'height': user_obj.height,
-                        # 'location': user_obj.location,
-                        # 'citylat': user_obj.citylat,F
-                        # 'citylong': user_obj.citylong,
-                        # 'address': user_obj.address,
-                        # 'city': user_obj.city,
-                        # 'is_premium': user_obj.is_premium,
                         'is_verified': user_obj.is_verified, }
 
                      },
@@ -224,15 +184,8 @@ class OTPVerify(APIView):
             status=status.HTTP_404_NOT_FOUND)
 
 
-class UserData(APIView):
-    # def get(self, request, id, *args, **kwargs):
-    #     user = User.objects.filter(id=id)
-    #     post = PostUpload.objects.filter(user_id=id)
-    #     media = UserMedia.objects.filter(user_id=id)
-    #     userserializer = UserSerializer(user, many=True)
-    #     postsrializer = PostUploadSerializers(post, many=True)
-    #     mediaserializer = UserMediaSerializer(media, many=True)
-    #     return Response({"message": True, "user": userserializer.data, "post":postsrializer.data, "media":mediaserializer.data}, status=status.HTTP_200_OK)
+class UserData(GenericAPIView):
+    serializer_class = (UserSerializer )
 
     def get_object(self, id):
         try:
@@ -259,22 +212,9 @@ class UserData(APIView):
                          }, status=status.HTTP_200_OK)
 
 
-# "follow": followserializer.data,
-# "followaccept": followacceptserializer.data}
 class UserUpdate(RetrieveUpdateDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    # def update(self, request, *args, **kwargs):
-    #     # import pdb;pdb.set_trace()
-    #
-    #     pk = self.kwargs.get('pk')
-    #     if pk:
-    #         object = User.objects.get(pk=kwargs['pk'])
-    #         serializer = UserSerializer(object)
-    #         return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True ,"data":serializer.data})
-    #     else :
-    #         return Response({"success": "error", "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
     def patch(self, request, *args, **kwargs):
 
@@ -291,145 +231,54 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserPassionUpdate(viewsets.ModelViewSet):
-    serializer_class = PassionAddSerializer
 
-    def get_queryset(self):
-        user = User.objects.all()
-        return user
-
-    def create(self, request, *args, **kwargs):
-        data = request.data
-
-
-class AddPassionView(APIView):
+class AddPassionView(GenericAPIView):
     # permission_classes = (AllowAny,)
+    serializer_class = PassionSerializer
 
     def get(self, request):
         passion = Passion.objects.all()
         serializer = PassionSerializer(passion, many=True)
         return Response({"success": True, "base_url": "http://18.224.254.170" , "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, format='json'):
-
-        serializer = PassionSerializer(data=request.data)
-
-        if serializer.is_valid():
-
-            serializer.save()
-            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request, format='json'):
+    #     serializer = PassionSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddPassiondetailView(APIView):
-    """
-    Retrieve, update or delete  a Passion instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return Passion.objects.get(pk=pk)
-        except Passion.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        addPassion = self.get_object(pk)
-        serializer = PassionSerializer(addPassion)
-        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        addPassion = self.get_object(pk)
-        serializer = PassionSerializer(addPassion, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-
-        addPassion = self.get_object(pk)
-        serializer = PassionSerializer(
-            addPassion, data=request.data, partial=True)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"status": "success", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        addPassion = self.get_object(pk)
-        addPassion.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AddGenderView(APIView):
+class AddGenderView(GenericAPIView):
     # permission_classes = (AllowAny,)
+    serializer_class = GenderSerializer
 
     def get(self, request):
         gender = Gender.objects.all()
         serializer = GenderSerializer(gender, many=True)
         return Response({"success": True, "base_url": "http://18.224.254.170/media/" , "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, format='json'):
-
-        serializer = GenderSerializer(data=request.data)
-
-        if serializer.is_valid():
-            gender = serializer.validated_data['gender']
-            check_gender = Gender.objects.filter(gender=gender).first()
-
-            if check_gender:
-                return Response({"message": "Gender Already Exists with  This name! "},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response({"success": True,"base_url": "http://18.224.254.170/media/" , "status" : 201
-                                , "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request, format='json'):
+    #     serializer = GenderSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         gender = serializer.validated_data['gender']
+    #         check_gender = Gender.objects.filter(gender=gender).first()
+    #
+    #         if check_gender:
+    #             return Response({"message": "Gender Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True,"base_url": "http://18.224.254.170/media/" , "status" : 201
+    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddGenderdetailView(APIView):
-    """
-    Retrieve, update or delete  a Gender instance.
-    """
 
-    def get_object(self, pk):
-        try:
-            return Gender.objects.get(pk=pk)
-        except Gender.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        addGender = self.get_object(pk)
-        serializer = GenderSerializer(addGender)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        addGender = self.get_object(pk)
-        serializer = GenderSerializer(addGender, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        addGender = self.get_object(pk)
-        serializer = GenderSerializer(addGender, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        addGender = self.get_object(pk)
-        addGender.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AddUserMediaView(APIView):
+class AddUserMediaView(GenericAPIView):
     # permission_classes = (AllowAny,)
-
+    serializer_class = UserMediaSerializer
     def get(self, request):
         userMedia = UserMedia.objects.all()
         serializer = UserMediaSerializer(userMedia, many=True)
@@ -452,30 +301,8 @@ class AddUserMediaView(APIView):
             return Response({"success": "error","status" : 200,  "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddUserMediadetailView(APIView):
-    """
-    Retrieve, update or delete  a media instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return UserMedia.objects.get(pk=pk)
-        except UserMedia.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        addUserMedia = self.get_object(pk)
-        serializer = UserMediaSerializer(addUserMedia)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def delete(self, request, pk, format=None):
-        addUserMedia = self.get_object(pk)
-        # addUserMedia['image'] =  
-        addUserMedia.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class AddMaritalStatusView(APIView):
+class AddMaritalStatusView(GenericAPIView):
+    serializer_class = MaritalStatusSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -483,62 +310,25 @@ class AddMaritalStatusView(APIView):
         serializer = MaritalStatusSerializer(meritalstatus, many=True)
         return Response({"success": True, "status" : 200,"base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, format='json'):
-
-        serializer = MaritalStatusSerializer(data=request.data)
-
-        if serializer.is_valid():
-            m_status = serializer.validated_data['status']
-            check_status = MaritalStatus.objects.filter(status=m_status).first()
-
-            if check_status:
-                return Response({"message": "media Already Exists with  This name! "},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response({"success": True,  "status" : 201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status" : 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddMaritalStatusdetailView(APIView):
-    """
-    Retrieve, update or delete  a MaritalStatus instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return MaritalStatus.objects.get(pk=pk)
-        except MaritalStatus.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        merital_status = self.get_object(pk)
-        serializer = MaritalStatusSerializer(merital_status)
-        return Response({"success": True,  "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        merital_status = self.get_object(pk)
-        serializer = MaritalStatusSerializer(merital_status, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        merital_status = self.get_object(pk)
-        serializer = MaritalStatusSerializer(merital_status, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        merital_status = self.get_object(pk)
-        merital_status.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def post(self, request, format='json'):
+    #
+    #     serializer = MaritalStatusSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         m_status = serializer.validated_data['status']
+    #         check_status = MaritalStatus.objects.filter(status=m_status).first()
+    #
+    #         if check_status:
+    #             return Response({"message": "media Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True,  "status" : 201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status" : 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddIdealMatchView(APIView):
+class AddIdealMatchView(GenericAPIView):
+    serializer_class = IdealMatchSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -548,62 +338,26 @@ class AddIdealMatchView(APIView):
         serializer = IdealMatchSerializer(idealMatch, many=True)
         return Response({"success": True,"base_url": "http://18.224.254.170/media/", "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, format='json'):
-        serializer = IdealMatchSerializer(data=request.data)
-
-        if serializer.is_valid():
-            idealmatch = serializer.validated_data['idealmatch']
-
-            check_name = IdealMatch.objects.filter(idealmatch=idealmatch).first()
-
-            if check_name:
-                return Response({"message": "idealmatch Already Exists with  This name! "},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status" : 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddIdealMatchdetailView(APIView):
-    """
-    Retrieve, update or delete  a media instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return IdealMatch.objects.get(pk=pk)
-        except IdealMatch.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        addIdealMatch = self.get_object(pk)
-        serializer = IdealMatchSerializer(addIdealMatch)
-        return Response({"success": True, "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        addIdealMatch = self.get_object(pk)
-        serializer = IdealMatchSerializer(addIdealMatch, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        addIdealMatch = self.get_object(pk)
-        serializer = IdealMatchSerializer(addIdealMatch, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        addIdealMatch = self.get_object(pk)
-        addIdealMatch.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def post(self, request, format='json'):
+    #     serializer = IdealMatchSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         idealmatch = serializer.validated_data['idealmatch']
+    #
+    #         check_name = IdealMatch.objects.filter(idealmatch=idealmatch).first()
+    #
+    #         if check_name:
+    #             return Response({"message": "idealmatch Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status" : 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class AddUserImageView(APIView):
+
+class AddUserImageView(GenericAPIView):
+    serializer_class = UserImageSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -627,194 +381,8 @@ class AddUserImageView(APIView):
             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-# API FOR USER IDEAL  MATCH
-class AddUserIdealMatchView(APIView):
-    # permission_classes = (AllowAny,)
-
-    def get(self, request):
-        useridealMatch = UserIdealMatch.objects.all()
-        serializer = UserIdealMatchSerializer(useridealMatch, many=True)
-        return Response({"success": True, "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = UserIdealMatchSerializer(data=request.data)
-
-        if serializer.is_valid():
-
-            serializer.save()
-            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddUserIdealMatchdetailView(APIView):
-    """
-    Retrieve, update or delete  a media instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return UserIdealMatch.objects.get(pk=pk)
-        except UserIdealMatch.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        adduserIdealMatch = self.get_object(pk)
-        serializer = UserIdealMatchSerializer(adduserIdealMatch)
-        return Response({"success": True, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        adduserIdealMatch = self.get_object(pk)
-        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        adduserIdealMatch = self.get_object(pk)
-        serializer = UserIdealMatchSerializer(adduserIdealMatch, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        adduserIdealMatch = self.get_object(pk)
-        adduserIdealMatch.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-# API FOR USER INTERSET API
-class AddUserPassionView(APIView):
-    # permission_classes = (AllowAny,)
-
-    def get(self, request):
-        userPassion = UserPassion.objects.all()
-        serializer = UserPassionSerializer(userPassion, many=True)
-        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = UserPassionSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddUserPassiondetailView(APIView):
-    """
-    Retrieve, update or delete  a media instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return UserPassion.objects.get(pk=pk)
-        except UserPassion.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-
-        adduserPassion = self.get_object(pk)
-        serializer = UserPassionSerializer(adduserPassion)
-        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        adduserPassion = self.get_object(pk)
-        serializer = UserPassionSerializer(adduserPassion, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        adduserPassion = self.get_object(pk)
-        serializer = UserPassionSerializer(adduserPassion, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        adduserPassion = self.get_object(pk)
-        adduserPassion.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-#
-
-# #             serializer.save()
-# #             return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-# #         else:
-# #             return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-# class MatchProfileView(APIView):
-#     # permission_classes = (AllowAny,)
-
-#     def get(self, request):
-#         lsit1 = []
-
-#         if UserPassion.objects.filter(passion="[Art]"):
-#             user_ideal =  UserPassion.objects.filter(passion=3)
-#             lsit1.append(user_ideal)
-
-
-#         if UserPassion.objects.filter(passion=5):
-#             user_ideal1 =  UserPassion.objects.filter(passion=5)
-#             lsit1.append(user_ideal1)
-
-#         if UserIdealMatch.objects.filter(idealmatch=2):
-#             user_ideal =  UserIdealMatch.objects.filter(idealmatch=2)
-#             lsit1.append(user_ideal)
-
-#         return Response({"success": "True" , "data" : lsit1}, status=status.HTTP_200_OK)
-
-# from django.db.models import Q
-# class MatchProfileView(ModelViewSet):
-#     queryset = UserPassion.objects.order_by("-passion")
-#     serializer_class = UserPassionSerializer
-#     # filterset_class = UserPassionMatchFilter
-
-#     def get_queryset(self):
-#         import pdb;pdb.set_trace()
-#         queryset = self.queryset
-
-#         q_name = Q()
-#         rel_name = self.request.query_params.get("[Technology]", None)
-#         if rel_name:
-#             q_name = Q(users__name=rel_name)
-
-#         # q_groups = Q()
-#         # rel_groups = self.request.query_params.get("Techlogy", "").split(",")
-#         # if any(rel_groups):
-#         #     q_groups = Q(groups__name__in=rel_groups)
-
-#         qs = queryset.filter(q_name).distinct()
-#         return qs
-
-class MatchProfileView(APIView):
-
-    def get(self, request):
-
-        if UserPassion.objects.filter(passion=1):
-            userPassion = UserPassion.objects.filter(passion=1)
-            serializer = UserPassionSerializer(userPassion, many=True)
-
-        if UserPassion.objects.filter(passion=2):
-            userPassion = UserPassion.objects.filter(passion=2)
-            serializer = UserPassionSerializer(userPassion, many=True)
-
-        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
-
-
-class PassionUpdate(APIView):
-    pass
-
-
-class AddHeigthView(APIView):
+class AddHeigthView(GenericAPIView):
+    serializer_class  = HeightSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
@@ -822,24 +390,23 @@ class AddHeigthView(APIView):
         serializer = HeightSerializer(height, many=True)
         return Response({"success": True,   "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
-    def post(self, request, format='json'):
+    # def post(self, request, format='json'):
+    #
+    #     serializer = HeightSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({"success": True , "status" : 201
+    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    #
 
-        serializer = HeightSerializer(data=request.data)
-
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True , "status" : 201
-                                , "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-class GetUserDetail(APIView):
+class GetUserDetail(GenericAPIView):
     """
     Retrieve, update or delete  a media instance.
     """
-
+    serializer_class = UserDetailSerializer
     def get_object(self, pk):
         try:
             return User.objects.get(pk=pk)
@@ -854,7 +421,7 @@ class GetUserDetail(APIView):
 
 
 
-class UserUpdateIdealMatch(RetrieveUpdateDestroyAPIView):
+class UserUpdateIdealMatch(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -871,7 +438,7 @@ class UserUpdateIdealMatch(RetrieveUpdateDestroyAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserUpdatePassion(RetrieveUpdateDestroyAPIView):
+class UserUpdatePassion(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -887,7 +454,7 @@ class UserUpdatePassion(RetrieveUpdateDestroyAPIView):
             return Response({"message" : "User Passion field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateGender(RetrieveUpdateDestroyAPIView):
+class UserUpdateGender(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -895,7 +462,7 @@ class UserUpdateGender(RetrieveUpdateDestroyAPIView):
 
         pk = self.kwargs.get('pk')
         question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
+        serializer = UserGenderSerializer(question, data=request.data, partial=True)
         question.gender_field = True
         question.save(update_fields=["gender_field"])
         if serializer.is_valid():
@@ -906,7 +473,7 @@ class UserUpdateGender(RetrieveUpdateDestroyAPIView):
 
 
 
-class UserUpdateInterest(RetrieveUpdateDestroyAPIView):
+class UserUpdateInterest(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -922,7 +489,7 @@ class UserUpdateInterest(RetrieveUpdateDestroyAPIView):
             return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateHight(RetrieveUpdateDestroyAPIView):
+class UserUpdateHight(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -938,7 +505,7 @@ class UserUpdateHight(RetrieveUpdateDestroyAPIView):
             return Response({"message" : "User height_field field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateLoction(RetrieveUpdateDestroyAPIView):
+class UserUpdateLoction(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -953,24 +520,24 @@ class UserUpdateLoction(RetrieveUpdateDestroyAPIView):
             question = serializer.save()
             return Response({"message" : "User location field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+#
+# class UserUpdateMedia(RetrieveUpdateAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserSerializer
+#
+#     def patch(self, request, *args, **kwargs):
+#
+#         pk = self.kwargs.get('pk')
+#         question = get_object_or_404(User, pk=pk)
+#         serializer = UserSerializer(question, data=request.data, partial=True)
+#         question.is_media_field = True
+#         question.save(update_fields=["is_media_field"])
+#         if serializer.is_valid():
+#             question = serializer.save()
+#             return Response({"message" : "User Media field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateMedia(RetrieveUpdateDestroyAPIView):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-
-    def patch(self, request, *args, **kwargs):
-
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.is_media_field = True
-        question.save(update_fields=["is_media_field"])
-        if serializer.is_valid():
-            question = serializer.save()
-            return Response({"message" : "User Media field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-class UserUpdateMaritalStatus(RetrieveUpdateDestroyAPIView):
+class UserUpdateMaritalStatus(UpdateAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
@@ -989,7 +556,7 @@ class UserUpdateMaritalStatus(RetrieveUpdateDestroyAPIView):
 
 
 
-class UserDelete(RetrieveUpdateDestroyAPIView):
+class UserDelete(RetrieveDestroyAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

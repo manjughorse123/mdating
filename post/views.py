@@ -14,7 +14,8 @@ from rest_framework.parsers import *
 from rest_framework.permissions import *
 
 
-class PostUploadApi(APIView):
+class PostUploadApi(GenericAPIView):
+    serializer_class =  PostUploadSerializers
     def get(self, request, id, *args, **kwargs):
         posts = PostUpload.objects.filter(id=id)
         serializer = PostUploadSerializers(posts, many=True)
@@ -36,14 +37,16 @@ class PostUploadApi(APIView):
         return Response({"message": False,"status":400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserImages(APIView):
+class UserImages(GenericAPIView):
+    serializer_class = PostUploadSerializers
     def get(self, request, id, *args, **kwargs):
         user = PostUpload.objects.filter(user_id=id)
         serializer = PostUploadSerializers(user, many=True)
         return Response({"post": serializer.data,"status":200}, status=status.HTTP_200_OK)
 
 
-class PostReactionApi(APIView):
+class PostReactionApi(GenericAPIView):
+    serializer_class = PostViewSerializers
 
     def get(self, request):
         userView = PostView.objects.all()
@@ -60,10 +63,10 @@ class PostReactionApi(APIView):
             'user': request.data.get('user'),
             'post': request.data.get('post')
         }
-        user = request.POST.get('user')
-        post = request.POST.get('post')
+        user = request.data.get('user')
+        post = request.data.get('post')
         postdata = int(post)
-        flag = request.POST.get('flag')
+        flag = request.data.get('flag')
         flagdata = int(flag)
         obj = PostUpload.objects.filter(id=postdata)
         serializerView = PostViewSerializers(data=request.data)
@@ -142,7 +145,8 @@ class PostReactionApi(APIView):
 
     
 
-class GetPostViewdetailView(APIView):
+class GetPostViewdetailView(GenericAPIView):
+    serializer_class = PostViewSerializers
     """
     Retrieve, update or delete  a media instance.
     """
@@ -164,14 +168,17 @@ class GetPostViewdetailView(APIView):
         post_view.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 
-class AllPostAPI(APIView):
+class AllPostAPI(GenericAPIView):
+    serializer_class = PostUploadSerializers
     def get(self, request, *args, **kwargs):
         post = PostUpload.objects.all()
         serializer = PostUploadSerializers(post, many=True)
         return Response({"success": True,"status":200 , "message" : "All Users Post!","post": serializer.data}, status=status.HTTP_200_OK)
 
 
-class PostViewAPI(APIView):
+class PostViewAPI(GenericAPIView):
+    serializer_class  = PostViewSerializers
+
     def get(self, request, id, *args, **kwargs):
         post = PostView.objects.filter(post_id=id)
         serializer = PostViewSerializers(post, many=True)
@@ -179,14 +186,16 @@ class PostViewAPI(APIView):
         return Response({"success": True,"status":200, "user": [serializer.data]}, status=status.HTTP_200_OK)
 
 
-class PostLikeAPI(APIView):
+class PostLikeAPI(GenericAPIView):
+    serializer_class = PostLikeSerializers
     def get(self, request, id, *args, **kwargs):
         post = PostLike.objects.filter(post_id=id)
         serializer = PostLikeSerializers(post, many=True)
         return Response({"success": True,"status":200, "user": [serializer.data]}, status=status.HTTP_200_OK)
 
 
-class PostShareAPI(APIView):
+class PostShareAPI(GenericAPIView):
+    serializer_class = PostShareSerializers
     def get(self, request, id, *args, **kwargs):
         post = PostShare.objects.filter(post_id=id)
         serializer = PostShareSerializers(post, many=True)

@@ -97,7 +97,7 @@ class Heigth(models.Model):
 
     def __str__(self):
         return self.height
-
+from django.contrib.auth.models import UserManager
 class User(AbstractBaseUser):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=500, unique=True, blank=True, null=True)
@@ -152,11 +152,15 @@ class User(AbstractBaseUser):
     idealmatch = models.ManyToManyField(IdealMatch, blank=True, db_column='IdealMatch' )
     idealmatch_field = models.BooleanField(default=False)
     # passion_in_field = models.BooleanField(default=False)
-
+    selfie = models.CharField(max_length=255, blank=True, null=True)
+    govt_id = models.CharField(max_length=255, blank=True, null=True)
+    is_govt_id_verified = models.BooleanField(default=False)
+    is_register_user_verified = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
-    # objects = LocationManager()
 
+    # objects = LocationManager()
+    # objects = UserManager()
     USERNAME_FIELD = 'mobile'
 
     def age(self):
@@ -164,6 +168,7 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return str(self.email)
+
 
     # def written_by(self):
     #     return ",".join([str(p) for p in self.passion_in.all()])

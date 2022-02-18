@@ -141,7 +141,8 @@ class  PostCountLikeView(APIView):
 
 
 
-class MatchedUserProfileView(APIView):
+class MatchedUserProfileView(GenericAPIView):
+    serializer_class = GetUserMatchProfileSerializer
     # permission_classes = (AllowAny,)
 
     def get(self, request):
