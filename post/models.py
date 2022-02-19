@@ -11,7 +11,7 @@ class PostUpload(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="posts")
     title = models.CharField(max_length=255, blank=True, null=True, default="title")
     message = models.TextField(default="messages", blank=True, null=True)
-    post = models.URLField(blank=True, null=True)
+    post = models.TextField( blank=True, null=True)
     uploadvedio = models.TextField( blank=True, null=True)
     is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
     is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
