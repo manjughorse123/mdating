@@ -19,7 +19,7 @@ class PostUploadApi(GenericAPIView):
     def get(self, request, id, *args, **kwargs):
         posts = PostUpload.objects.filter(id=id)
         serializer = PostUploadSerializers(posts, many=True)
-        return Response({"success": True,"status" : 200, "message" : "User Post"  ,"data": serializer.data}, status=status.HTTP_200_OK)
+        return Response({"success": True,"status" : 200, "message" : "User Post by Post ID"  ,"data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, *args, **kwargs):
         data = {
@@ -42,7 +42,7 @@ class UserImages(GenericAPIView):
     def get(self, request, id, *args, **kwargs):
         user = PostUpload.objects.filter(user_id=id)
         serializer = PostUploadSerializers(user, many=True)
-        return Response({"post": serializer.data,"status":200}, status=status.HTTP_200_OK)
+        return Response({"success": True ,"post": serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
 class PostReactionApi(GenericAPIView):
@@ -56,7 +56,7 @@ class PostReactionApi(GenericAPIView):
         serializerLike = PostLikeSerializers(userLike, many=True)
         serializerShare = PostShareSerializers(userShare, many=True)
         return Response({"success": True, "status":200,"data View": serializerView.data,"data View count": len(serializerView.data), "data Like": serializerLike.data,
-                         "data share": serializerShare.data}, status=status.HTTP_200_OK)
+                        "message": "Post Reaction" ,"data share": serializerShare.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
         data = {
@@ -135,7 +135,7 @@ class PostReactionApi(GenericAPIView):
             # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Internal Server Error! or Not Valid Input !!", "success": "error"},
+        return Response({"message": "Internal Server Error! or Not Valid Input !!", "success": False, "status": 400},
                         status=status.HTTP_400_BAD_REQUEST)
 
 # class AllPostAPI(ListAPIView):
