@@ -1,6 +1,9 @@
 from uuid import UUID
 
 # Create your views here.
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from rest_framework import status
@@ -18,8 +21,14 @@ from . models import *
 
 class UserMediaAPI(GenericAPIView):
     serializer_class = MediaPostSerializers
-    def get(self, request, id, *args, **kwargs):
-        user = MediaPost.objects.filter(user_id=id)
+    @swagger_auto_schema(
+      
+        operation_summary = "User Media By User Id",
+
+        tags = ['User Media']
+    )
+    def get(self, request, user_id, *args, **kwargs):
+        user = MediaPost.objects.filter(user_id=user_id)
         serializer = MediaPostSerializers(user, many=True)
         return Response({"media": serializer.data ,"status":200 ,"success": True}, status=status.HTTP_200_OK)
 
@@ -33,6 +42,13 @@ class UserMediaAPIPost(GenericAPIView):
 
 class GetMediaUploadApi(GenericAPIView):
     serializer_class = MediaPostSerializers
+    @swagger_auto_schema(
+      
+        operation_summary = "Get User Media By Media Id  ",
+    
+        tags = ['User Media']
+    )
+    
     def get(self, request, id, *args, **kwargs):
         posts = MediaPost.objects.filter(id=id)
         serializer = MediaPostSerializers(posts, many=True)
@@ -40,11 +56,24 @@ class GetMediaUploadApi(GenericAPIView):
 
 class MediaUploadApi(GenericAPIView):
     serializer_class = MediaPostSerializers
-    def get(self, request, *args, **kwargs):
-        posts = MediaPost.objects.all()
-        serializer = MediaPostSerializers(posts, many=True)
-        return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
+    # def get(self, request, *args, **kwargs):
+    #     posts = MediaPost.objects.all()
+    #     serializer = MediaPostSerializers(posts, many=True)
+    #     return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+      
+        operation_summary = "Create User Media Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+            'caption': openapi.Schema(type=openapi.TYPE_STRING, description='Add Caption'),
+            
+        }),
 
+        tags = ['User Media']
+    )
     def post(self, request, *args, **kwargs):
         user=request.data.get('user')
         data = {

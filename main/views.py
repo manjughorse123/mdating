@@ -24,6 +24,11 @@ from rest_framework.response import Response
 from rest_framework import status
 from matchprofile.models import *
 
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+ 
 
 class UserFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
@@ -33,7 +38,7 @@ class UserFilter(filters.FilterSet):
         fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], }
 
 
-class UserFilterAPI(ListAPIView):
+class UserFilterAPI(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
@@ -41,7 +46,14 @@ class UserFilterAPI(ListAPIView):
     filter_backends = (
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
-    def list(self, request):
+    @swagger_auto_schema(
+      
+        operation_summary = "Get user Filter by Location,Passion,Gender ",
+
+        tags = ['User Filter']
+    )
+
+    def get(self, request):
         queryset = User.objects.all()
         serializer = UserFilterSerializer(queryset, many=True)
         return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
@@ -89,8 +101,14 @@ class UserMatchProfileFilterAPI(ListAPIView):
     serializer_class = NewUserMatchProfileFilterSerializer
     filterset_class = UserMatchProfileFilter
     filter_backends = (SearchFilter, DjangoFilterBackend, OrderingFilter)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Match Profile Api",
+      
+        tags = ['Match Profile']
+    )
 
-    def list(self, request):
+    def get(self, request):
         serializer = UserMatchProfileFilter(queryset, many=True)
         return Response({"message": "User Matched Profile", "status": 200, "success": True, 'data': serializer.data},
                         status=status.HTTP_200_OK)

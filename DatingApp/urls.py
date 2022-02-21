@@ -29,15 +29,16 @@ schema_view = get_schema_view(
 admin.site.site_title= "Dating App"
 admin.site.site_header = "Admin Deshboard"
 urlpatterns = [
-    re_path(r'^swagger/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
+    re_path(r'^api/documentation/$', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('admin/', admin.site.urls),
-    path('api/', include('main.urls')),
-    path('account/', include('account.urls')),
-    path('post/api/', include('post.urls')),
-    path('usermedia/api/', include('usermedia.urls')),
-    path('likeuser/', include('likeuser.urls')),
-    path('friend/', include('friend.urls')),
-    path('matchprofile/', include('matchprofile.urls')),
+    path('api/', include('main.urls'),name='main'),
+    path('api/', include('account.urls'),name='account'),
+    path('api/', include('post.urls'),name='post'),
+    path('api/', include('usermedia.urls'), name='user-media'),
+    path('api/', include('likeuser.urls'),name='like-user'),
+    path('api/', include('friend.urls'),name='friend'),
+    path('api/', include('matchprofile.urls'),name='matchprofile'),
+    path('api/', include('masterdata.urls'),name='masterdata'),
 
     # path('', include('masterapp.urls')),
     # path('verify/', include('userverification.urls')),

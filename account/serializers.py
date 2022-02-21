@@ -236,7 +236,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('gender_field','passion_field','height_field','location_field','interest_in_field','idealmatch_field','relationship_status_field','is_media_field')
+        fields = ('is_gender','is_passion','is_tall','is_location','is_interest_in','is_idealmatch','is_marital_status','is_media')
 
 
 class UserLoginSerializer(serializers.ModelSerializer):

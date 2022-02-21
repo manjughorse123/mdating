@@ -60,6 +60,16 @@ class Passion(models.Model):
         return str(self.passion)
 
 
+class MasterTable(models.Model):
+
+    name = models.CharField(max_length=40, unique=True)
+    icon = models.ImageField(upload_to='idealMatch_icon/')
+    icon_bg_color = ColorField(format='hexa')
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.name) 
+
 class IdealMatch(models.Model):
     idealmatch = models.CharField(max_length=40, unique=True)
     icon = models.ImageField(upload_to='idealMatch_icon/')
@@ -98,6 +108,81 @@ class Heigth(models.Model):
     def __str__(self):
         return self.height
 from django.contrib.auth.models import UserManager
+# class User(AbstractBaseUser):
+#     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
+#     email = models.EmailField(max_length=500, unique=True, blank=True, null=True)
+#     mobile = models.CharField(max_length=10, unique=True, blank=True, null=True)
+#     country_code = models.CharField(max_length=8, blank=True, null=True)
+#     name = models.CharField(max_length=200, blank=True, null=True)
+#     bio = RichTextField(blank=True, null=True)
+#     birth_date = models.DateField(default='1999-12-15')
+#     otp = models.CharField(max_length=4, blank=True, null=True)
+#     is_phone_verified = models.BooleanField(default=False)
+#     username = None
+#     password = None
+#     last_login = None
+
+#     is_media_field = models.BooleanField(default=False)
+
+#     relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
+#                                             blank=True, null=True)
+#     relationship_status_field = models.BooleanField(default=False)
+
+#     education = models.CharField(max_length=50, blank=True, null=True)
+#     body_type = models.CharField(max_length=50, blank=True, null=True)
+
+#     gender = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='user_gender', blank=True, null=True)
+#     gender_field = models.BooleanField(default=False)
+
+#     image = models.URLField(blank=True, null=True)
+
+#     # height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
+#     height_field = models.BooleanField(default=False)
+#     heights = models.ForeignKey(Heigth, on_delete=models.CASCADE, related_name='user_height',
+#                                 blank=True, null=True)
+#     location = PointField(srid=4326, blank=True, null=True)
+#     address = models.CharField(max_length=100, blank=True, null=True)
+#     city = models.CharField(max_length=50, blank=True, null=True)
+#     location_field = models.BooleanField(default=False)
+
+#     is_premium = models.BooleanField(default=False)
+#     is_verified = models.BooleanField(default=False, blank=True, null=True)
+#     # first_count = models.IntegerField(default=0,
+#     #                                   help_text='It is 0, if the user is totally new and 1 if the user has saved his '
+#     #                                             'standard once', blank=True, null=True)
+#     about = models.TextField(blank=True, null=True)
+
+#     interest_in = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='interest_in_gender', blank=True,
+#                                     null=True)
+#     interest_in_field = models.BooleanField(default=False)
+
+#     passion = models.ManyToManyField(Passion, blank=True, db_column='passion')
+#     passion_field = models.BooleanField(default=False)
+
+#     idealmatch = models.ManyToManyField(IdealMatch, blank=True, db_column='IdealMatch' )
+#     idealmatch_field = models.BooleanField(default=False)
+#     # passion_in_field = models.BooleanField(default=False)
+#     selfie = models.CharField(max_length=255, blank=True, null=True)
+#     govt_id = models.CharField(max_length=255, blank=True, null=True)
+#     is_govt_id_verified = models.BooleanField(default=False)
+#     is_register_user_verified = models.BooleanField(default=False)
+#     create_at = models.DateTimeField(auto_now_add=True)
+#     update_at = models.DateTimeField(auto_now=True)
+
+#     # objects = LocationManager()
+#     # objects = UserManager()
+#     USERNAME_FIELD = 'mobile'
+
+#     def age(self):
+#         return int((datetime.date.today() - self.birth_date).days / 365.25)
+
+#     def __str__(self):
+#         return str(self.email)
+
+
+#     def written_by(self):
+#         return ",".join([str(p) for p in self.passion_in.all()])
+
 class User(AbstractBaseUser):
     id = models.UUIDField(max_length=100, primary_key=True, default=uuid.uuid4, editable=False)
     email = models.EmailField(max_length=500, unique=True, blank=True, null=True)
@@ -107,55 +192,41 @@ class User(AbstractBaseUser):
     bio = RichTextField(blank=True, null=True)
     birth_date = models.DateField(default='1999-12-15')
     otp = models.CharField(max_length=4, blank=True, null=True)
-    is_phone_verified = models.BooleanField(default=False)
     username = None
     password = None
     last_login = None
-
-    is_media_field = models.BooleanField(default=False)
-
-    relationship_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
+    is_media = models.BooleanField(default=False)
+    marital_status = models.ForeignKey(MaritalStatus, on_delete=models.CASCADE, related_name='user_merital_status',
                                             blank=True, null=True)
-    relationship_status_field = models.BooleanField(default=False)
-
-    education = models.CharField(max_length=50, blank=True, null=True)
-    body_type = models.CharField(max_length=50, blank=True, null=True)
-
+    is_marital_status = models.BooleanField(default=False)
     gender = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='user_gender', blank=True, null=True)
-    gender_field = models.BooleanField(default=False)
+    is_gender = models.BooleanField(default=False)
 
     image = models.URLField(blank=True, null=True)
-
-    # height = models.DecimalField(max_digits=10, default=180.34, decimal_places=2, blank=True, null=True)
-    height_field = models.BooleanField(default=False)
-    heights = models.ForeignKey(Heigth, on_delete=models.CASCADE, related_name='user_height',
+    is_tall = models.BooleanField(default=False)
+    tall = models.ForeignKey(Heigth, on_delete=models.CASCADE, related_name='user_height',
                                 blank=True, null=True)
     location = PointField(srid=4326, blank=True, null=True)
+    is_location = models.BooleanField(default=False)
     address = models.CharField(max_length=100, blank=True, null=True)
     city = models.CharField(max_length=50, blank=True, null=True)
-    location_field = models.BooleanField(default=False)
-
     is_premium = models.BooleanField(default=False)
     is_verified = models.BooleanField(default=False, blank=True, null=True)
-    # first_count = models.IntegerField(default=0,
-    #                                   help_text='It is 0, if the user is totally new and 1 if the user has saved his '
-    #                                             'standard once', blank=True, null=True)
     about = models.TextField(blank=True, null=True)
-
     interest_in = models.ForeignKey(Gender, on_delete=models.CASCADE, related_name='interest_in_gender', blank=True,
                                     null=True)
-    interest_in_field = models.BooleanField(default=False)
+    is_interest_in = models.BooleanField(default=False)
 
     passion = models.ManyToManyField(Passion, blank=True, db_column='passion')
-    passion_field = models.BooleanField(default=False)
+    is_passion = models.BooleanField(default=False)
 
     idealmatch = models.ManyToManyField(IdealMatch, blank=True, db_column='IdealMatch' )
-    idealmatch_field = models.BooleanField(default=False)
-    # passion_in_field = models.BooleanField(default=False)
+    is_idealmatch = models.BooleanField(default=False)
     selfie = models.CharField(max_length=255, blank=True, null=True)
     govt_id = models.CharField(max_length=255, blank=True, null=True)
     is_govt_id_verified = models.BooleanField(default=False)
     is_register_user_verified = models.BooleanField(default=False)
+    is_active = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now=True)
 
@@ -168,10 +239,6 @@ class User(AbstractBaseUser):
 
     def __str__(self):
         return str(self.email)
-
-
-    # def written_by(self):
-    #     return ",".join([str(p) for p in self.passion_in.all()])
 
 
 class UserMedia(models.Model):

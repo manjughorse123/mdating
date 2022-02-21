@@ -33,8 +33,9 @@ ALLOWED_HOSTS = ['*', '0.0.0.0', '0.0.0.0:80']
 
 INSTALLED_APPS = [
     'jazzmin',
+    'admin_interface',
     'django_toggle_switch_widget',
-
+    'django_object_actions',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -57,7 +58,7 @@ INSTALLED_APPS = [
     'rest_framework_json_api',
     'likeuser',
     'colorfield',
-    'masterapp',
+    'masterdata',
 
 ]
 
@@ -76,7 +77,7 @@ ROOT_URLCONF = 'DatingApp.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': [os.path.join(BASE_DIR, 'templates')],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -191,7 +192,14 @@ REST_FRAMEWORK = {
         'rest_framework_json_api.django_filters.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
+        
     ),
+    'DEFAULT_PARSER_CLASSES': (
+          'rest_framework.parsers.FormParser',
+          'rest_framework.parsers.MultiPartParser',
+          'rest_framework.parsers.JSONParser',
+   )
+
 
 }
 
@@ -211,3 +219,14 @@ REST_FRAMEWORK = {
     )
 }
 
+SWAGGER_SETTINGS = {            
+              'JSON_EDITOR': True, 
+               'DEFAULT_MODEL_DEPTH':-1     
+        }
+
+
+#   'DEFAULT_PARSER_CLASSES': (
+#           'rest_framework.parsers.FormParser',
+#           'rest_framework.parsers.MultiPartParser',
+#           'rest_framework.parsers.JSONParser',
+#    )

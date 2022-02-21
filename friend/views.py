@@ -1,4 +1,7 @@
 from rest_framework.generics import *
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from .serializers import *
 from rest_framework.views import *
 from .models import *
@@ -9,12 +12,26 @@ from rest_framework.viewsets import *
 class AddFriendRequestSendView(GenericAPIView):
     serializer_class = GetFriendRequestSerializer
     # permission_classes = (AllowAny,)
+    
+   
 
-    def get(self, request):
-        # import pdb;pdb.set_trace()
-        userInterest =FriendRequest.objects.all()
-        serializer = GetFriendRequestSerializer(userInterest, many=True)
-        return Response({"success": True, "message" :" User  Send Request Detail" ,"status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
+    # def get(self, request):
+    #     # import pdb;pdb.set_trace()
+    #     userInterest =FriendRequest.objects.all()
+    #     serializer = GetFriendRequestSerializer(userInterest, many=True)
+    #     return Response({"success": True, "message" :" User  Send Request Detail" ,"status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+      
+        operation_summary = "Send Friendt Request Api ",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
+            'friend': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
+        }),
+
+        tags = ['Friend']
+    )
 
     def post(self, request, format='json'):
 
@@ -34,12 +51,14 @@ class AddFriendRequestSendView(GenericAPIView):
 class AddFriendRequestAcceptView(GenericAPIView):
     serializer_class = FriendListSerializer
     # permission_classes = (AllowAny,)
+   
 
     def get(self, request):
-        userInterest =FriendList.objects.all()
-        serializer = FriendListSerializer(userInterest, many=True)
+        friend_list =FriendList.objects.all()
+        serializer = FriendListSerializer(friend_list, many=True)
         return Response({"success": True, "message" :" User Accept Request Detail" ,"status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
 
+    
     def post(self, request, format='json'):
         serializer = FriendListSerializer(data=request.data)
         
@@ -60,17 +79,25 @@ class GetFriendRequestListView(GenericAPIView):
     serializer_class = FriendRequestListSerializer
     """
     Retrieve, update or delete a Get Follower instance.
-    """
 
-    def get_object(self, pk):
+    """
+    
+    def get_object(self, user_id):
         try:
-            return FriendRequest.objects.filter(receiver_id=pk)
+            return FriendRequest.objects.filter(receiver_id=user_id)
         except FriendRequest.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Send Friend Rquest Api By User ID ",
+        
+        tags = ['Friend']
+    )
 
-    def get(self, request, pk, format=None):
+   
+    def get(self, request, user_id, format=None):
 
-        friend_req_list = self.get_object(pk)
+        friend_req_list = self.get_object(user_id)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
         return Response({"success": True, "status": 200 ,"message": "Detail","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':[]}, status=status.HTTP_200_OK)
 
@@ -78,11 +105,31 @@ class GetFriendRequestListView(GenericAPIView):
 class  AddFollowRequestView(GenericAPIView):
     serializer_class = FollowRequestSerializer
     # permission_classes = (AllowAny,)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Follow All User Request ",
+       
+
+        tags = ['Follow']
+    )
+   
     def get(self, request):
         userInterest =FollowRequest.objects.all()
         serializer = FollowRequestSerializer(userInterest, many=True)
         return Response({"success": True,"status": 200,"message" :" User follow Request Detail" , "data": serializer.data}, status=status.HTTP_200_OK)
 
+    @swagger_auto_schema(
+      
+        operation_summary = "Create Api For Send Follow Request",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
+            'follow': openapi.Schema(type=openapi.TYPE_STRING, description='Add Follow Id'),
+        }),
+
+        tags = ['Follow']
+    )
     def post(self, request, format='json'):
         serializer = FollowRequestSerializer(data=request.data)
         
@@ -95,12 +142,23 @@ class  AddFollowRequestView(GenericAPIView):
 
 class FollowRequestAcceptView(GenericAPIView):
     serializer_class = FollowAcceptSerializer
-    # permission_classes = (AllowAny,)
+   
+    # def get(self, request):
+    #     follow_accept =FollowAccept.objects.all()
+    #     serializer = FollowAcceptSerializer(follow_accept, many=True)
+    #     return Response({"success": True,"message" :" User  Accept follow Detail" , "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+      
+        operation_summary = "Create Api For Accept Follow Request",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
+            'follow': openapi.Schema(type=openapi.TYPE_STRING, description='Add Follow Id'),
+        }),
 
-    def get(self, request):
-        follow_accept =FollowAccept.objects.all()
-        serializer = FollowAcceptSerializer(follow_accept, many=True)
-        return Response({"success": True,"message" :" User  Accept follow Detail" , "status": 200,"data": serializer.data}, status=status.HTTP_200_OK)
+        tags = ['Follow']
+    )
 
     def post(self, request, format='json'):
         serializer = FollowAcceptSerializer(data=request.data)
@@ -142,115 +200,83 @@ class GetFollowerView(GenericAPIView):
     serializer_class = FollowRequestFollowerSerializer
     """
     Retrieve, update or delete a Get Follower instance.
+
     """
-    def get_object(self, pk):
+   
+  
+    def get_object(self, user_id):
         try:
-            return FollowRequest.objects.filter(user_id=pk)
+            return FollowRequest.objects.filter(user_id=user_id)
         except FollowRequest.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Follower Api",
+      
+        tags = ['Follow']
+    )
 
-    def get(self, request, pk, format=None):
+    def get(self, request, user_id, format=None):
         # import pdb;pdb.set_trace()
-        follower_info = self.get_object(pk)
+        follower_info = self.get_object(user_id)
         serializer = FollowRequestFollowerSerializer(follower_info, many=True)
         return Response({"success": True, "message" :" User follow Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
 # Get Following View
 class GetFollowingView(GenericAPIView):
+    QuerySet = FollowAccept.objects.all()
     serializer_class = FollowListFollowingSerializer
     """
     Retrieve, update or delete a Get Follower instance.
     """
-
-    def get_object(self, pk):
+    
+   
+    def get_object(self, user_id):
         try:
-            return FollowAccept.objects.filter(user_id=pk)
+            return FollowAccept.objects.filter(user_id=user_id)
         except FollowAccept.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Following Api",
 
-    def get(self, request, pk, format=None):    
-        following_list = self.get_object(pk)
+        tags = ['Follow']
+    )
+
+    def get(self, request, user_id, format=None):    
+        following_list = self.get_object(user_id)
         serializer = FollowListFollowingSerializer(following_list, many=True)
         
         return Response({"success": True,"message" :" User Following Detail" , "status": 200,"data": serializer.data ,'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
-    # def delete(self, request, pk, format=None):
-    #     following_list = self.get_object(pk)
-    #     following_list.delete()
-    #     return Response(status=status.HTTP_204_NO_CONTENT)
-
-
-class FAQView(GenericAPIView):
-    # permission_classes = (AllowAny,)
-    serializer_class = FAQSerializer
-
-    def get(self, request):
-        faq = FAQ.objects.all()
-        serializer = FAQSerializer(faq, many=True)
-        return Response({"success": True,"message" :" FAQ Data!" , "status": 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = FAQSerializer(data=request.data)
-        
-        if serializer.is_valid(): 
-            serializer.save()
-            
-            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class FAQDetailUpdateInfoView(APIView):
-    """
-    Retrieve, update or delete a Teacher instance.
-    """
-
-    def get_object(self, pk):
-        try:
-            return FAQ.objects.get(pk=pk)
-        except FAQ.DoesNotExist:
-            raise Http404
-
-    def get(self, request, pk, format=None):
-        faq_info = self.get_object(pk)
-        serializer = FAQSerializer(faq_info)
-        
-        return Response({"success": True,"status": 201, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def put(self, request, pk, format=None):
-        faq_info = self.get_object(pk)
-        serializer = FAQSerializer(faq_info, data=request.data)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True,"status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def patch(self, request, pk, format=None):
-        faq_info = self.get_object(pk)
-        serializer = FAQSerializer(
-            faq_info, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, pk, format=None):
-        faq_info = self.get_object(pk)
-        faq_info.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
-
 
 class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
     serializer_class = FriendListSerializer
-    # permission_classes = (AllowAny,)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Friend Request Accept Api",
+        
 
+        tags = ['Friend']
+    )
     def get(self, request):
-        userInterest = FriendList.objects.all()
-        serializer = FriendListSerializer(userInterest, many=True)
+        friend_list = FriendList.objects.all()
+        serializer = FriendListSerializer(friend_list, many=True)
         return Response(
             {"success": True, "message": " User Accept Request Detail", "status": 200, "data": serializer.data},
             status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+      
+        operation_summary = "Friend Request Accept Post Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
+            'friend': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
+        }),
 
+        tags = ['Friend']
+    )
     def post(self, request, format='json'):
         serializer = FriendListSerializer(data=request.data)
 
@@ -284,3 +310,29 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
         else:
             return Response({"success": "error", "message": "Friend Request was Already Accepted !", "status": 400,
                              "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+class GetFriendRequestAcceptView(GenericAPIView):
+    serializer_class = FriendRequestAcceptSerializer
+    """
+    Retrieve API FOR Friend Accept List.
+    """
+    
+
+    def get_object(self, user_id):
+        try:
+            return FriendList.objects.filter(user_id=user_id)
+        except FriendList.DoesNotExist:
+            raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Friend Request Accept Api",
+       
+        tags = ['Friend']
+    )
+
+    def get(self, request, user_id, format=None):
+
+        friend_req_list = self.get_object(user_id)
+        serializer = FriendRequestAcceptSerializer(friend_req_list, many=True)
+        return Response({"success": True, "status": 200 ,"message": "Friend Request Accept!","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':[]}, status=status.HTTP_200_OK)
+

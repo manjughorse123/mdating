@@ -164,11 +164,7 @@ class FollowAcceptSerializer(serializers.ModelSerializer):
         #     response['follow'] = UserFriendSerilaizer(instance.follow).data
         #     return response
 
-class FAQSerializer(serializers.ModelSerializer):
 
-        class Meta:
-            model  = FAQ
-            fields = "__all__"
 
 
 class FollowRequestFollowerSerializer(serializers.ModelSerializer):
@@ -196,13 +192,24 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
             response['sender'] = UserFriendSerilaizer(instance.sender).data
             return response
 
+# FriendRequest  Accept list
+
+class FriendRequestAcceptSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = FriendList
+        fields = ('friends',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['friends'] = UserFriendSerilaizer(instance.friends).data
+        return response
+
 
 class FollowListFollowingSerializer(serializers.ModelSerializer):
 
         class Meta:
             model  = FollowAccept
             fields = ('follow',)
-
         def to_representation(self, instance):
             response = super().to_representation(instance)
             response['follow'] = UserFriendSerilaizer(instance.follow).data

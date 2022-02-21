@@ -1,4 +1,7 @@
 from operator import add
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import *
@@ -28,6 +31,20 @@ def send_otp(mobile, otp):
 
 class Login(GenericAPIView):
     serializer_class = UserLoginSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Login Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
+            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='Add Country Code'),
+        }),
+
+        tags = ['Account']
+    )
+   
     def post(self, request, *args, **kwargs):
 
         try:
@@ -61,13 +78,29 @@ class Login(GenericAPIView):
                             status=status.HTTP_404_NOT_FOUND)
 
 
-class Registration(GenericAPIView):
+class Registration(CreateAPIView):
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Regitration Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
+            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
+            'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description='User Date of Birth'),
+            
 
+        }),
+        
+
+        tags = ['Account']
+    )
     def post(self, request):
-
         try:
-
             email = request.data['email']
             mobile = request.data['mobile']
             country_code = request.data['country_code']
@@ -89,7 +122,7 @@ class Registration(GenericAPIView):
             otp = str(1234)
             user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                         country_code=country_code)
-            print(type(user))
+            # print(type(user))
             user.save()
             return Response({"message": "Your Registrations is successfully","status" : 201, "success": True, 'is_register': True,
                              "user": {
@@ -112,6 +145,19 @@ class UserCreateView(GenericAPIView):
     """
     Creates the user.
     """
+    @swagger_auto_schema(
+      
+        operation_summary = "User Otp Verify Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        }),
+
+        tags = ['Account']
+    )
+
 
     def post(self, request, format='json'):
 
@@ -145,6 +191,19 @@ class UserCreateView(GenericAPIView):
 
 class OTPVerify(GenericAPIView):
     serializer_class = UserLoginSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Otp Verify Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='otp'),
+            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country_code'),
+        }),
+
+        tags = ['Account']
+    )
 
     def post(self, request):
         try:
@@ -156,8 +215,8 @@ class OTPVerify(GenericAPIView):
                 user_obj.is_phone_verified = True
 
                 user_obj.save()
-                if (user_obj.gender_field and user_obj.passion_field and user_obj.height_field  and user_obj.location_field and
-                    user_obj.interest_in_field and user_obj.idealmatch_field and user_obj.relationship_status_field  and user_obj.is_media_field) == True:
+                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall  and user_obj.is_location and
+                    user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status  and user_obj.is_media) == True:
                     is_complete_profile = True
                 else :
                     is_complete_profile = False
@@ -186,6 +245,18 @@ class OTPVerify(GenericAPIView):
 
 class UserData(GenericAPIView):
     serializer_class = (UserSerializer )
+    @swagger_auto_schema(
+      
+        operation_summary = "User Detail Api",
+        # request_body=openapi.Schema(
+        # type=openapi.TYPE_OBJECT,
+        # properties={
+        #     'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+        #     'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        # }),
+
+        tags = ['Account']
+    )   
 
     def get_object(self, id):
         try:
@@ -212,17 +283,29 @@ class UserData(GenericAPIView):
                          }, status=status.HTTP_200_OK)
 
 
-class UserUpdate(RetrieveUpdateDestroyAPIView):
+class UserUpdate(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Update Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        # object = User.objects.get(pk=pk)
+    def put(self, request, *args, **kwargs):
 
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
+        user_id = self.kwargs.get('user_id')
+        # object = User.objects.get(user_id=user_id)
+
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
 
         if serializer.is_valid():
             question = serializer.save()
@@ -235,7 +318,13 @@ class UserUpdate(RetrieveUpdateDestroyAPIView):
 class AddPassionView(GenericAPIView):
     # permission_classes = (AllowAny,)
     serializer_class = PassionSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Passion Api",
+    
 
+        tags = ['Master data']
+    )
     def get(self, request):
         passion = Passion.objects.all()
         serializer = PassionSerializer(passion, many=True)
@@ -253,6 +342,13 @@ class AddPassionView(GenericAPIView):
 class AddGenderView(GenericAPIView):
     # permission_classes = (AllowAny,)
     serializer_class = GenderSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Gender Api",
+
+        tags = ['Master data']
+    )
+
 
     def get(self, request):
         gender = Gender.objects.all()
@@ -303,7 +399,13 @@ class AddUserMediaView(GenericAPIView):
 
 class AddMaritalStatusView(GenericAPIView):
     serializer_class = MaritalStatusSerializer
-    # permission_classes = (AllowAny,)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Marital Status Api",
+    
+
+        tags = ['Master data']
+    )
 
     def get(self, request):
         meritalstatus = MaritalStatus.objects.all()
@@ -329,7 +431,13 @@ class AddMaritalStatusView(GenericAPIView):
 
 class AddIdealMatchView(GenericAPIView):
     serializer_class = IdealMatchSerializer
-    # permission_classes = (AllowAny,)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Ideal Match Api",
+    
+
+        tags = ['Master data']
+    )
 
     def get(self, request):
 
@@ -359,6 +467,23 @@ class AddIdealMatchView(GenericAPIView):
 class AddUserImageView(GenericAPIView):
     serializer_class = UserImageSerializer
     # permission_classes = (AllowAny,)
+    # @swagger_auto_schema(
+    #     operation_description="POST description override using decorator",
+    #     operation_summary = "User Media Api",
+    #     request_body=UserSerializer,
+
+    #                     # request_body is used to specify parameters
+    #     #                 request_body = openapi.Schema(
+    #     #                     # request_body=UserSerializer,
+    #     # type=openapi.TYPE_OBJECT,
+    #     # required=['name'],
+    #     # properties={
+    #     #     'name': openapi.Schema(type=openapi.TYPE_STRING),
+    #     #     'id': "userid auto incremeted",
+    #     # },
+    # # ),
+    #                                    # tags = ['my custom tag']
+    # )
 
     def get(self, request):
         idealMatch = User.objects.all()
@@ -383,7 +508,13 @@ class AddUserImageView(GenericAPIView):
 
 class AddHeigthView(GenericAPIView):
     serializer_class  = HeightSerializer
-    # permission_classes = (AllowAny,)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Tall Api",
+    
+
+        tags = ['Master data']
+    )
 
     def get(self, request):
         height = Heigth.objects.all()
@@ -407,64 +538,143 @@ class GetUserDetail(GenericAPIView):
     Retrieve, update or delete  a media instance.
     """
     serializer_class = UserDetailSerializer
-    def get_object(self, pk):
+   
+    def get_object(self, user_id):
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(id=user_id)
         except User.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = " Get User Detail",
+        
 
-    def get(self, request, pk, format=None):
+        tags = ['Account']
+    )
+    def get(self, request, user_id, format=None):
 
-        adduserdetail = self.get_object(pk)
+        adduserdetail = self.get_object(user_id)
         serializer = UserDetailSerializer(adduserdetail)
         return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
 
 
 
-class UserUpdateIdealMatch(UpdateAPIView):
+class UserUpdateIdealMatch(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Add Ideal Match Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+            
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.idealmatch_field = True
-        question.save(update_fields=["idealmatch_field"])
+    def put(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
+        question.is_idealmatch = True
+        question.save(update_fields=["is_idealmatch"])
         if serializer.is_valid():
             question = serializer.save()
             return Response({"message" : "User Ideal Match field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserUpdatePassion(UpdateAPIView):
+class UserUpdateProfile(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "User Update Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+            'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+            'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+            'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
+            'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
+            'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
+            'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
+            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+            
+            
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.passion_field = True
-        question.save(update_fields=["passion_field"])
+    def put(self, request, *args, **kwargs):
+        # import pdb;pdb.set_trace()
+
+        user_id = self.kwargs.get('user_id')
+        user_data = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(user_data, data=request.data)
+
+        if 'gender' in request.data:
+            user_data.is_gender = True
+            user_data.save(update_fields=["is_gender"])
+
+        if 'passion' in request.data:
+            user_data.is_passion = True
+            user_data.save(update_fields=["is_passion"])
+
+        if 'idealmatch' in request.data:
+            user_data.is_idealmatch = True
+            user_data.save(update_fields=["is_idealmatch"])
+        
+        if 'interest_in' in request.data:
+            user_data.is_interest_in = True
+            user_data.save(update_fields=["is_interest_in"])
+
+        if 'location' in request.data:
+            user_data.is_location = True
+            user_data.save(update_fields=["is_location"])
+        
+        if 'tall' in request.data:
+            user_data.is_tall = True
+            user_data.save(update_fields=["is_tall"])
+        
+        if 'marital_status' in request.data:
+            user_data.is_marital_status = True
+            user_data.save(update_fields=["is_marital_status"])
+
         if serializer.is_valid():
-            question = serializer.save()
-            return Response({"message" : "User Passion field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            user_data = serializer.save()
+            return Response({"message" : "User Profile is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateGender(UpdateAPIView):
+class UserUpdateGender(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Add User Gender Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+           
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserGenderSerializer(question, data=request.data, partial=True)
-        question.gender_field = True
-        question.save(update_fields=["gender_field"])
+    def put(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserGenderSerializer(question, data=request.data)
+        question.is_gender = True
+        question.save(update_fields=["is_gender"])
         if serializer.is_valid():
             question = serializer.save()
             return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
@@ -473,101 +683,144 @@ class UserUpdateGender(UpdateAPIView):
 
 
 
-class UserUpdateInterest(UpdateAPIView):
+class UserUpdateInterest(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Add User Interest Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'interest_is': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Intrest In'),
+           
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.interest_in_field = True
-        question.save(update_fields=["interest_in_field"])
+    def put(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
+        question.is_interest_in = True
+        question.save(update_fields=["is_interest_in"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message" : "User InrestIn field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateHight(UpdateAPIView):
+class UserUpdateHight(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Add User Height Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Height'),
+           
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.height_field = True
-        question.save(update_fields=["height_field"])
+    def put(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
+        question.is_tall = True
+        question.save(update_fields=["is_tall"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User height_field field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message" : "User Tall field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateLoction(UpdateAPIView):
+
+class UserUpdateLoction(GenericAPIView):
+
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_description="POST description override using decorator",
+        operation_summary = "Add User Location Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Loction'),
+           
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
+    def put(self, request, *args, **kwargs):
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.location_field = True
-        question.save(update_fields=["location_field"])
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
+        question.is_location = True
+        question.save(update_fields=["is_location"])
         if serializer.is_valid():
             question = serializer.save()
             return Response({"message" : "User location field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-#
-# class UserUpdateMedia(RetrieveUpdateAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserSerializer
-#
-#     def patch(self, request, *args, **kwargs):
-#
-#         pk = self.kwargs.get('pk')
-#         question = get_object_or_404(User, pk=pk)
-#         serializer = UserSerializer(question, data=request.data, partial=True)
-#         question.is_media_field = True
-#         question.save(update_fields=["is_media_field"])
-#         if serializer.is_valid():
-#             question = serializer.save()
-#             return Response({"message" : "User Media field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
-#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-class UserUpdateMaritalStatus(UpdateAPIView):
+
+class UserUpdateMaritalStatus(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    @swagger_auto_schema(
+      
+        operation_summary = "Add User Marital Status Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Marital Status'),
+           
+        }),
 
-    def patch(self, request, *args, **kwargs):
+        tags = ['Account']
+    )
 
-        pk = self.kwargs.get('pk')
-        question = get_object_or_404(User, pk=pk)
-        serializer = UserSerializer(question, data=request.data, partial=True)
-        question.relationship_status_field = True
-        question.save(update_fields=["relationship_status_field"])
+    def put(self, request, *args, **kwargs):
+
+        user_id = self.kwargs.get('user_id')
+        question = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(question, data=request.data)
+        question.is_merital_status = True
+        question.save(update_fields=["is_merital_status"])
         if serializer.is_valid():
             question = serializer.save()
 
-            return Response({"message" : "User relationship_status field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message" : "User Marital Status field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 
-class UserDelete(RetrieveDestroyAPIView):
+class UserDelete(GenericAPIView):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-
-    def get_object(self, pk):
+   
+    def get_object(self, user_id):
         try:
-            return User.objects.get(pk=pk)
+            return User.objects.get(id=user_id)
         except User.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+        operation_description="User delete by Id",
 
-    def delete(self, request, pk, format=None):
+        operation_summary = "Delete User  Api",
+       
+        tags = ['Account']
+    )
 
-        userdel = self.get_object(pk)
+
+    def delete(self, request, user_id, format=None):
+
+        userdel = self.get_object(user_id)
         userdel.delete()
         return Response({'status':204,'message':'User Successfully Deleted!' ,'success':True},status=status.HTTP_204_NO_CONTENT)

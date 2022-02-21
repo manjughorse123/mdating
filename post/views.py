@@ -1,6 +1,9 @@
 from uuid import UUID
 
 # Create your views here.
+from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 from django.db.models import Sum, Value
 from django.db.models.functions import Coalesce
 from rest_framework import status
@@ -14,13 +17,38 @@ from rest_framework.parsers import *
 from rest_framework.permissions import *
 
 
-class PostUploadApi(GenericAPIView):
+
+
+class GetPostUploadApi(GenericAPIView):
     serializer_class =  PostUploadSerializers
-    def get(self, request, id, *args, **kwargs):
-        posts = PostUpload.objects.filter(id=id)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get All Post by Post id",
+       
+        tags = ['Post']
+    )
+    def get(self, request, post_id, *args, **kwargs):
+        posts = PostUpload.objects.filter(id=post_id)
         serializer = PostUploadSerializers(posts, many=True)
         return Response({"success": True,"status" : 200, "message" : "User Post by Post ID"  ,"data": serializer.data}, status=status.HTTP_200_OK)
 
+
+class PostUploadApi(GenericAPIView):
+    serializer_class =  PostUploadSerializers
+    @swagger_auto_schema(
+      
+        operation_summary = "Create Post Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add Post Data'),
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Add Title'),
+            'message': openapi.Schema(type=openapi.TYPE_STRING, description='Add Message'),
+        }),
+
+        tags = ['Post']
+    )
     def post(self, request, *args, **kwargs):
         data = {
             'title': request.data.get('title'),
@@ -39,14 +67,25 @@ class PostUploadApi(GenericAPIView):
 
 class UserImages(GenericAPIView):
     serializer_class = PostUploadSerializers
-    def get(self, request, id, *args, **kwargs):
-        user = PostUpload.objects.filter(user_id=id)
+    @swagger_auto_schema(
+      
+        operation_summary = "Get User Post by User Id  Api ",
+        tags = ['Post']
+    )
+    def get(self, request, user_id, *args, **kwargs):
+        user = PostUpload.objects.filter(user_id=user_id)
         serializer = PostUploadSerializers(user, many=True)
         return Response({"success": True ,"post": serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
 class PostReactionApi(GenericAPIView):
     serializer_class = PostViewSerializers
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Post Reaction Api",
+       
+        tags = ['Post']
+    )
 
     def get(self, request):
         userView = PostView.objects.all()
@@ -57,6 +96,20 @@ class PostReactionApi(GenericAPIView):
         serializerShare = PostShareSerializers(userShare, many=True)
         return Response({"success": True, "status":200,"data View": serializerView.data,"data View count": len(serializerView.data), "data Like": serializerLike.data,
                         "message": "Post Reaction" ,"data share": serializerShare.data}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
+      
+        operation_summary = "Create Post Reaction Api",
+        request_body=openapi.Schema(
+        type=openapi.TYPE_OBJECT,
+        properties={
+            'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add Post Data'),
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Add Title'),
+            'message': openapi.Schema(type=openapi.TYPE_STRING, description='Add Message'),
+        }),
+
+        tags = ['Post']
+    )
 
     def post(self, request, format='json'):
         data = {
@@ -150,11 +203,19 @@ class GetPostViewdetailView(GenericAPIView):
     """
     Retrieve, update or delete  a media instance.
     """
+
+    
     def get_object(self, pk):
         try:
             return PostView.objects.get(pk=pk)
         except PostView.DoesNotExist:
             raise Http404
+    @swagger_auto_schema(
+      
+        operation_summary = "Get Post  View Detail Api",
+
+        tags = ['Post']
+    )
 
     def get(self, request, pk, format=None):
     
@@ -163,13 +224,19 @@ class GetPostViewdetailView(GenericAPIView):
         return Response({"success": True, "status":200,"data": serializer.data}, status=status.HTTP_200_OK)
 
     
-    def delete(self, request, pk, format=None):
-        post_view = self.get_object(pk)
-        post_view.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+    # def delete(self, request, pk, format=None):
+    #     post_view = self.get_object(pk)
+    #     post_view.delete()
+    #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AllPostAPI(GenericAPIView):
     serializer_class = PostUploadSerializers
+    @swagger_auto_schema(
+      
+        operation_summary = "Get All User Post",
+
+        tags = ['Post']
+    )
     def get(self, request, *args, **kwargs):
         post = PostUpload.objects.all()
         serializer = PostUploadSerializers(post, many=True)
@@ -196,6 +263,7 @@ class PostLikeAPI(GenericAPIView):
 
 class PostShareAPI(GenericAPIView):
     serializer_class = PostShareSerializers
+
     def get(self, request, id, *args, **kwargs):
         post = PostShare.objects.filter(post_id=id)
         serializer = PostShareSerializers(post, many=True)
