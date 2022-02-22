@@ -88,7 +88,7 @@ class MediaUploadApi(GenericAPIView):
             obj  = User.objects.filter(id = user)
 
 
-            obj.update(is_media_field = True)
+            obj.update(is_media = True)
             serializer.save()
 
             return Response({"success": True, "message": "User Media Added!","status": 201,"post": serializer.data}, status=status.HTTP_201_CREATED)

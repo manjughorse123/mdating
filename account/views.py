@@ -1,3 +1,4 @@
+import jwt
 from operator import add
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
@@ -5,7 +6,8 @@ from drf_yasg import openapi
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import *
-
+# from rest_framework_jwt.settings import api_settings
+from rest_framework_jwt.settings import api_settings
 import http.client
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
@@ -15,6 +17,8 @@ from .models import *
 from .serializers import *
 from friend.models import *
 from friend.serializers import *
+from .utils import *
+from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 def send_otp(mobile, otp):
@@ -189,6 +193,7 @@ class UserCreateView(GenericAPIView):
             return Response({"data": serializer.errors,"status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
+from rest_framework_jwt.settings import api_settings
 class OTPVerify(GenericAPIView):
     serializer_class = UserLoginSerializer
     @swagger_auto_schema(
@@ -206,13 +211,27 @@ class OTPVerify(GenericAPIView):
     )
 
     def post(self, request):
+
         try:
             mobile = request.POST.get("mobile")
             otp = request.POST.get("otp")
             country_code = request.POST.get("country_code")
             user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
             if user_obj.otp == otp:
+
                 user_obj.is_phone_verified = True
+                # data = generate_jwt_token(user_obj, {})
+                # print (data)
+                if user_obj is not None:
+                    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                    #
+                    # payload = jwt_payload_handler(user_obj)
+                    # token = jwt_encode_handler(payload)
+                    payload = jwt_payload_handler(user_obj)
+                    token = jwt.encode(payload, settings.SECRET_KEY)
+                    # print (token)
+                #  url call token
 
                 user_obj.save()
                 if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall  and user_obj.is_location and
@@ -222,7 +241,7 @@ class OTPVerify(GenericAPIView):
                     is_complete_profile = False
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True, "user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True,'token': token ,"user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -534,6 +553,8 @@ class AddHeigthView(GenericAPIView):
     #
 
 class GetUserDetail(GenericAPIView):
+
+    permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """

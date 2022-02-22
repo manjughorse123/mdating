@@ -5,4 +5,5 @@ urlpatterns = [
 
   
     path('faq/', FAQView.as_view(), name='question'),
+    path('get-master-data/', GetMasterData.as_view(), name='getmasterdata'),
 ]

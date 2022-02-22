@@ -6,6 +6,8 @@ from .serializers import FAQSerializer
 from rest_framework.views import *
 from friend.models import *
 from rest_framework.viewsets import *
+from account.models import *
+from account.serializers import *
 
 # Create your views here.
 class FAQView(GenericAPIView):
@@ -39,3 +41,33 @@ class FAQView(GenericAPIView):
 
 
 
+
+
+class GetMasterData(GenericAPIView):
+    # permission_classes = (AllowAny,)
+    serializer_class = GenderSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Get Master Data Api",
+        tags=['Master data']
+    )
+    def get(self, request):
+        gender = Gender.objects.all()
+        passion = Passion.objects.all()
+        ideal_m = IdealMatch.objects.all()
+        maritalstatus = MaritalStatus.objects.all()
+        heigth = HeightSerializer.objects.all()
+        gen_serializer = GenderSerializer(gender, many=True)
+        pan_serializer = PassionSerializer(passion, many=True)
+        ideal_serializer = IdealMatchSerializer(ideal_m, many=True)
+        marital_serializer = MaritalStatusSerializer(maritalstatus, many=True)
+        tall_serializer = HeightSerializer(heigth, many=True)
+        return Response({"success": True, "message": " Master Data Deatil!", "status": 200,
+                         "data": {'gender':gen_serializer.data,
+                                  'passion':pan_serializer.data,
+                                  'idealmatch': ideal_serializer.data,
+                                  'marital_status': marital_serializer.data,
+                                  'tall': tall_serializer.data
+
+                                  }},
+                        status=status.HTTP_200_OK)
