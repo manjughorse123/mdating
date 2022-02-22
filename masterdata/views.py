@@ -62,7 +62,7 @@ class GetMasterData(GenericAPIView):
         ideal_serializer = IdealMatchSerializer(ideal_m, many=True)
         marital_serializer = MaritalStatusSerializer(maritalstatus, many=True)
         tall_serializer = HeightSerializer(heigth, many=True)
-        return Response({"success": True, "message": " Master Data Deatil!", "status": 200,
+        return Response({"success": True, "message": " Master Data Deatil!", "status": 200,"base_url":"http://18.224.254.170",
                          "data": {'gender':gen_serializer.data,
                                   'passion':pan_serializer.data,
                                   'idealmatch': ideal_serializer.data,
