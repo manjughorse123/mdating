@@ -211,7 +211,7 @@ class OTPVerify(GenericAPIView):
     )
 
     def post(self, request):
-
+        # import pdb;pdb.set_trace()
         try:
             mobile = request.POST.get("mobile")
             otp = request.POST.get("otp")
@@ -230,7 +230,10 @@ class OTPVerify(GenericAPIView):
                     # token = jwt_encode_handler(payload)
                     payload = jwt_payload_handler(user_obj)
                     token = jwt.encode(payload, settings.SECRET_KEY)
-                    # print (token)
+
+                    decoded = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
+                    print (token)
+                    print ("decoded",decoded)
                 #  url call token
 
                 user_obj.save()
@@ -554,7 +557,7 @@ class AddHeigthView(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """
