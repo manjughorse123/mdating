@@ -56,7 +56,7 @@ class GetMasterData(GenericAPIView):
         passion = Passion.objects.all()
         ideal_m = IdealMatch.objects.all()
         maritalstatus = MaritalStatus.objects.all()
-        heigth = HeightSerializer.objects.all()
+        heigth = Heigth.objects.all()
         gen_serializer = GenderSerializer(gender, many=True)
         pan_serializer = PassionSerializer(passion, many=True)
         ideal_serializer = IdealMatchSerializer(ideal_m, many=True)
