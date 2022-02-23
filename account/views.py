@@ -628,12 +628,13 @@ class UserUpdateProfile(GenericAPIView):
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
-        print ("any field---->", request.data)
+
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
 
         if 'passion' in request.data:
+            print("passion------->", request.data)
             user_data.is_passion = True
             user_data.save(update_fields=["is_passion"])
 
@@ -656,7 +657,7 @@ class UserUpdateProfile(GenericAPIView):
         if 'marital_status' in request.data:
             user_data.is_marital_status = True
             user_data.save(update_fields=["is_marital_status"])
-        print  ("passion------->", request.data)
+
         if serializer.is_valid():
             user_data = serializer.save()
             return Response({"message" : "User Profile is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(user_data).data})
@@ -906,3 +907,31 @@ class OTPVerifyV2(GenericAPIView):
         return Response(
             {'success': False, 'message': ' Mobile Number Not Registered', 'status': 404, 'is_register': False},
             status=status.HTTP_404_NOT_FOUND)
+
+
+class GetUserDetailV2(GenericAPIView):
+
+    """
+    Retrieve, Checklist Api.
+    """
+    serializer_class = UserDetailSerializer
+    permission_classes = [IsAuthenticated,]
+
+    def get_object(self, user_id):
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary=" Get User Detail",
+
+        tags=['Account']
+    )
+    def get(self, request, user_id, format=None):
+
+        adduserdetail = self.get_object(user_id)
+        serializer = UserDetailSerializer(adduserdetail)
+        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
+
