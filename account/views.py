@@ -17,7 +17,7 @@ from .models import *
 from .serializers import *
 from friend.models import *
 from friend.serializers import *
-from .utils import *
+
 from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
@@ -211,7 +211,7 @@ class OTPVerify(GenericAPIView):
     )
 
     def post(self, request):
-        # import pdb;pdb.set_trace()
+
         try:
             mobile = request.POST.get("mobile")
             otp = request.POST.get("otp")
@@ -222,18 +222,18 @@ class OTPVerify(GenericAPIView):
                 user_obj.is_phone_verified = True
                 # data = generate_jwt_token(user_obj, {})
                 # print (data)
-                if user_obj is not None:
-                    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                    #
-                    # payload = jwt_payload_handler(user_obj)
-                    # token = jwt_encode_handler(payload)
-                    payload = jwt_payload_handler(user_obj)
-                    token = jwt.encode(payload, settings.SECRET_KEY)
-
-                    decoded = jwt.decode(token, settings.SECRET_KEY, algorithms='HS256')
-                    print (token)
-                    print ("decoded",decoded)
+                # if user_obj is not None:
+                #     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+                #     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                #     #
+                #     payload = jwt_payload_handler(user_obj)
+                #     token = jwt_encode_handler(payload)
+                #     # payload = jwt_payload_handler(user_obj)
+                #     # token = jwt.encode(payload, settings.SECRET_KEY)
+                #     #
+                #
+                #     print (token)
+                    # print ("decoded",decoded)
                 #  url call token
 
                 user_obj.save()
@@ -557,7 +557,7 @@ class AddHeigthView(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """
@@ -642,7 +642,7 @@ class UserUpdateProfile(GenericAPIView):
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
-
+        print ("any field---->", request.data)
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
@@ -670,7 +670,7 @@ class UserUpdateProfile(GenericAPIView):
         if 'marital_status' in request.data:
             user_data.is_marital_status = True
             user_data.save(update_fields=["is_marital_status"])
-
+        print  ("passion------->", request.data)
         if serializer.is_valid():
             user_data = serializer.save()
             return Response({"message" : "User Profile is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(user_data).data})
