@@ -218,8 +218,11 @@ class OTPVerify(GenericAPIView):
             country_code = request.POST.get("country_code")
             user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
             if user_obj.otp == otp:
+
                 user_obj.is_phone_verified = True
-                user_oj.save()
+
+
+                user_obj.save()
                 if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall  and user_obj.is_location and
                     user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status  and user_obj.is_media) == True:
                     is_complete_profile = True
@@ -227,8 +230,7 @@ class OTPVerify(GenericAPIView):
                     is_complete_profile = False
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True,
-                     "user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True ,"user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -541,7 +543,7 @@ class AddHeigthView(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-
+    # permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """
@@ -621,7 +623,7 @@ class UserUpdateProfile(GenericAPIView):
     )
 
     def put(self, request, *args, **kwargs):
-
+        # import pdb;pdb.set_trace()
 
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
