@@ -557,7 +557,7 @@ class AddHeigthView(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-    permission_classes = (IsAuthenticated,)
+    # permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """
