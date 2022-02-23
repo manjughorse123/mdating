@@ -218,25 +218,8 @@ class OTPVerify(GenericAPIView):
             country_code = request.POST.get("country_code")
             user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
             if user_obj.otp == otp:
-
                 user_obj.is_phone_verified = True
-                # data = generate_jwt_token(user_obj, {})
-                # print (data)
-                # if user_obj is not None:
-                #     jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                #     jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                #     #
-                #     payload = jwt_payload_handler(user_obj)
-                #     token = jwt_encode_handler(payload)
-                #     # payload = jwt_payload_handler(user_obj)
-                #     # token = jwt.encode(payload, settings.SECRET_KEY)
-                #     #
-                #
-                #     print (token)
-                    # print ("decoded",decoded)
-                #  url call token
-
-                user_obj.save()
+                user_oj.save()
                 if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall  and user_obj.is_location and
                     user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status  and user_obj.is_media) == True:
                     is_complete_profile = True
@@ -244,7 +227,8 @@ class OTPVerify(GenericAPIView):
                     is_complete_profile = False
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True,'token': token ,"user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True,
+                     "user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -557,7 +541,7 @@ class AddHeigthView(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-    # permission_classes = (IsAuthenticated,)
+
     """
     Retrieve, update or delete  a media instance.
     """
@@ -637,7 +621,7 @@ class UserUpdateProfile(GenericAPIView):
     )
 
     def put(self, request, *args, **kwargs):
-        # import pdb;pdb.set_trace()
+
 
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
@@ -848,3 +832,75 @@ class UserDelete(GenericAPIView):
         userdel = self.get_object(user_id)
         userdel.delete()
         return Response({'status':204,'message':'User Successfully Deleted!' ,'success':True},status=status.HTTP_204_NO_CONTENT)
+
+
+class OTPVerifyV2(GenericAPIView):
+    serializer_class = UserLoginSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="User Otp Verify Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='otp'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country_code'),
+            }),
+
+        tags=['Account']
+    )
+    def post(self, request):
+
+        try:
+            mobile = request.POST.get("mobile")
+            otp = request.POST.get("otp")
+            country_code = request.POST.get("country_code")
+            user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
+            if user_obj.otp == otp:
+
+                user_obj.is_phone_verified = True
+                # data = generate_jwt_token(user_obj, {})
+                # print (data)
+                if user_obj is not None:
+                    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+                    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                    #
+                    payload = jwt_payload_handler(user_obj)
+                    token = jwt_encode_handler(payload)
+                    # payload = jwt_payload_handler(user_obj)
+                    # token = jwt.encode(payload, settings.SECRET_KEY)
+                    #
+
+                    print (token)
+                # print ("decoded",decoded)
+                #  url call token
+
+                user_obj.save()
+                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
+                    user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
+                    is_complete_profile = True
+                else:
+                    is_complete_profile = False
+
+                return Response(
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True,
+                     'token': token, "user": {
+                        'id': user_obj.id,
+                        'email': user_obj.email,
+                        'mobile': user_obj.mobile,
+                        'country_code': user_obj.country_code,
+                        'name': user_obj.name,
+                        "is_complete_profile": is_complete_profile,
+                        'is_verified': user_obj.is_verified, }
+
+                     },
+                    status=status.HTTP_200_OK)
+            return Response({'success': "success", 'message': 'Wrong OTP', "status": 403, "data": serializers.data},
+                            status=status.HTTP_403_FORBIDDEN)
+
+        except Exception as e:
+            print(e)
+        return Response(
+            {'success': False, 'message': ' Mobile Number Not Registered', 'status': 404, 'is_register': False},
+            status=status.HTTP_404_NOT_FOUND)
