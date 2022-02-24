@@ -19,7 +19,7 @@ class PostUploadSerializers(ModelSerializer):
 class UserFriendSerilaizer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('id','name','email',)
+        fields = ('id','name','image','email')
 
 
 class UserPostUpdateSerilaizer(ModelSerializer):

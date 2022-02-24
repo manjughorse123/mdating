@@ -15,6 +15,7 @@ from .models import *
 from .serializers import *
 from rest_framework.parsers import *
 from rest_framework.permissions import *
+from friend.models import *
 
 
 
@@ -73,9 +74,23 @@ class UserImages(GenericAPIView):
         tags = ['Post']
     )
     def get(self, request, user_id, *args, **kwargs):
+
         user = PostUpload.objects.filter(user_id=user_id)
-        serializer = PostUploadSerializers(user, many=True)
-        return Response({"success": True ,"post": serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
+
+        following  =  FollowRequest.objects.filter(user_id=user_id)
+        data_s =[]
+        for i in range(len(following)):
+            obj =  following[i]
+            print (obj.follow.id)
+            print("name",obj.follow.name)
+
+            users = PostUpload.objects.filter(user_id=obj.follow.id)|PostUpload.objects.filter(user_id=user_id)
+
+            print ("users",users)
+        # user_ob = PostUpload.objects.filter(user_id=obj.id)
+            follow_serializer = PostUploadSerializers(users, many=True)
+            # serializer = PostUploadSerializers(user, many=True)
+        return Response({"success": True ,"post": follow_serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
 class PostReactionApi(GenericAPIView):
