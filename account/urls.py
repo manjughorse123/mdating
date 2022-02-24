@@ -8,7 +8,7 @@ urlpatterns = [
     path('otp/verify/v2', OTPVerifyV2.as_view(), name='OTPVerify'),# OTPVerifyV2 for Jwt Token checking
 
     path('registration', Registration.as_view(), name='Registration'),
-    path('user/data/', UserData.as_view(), name='UserData'),
+    re_path(r'user/data/(?P<user_id>[0-9a-f-]+)$', UserData.as_view(), name='UserData'),
     re_path(r'^user/update/profile/(?P<user_id>[0-9a-f-]+)$', UserUpdateProfile.as_view(), name="userupdate"),
     # path('signup/', UserCreateView.as_view(), name='signup'),
     #Master Api Urls 

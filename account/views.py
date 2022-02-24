@@ -254,18 +254,7 @@ class OTPVerify(GenericAPIView):
 
 class UserData(GenericAPIView):
     serializer_class = (UserSerializer )
-    @swagger_auto_schema(
-      
-        operation_summary = "User Detail Profile Time Line Api",
-        # request_body=openapi.Schema(
-        # type=openapi.TYPE_OBJECT,
-        # properties={
-        #     'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-        #     'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
-        # }),
 
-        tags = ['Account']
-    )   
 
     def get_object(self, id):
         try:
@@ -273,19 +262,31 @@ class UserData(GenericAPIView):
         except User.DoesNotExist:
             raise Http404
 
-    def get(self, request, id, format=None):
-        user = self.get_object(id)
-        post = PostUpload.objects.filter(user_id=id)
-        media = MediaPost.objects.filter(user_id=id)
-        follow = FollowRequest.objects.filter(user_id=id)
-        followaccept = FollowAccept.objects.filter(user_id=id)
+    @swagger_auto_schema(
+
+            operation_summary="User Detail Profile Time Line Api",
+            # request_body=openapi.Schema(
+            # type=openapi.TYPE_OBJECT,
+            # properties={
+            #     'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+            #     'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+            # }),
+
+            tags=['Account']
+        )
+    def get(self, request, user_id, format=None):
+        user = self.get_object(user_id)
+        post = PostUpload.objects.filter(user_id=user_id)
+        media = MediaPost.objects.filter(user_id=user_id)
+        follow = FollowRequest.objects.filter(user_id=user_id)
+        followaccept = FollowAccept.objects.filter(user_id=user_id)
 
         userserializer = UserSerializer(user)
         postsrializer = PostUploadSerializers(post, many=True)
         followserializer = FollowRequestSerializer(follow, many=True)
         followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
-        return Response({"message": True, "user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
+        return Response({"success": True,"message" : "User  Profile TimeLine!" ,"user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
                          "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
                          "media": mediaserializer.data, "Following": len(followserializer.data),
                          "Follower": len(followacceptserializer.data),

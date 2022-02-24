@@ -44,7 +44,7 @@ class UserPassionFilter(filters.FilterSet):
         model = User
         fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
 
-class UserFilterAPI(ListAPIView):
+class UserFilterAPIV2(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
@@ -56,25 +56,25 @@ class UserFilterAPI(ListAPIView):
 
 
 
-# class UserFilterAPI(ListAPIView):
-#     queryset = User.objects.all()
-#     serializer_class = UserFilterSerializer
-#     distance_filter_field = 'location'
-#     filterset_class = UserFilter
-#     filter_backends = (
-#         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
-#     #
-    # @swagger_auto_schema(
+class UserFilterAPI(ListAPIView):
+    queryset = User.objects.all()
+    serializer_class = UserFilterSerializer
+    distance_filter_field = 'location'
+    filterset_class = UserFilter
+    filter_backends = (
+        DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
     #
-    #     operation_summary = "Get user Filter by Location,Passion,Gender ",
-    #
-    #     tags = ['User Filter']
-    # )
+    @swagger_auto_schema(
 
-    # def list(self, request):
-    #     queryset = User.objects.all()
-    #     serializer = UserFilterSerializer(queryset, many=True)
-    #     return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+        operation_summary = "Get user Filter by Location,Passion,Gender ",
+
+        tags = ['User Filter']
+    )
+
+    def list(self, request):
+        queryset = User.objects.all()
+        serializer = UserFilterSerializer(queryset, many=True)
+        return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
 
 class FollowDetails(GenericAPIView):
     serilaizer_class = (FollowRequestSerializer)
