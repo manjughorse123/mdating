@@ -211,7 +211,7 @@ class GetFollowerView(GenericAPIView):
             raise Http404
     @swagger_auto_schema(
       
-        operation_summary = "Get Follower Api",
+        operation_summary = "Get Following Api",
       
         tags = ['Follow']
     )
@@ -220,10 +220,39 @@ class GetFollowerView(GenericAPIView):
         # import pdb;pdb.set_trace()
         follower_info = self.get_object(user_id)
         serializer = FollowRequestFollowerSerializer(follower_info, many=True)
-        return Response({"success": True, "message" :" User follow Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
+        return Response({"success": True, "message" :" User following Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
+
+
+
+
+class GetFollowerV2View(GenericAPIView):
+    serializer_class = FollowRequestFollowerV2Serializer
+    """
+    Retrieve, update or delete a Get Follower instance.
+
+    """
+
+    def get_object(self, user_id):
+        try:
+            return FollowRequest.objects.filter(follow_id=user_id)
+        except FollowRequest.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Follower Api",
+
+        tags=['Follow']
+    )
+    def get(self, request, user_id, format=None):
+        follower_info = self.get_object(user_id)
+        serializer = FollowRequestFollowerV2Serializer(follower_info, many=True)
+        return Response({"success": True, "message": " User follower Detail", "data": serializer.data, "status": 200,
+                         'data_count': len(serializer.data)}, status=status.HTTP_200_OK)
+
 
 # Get Following View
-class GetFollowingView(GenericAPIView):
+class GetFollowingView(GenericAPIView): # temperly stop
     QuerySet = FollowAccept.objects.all()
     serializer_class = FollowListFollowingSerializer
     """
@@ -281,10 +310,10 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
         serializer = FriendListSerializer(data=request.data)
 
         if serializer.is_valid():
-
+            # import pdb;pdb.set_trace()
             ab = serializer.validated_data['user']
             friends = serializer.validated_data['friends']
-            if request.data['flag'] == '1':
+            if request.data['flag'] == '1': # add friend
                 if FriendList.objects.filter(friends=friends):
                     return Response({"success": "error", "status": 400, "message": "User Already friend"},
                                     status=status.HTTP_400_BAD_REQUEST)
@@ -295,14 +324,14 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
                     objs = FriendRequest.objects.filter(id=obj)
                     objs.delete()
 
-            if request.data['flag'] == '2':
+            if request.data['flag'] == '2': # delete  request
                 obj = FriendRequest.objects.filter(sender=friends)
                 obj = obj[0].id
                 objs = FriendRequest.objects.filter(id=obj)
                 objs.delete()
                 return Response({"success": True,"message": "Friend Request Deleted !" ,"status": 200},status=status.HTTP_200_OK)
 
-            # serializer.save()
+            serializer.save()
 
             return Response(
                 {"success": True, "message": "Friend Request Accepted!", "status": 201, "data": serializer.data},

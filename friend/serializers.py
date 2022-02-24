@@ -178,6 +178,15 @@ class FollowRequestFollowerSerializer(serializers.ModelSerializer):
             return response
 
 
+class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
+    class Meta:
+        model = FollowRequest
+        fields = ('user',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerilaizer(instance.user).data
+        return response
 
 
 # FriendRequest list
