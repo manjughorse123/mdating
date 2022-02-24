@@ -197,9 +197,9 @@ class FollowRequestAcceptView(GenericAPIView):
 
 # GetFollowerView
 class GetFollowerView(GenericAPIView):
-    serializer_class = FollowRequestFollowerSerializer
+    serializer_class = FollowRequestFollowingSerializer
     """
-    Retrieve, update or delete a Get Follower instance.
+    Retrieve, update or delete a Get Followering instance.
 
     """
    

@@ -167,7 +167,7 @@ class FollowAcceptSerializer(serializers.ModelSerializer):
 
 
 
-class FollowRequestFollowerSerializer(serializers.ModelSerializer):
+class FollowRequestFollowingSerializer(serializers.ModelSerializer):
 
         class Meta:
             model  = FollowRequest

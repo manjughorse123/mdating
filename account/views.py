@@ -279,12 +279,12 @@ class UserData(GenericAPIView):
         post = PostUpload.objects.filter(user_id=user_id)
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
-        followaccept = FollowAccept.objects.filter(user_id=user_id)
+        followaccept = FollowRequest.objects.filter(follow_id=user_id)
 
         userserializer = UserSerializer(user)
         postsrializer = PostUploadSerializers(post, many=True)
-        followserializer = FollowRequestSerializer(follow, many=True)
-        followacceptserializer = FollowAcceptSerializer(followaccept, many=True)
+        followserializer = FollowRequestFollowingSerializer(follow, many=True)
+        followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
         return Response({"success": True,"message" : "User  Profile TimeLine!" ,"user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
                          "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
