@@ -38,25 +38,43 @@ class UserFilter(filters.FilterSet):
         fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], }
 
 
-class UserFilterAPI(GenericAPIView):
+class UserPassionFilter(filters.FilterSet):
+    birth_date = DateFromToRangeFilter()
+    class Meta:
+        model = User
+        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
+
+class UserFilterAPI(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
-    filterset_class = UserFilter
+    filterset_class = UserPassionFilter
     filter_backends = (
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
-    @swagger_auto_schema(
-      
-        operation_summary = "Get user Filter by Location,Passion,Gender ",
 
-        tags = ['User Filter']
-    )
 
-    def get(self, request):
-        queryset = User.objects.all()
-        serializer = UserFilterSerializer(queryset, many=True)
-        return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+
+
+# class UserFilterAPI(ListAPIView):
+#     queryset = User.objects.all()
+#     serializer_class = UserFilterSerializer
+#     distance_filter_field = 'location'
+#     filterset_class = UserFilter
+#     filter_backends = (
+#         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
+#     #
+    # @swagger_auto_schema(
+    #
+    #     operation_summary = "Get user Filter by Location,Passion,Gender ",
+    #
+    #     tags = ['User Filter']
+    # )
+
+    # def list(self, request):
+    #     queryset = User.objects.all()
+    #     serializer = UserFilterSerializer(queryset, many=True)
+    #     return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
 
 class FollowDetails(GenericAPIView):
     serilaizer_class = (FollowRequestSerializer)
@@ -109,6 +127,7 @@ class UserMatchProfileFilterAPI(ListAPIView):
     )
 
     def get(self, request):
+        queryset = NewUserMatchProfile.objects.all()
         serializer = UserMatchProfileFilter(queryset, many=True)
         return Response({"message": "User Matched Profile", "status": 200, "success": True, 'data': serializer.data},
                         status=status.HTTP_200_OK)

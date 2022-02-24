@@ -2,13 +2,12 @@ from django.contrib import admin
 from django.urls import path, include,re_path
 from django.conf import settings
 from django.conf.urls.static import static
-# from rest_framework_simplejwt.views import TokenObtainSlidingView, TokenRefreshSlidingView, TokenObtainPairView, \
-#     TokenRefreshView, TokenVerifyView
 
-from rest_framework_simplejwt.views import (
-    TokenObtainPairView,
-    TokenRefreshView
-)
+
+# from rest_framework_simplejwt.views import (
+#     TokenObtainPairView,
+#     TokenRefreshView
+# )
 
 from rest_framework import permissions
 from drf_yasg.views import get_schema_view
@@ -44,8 +43,8 @@ urlpatterns = [
     # path('verify/', include('userverification.urls')),
     # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
     # path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
-    path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     # path('token/verify/', TokenVerifyView.as_view(), name='token_verify'),
 
 ]

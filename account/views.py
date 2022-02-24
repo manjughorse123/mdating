@@ -1,4 +1,4 @@
-import jwt
+# import jwt
 from operator import add
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
@@ -6,8 +6,9 @@ from drf_yasg import openapi
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import *
+from rest_framework.permissions import IsAuthenticated
 # from rest_framework_jwt.settings import api_settings
-from rest_framework_jwt.settings import api_settings
+# from rest_framework_jwt.settings import api_settings
 import http.client
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
@@ -193,7 +194,7 @@ class UserCreateView(GenericAPIView):
             return Response({"data": serializer.errors,"status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
-from rest_framework_jwt.settings import api_settings
+# from rest_framework_jwt.settings import api_settings
 class OTPVerify(GenericAPIView):
     serializer_class = UserLoginSerializer
     @swagger_auto_schema(
@@ -255,7 +256,7 @@ class UserData(GenericAPIView):
     serializer_class = (UserSerializer )
     @swagger_auto_schema(
       
-        operation_summary = "User Detail Api",
+        operation_summary = "User Detail Profile Time Line Api",
         # request_body=openapi.Schema(
         # type=openapi.TYPE_OBJECT,
         # properties={
@@ -865,17 +866,17 @@ class OTPVerifyV2(GenericAPIView):
                 user_obj.is_phone_verified = True
                 # data = generate_jwt_token(user_obj, {})
                 # print (data)
-                if user_obj is not None:
-                    jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                    jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                    #
-                    payload = jwt_payload_handler(user_obj)
-                    token = jwt_encode_handler(payload)
+                # if user_obj is not None:
+                    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
+                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
+                    # #
                     # payload = jwt_payload_handler(user_obj)
-                    # token = jwt.encode(payload, settings.SECRET_KEY)
+                    # token = jwt_encode_handler(payload)
+                    # # payload = jwt_payload_handler(user_obj)
+                    # # token = jwt.encode(payload, settings.SECRET_KEY)
+                    # #
                     #
-
-                    print (token)
+                    # print (token)
                 # print ("decoded",decoded)
                 #  url call token
 

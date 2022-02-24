@@ -187,15 +187,20 @@ AUTH_KEY = 'YOUR_KEY_HERE'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework.authentication.TokenAuthentication',
+         'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
+'   DEFAULT_PERMISSION_CLASSES': (
+        'rest_framework.permissions.IsAuthenticated',),
+
     'DEFAULT_FILTER_BACKENDS': (
         'rest_framework_json_api.filters.QueryParameterValidationFilter',
         'rest_framework_json_api.filters.OrderingFilter',
         'rest_framework_json_api.django_filters.DjangoFilterBackend',
         'rest_framework.filters.SearchFilter',
         'django_filters.rest_framework.DjangoFilterBackend',
+        # 'rest_framework.filters.DjangoFilterBackend',
+        #                             'rest_framework.filters.OrderingFilter',
         
     ),
     'DEFAULT_PARSER_CLASSES': (
@@ -203,9 +208,8 @@ REST_FRAMEWORK = {
           'rest_framework.parsers.MultiPartParser',
           'rest_framework.parsers.JSONParser',
    ),
-    'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permissions.IsAuthenticated',
-    ],
+
+
 
     # 'DEFAULT_AUTHENTICATION_CLASSES': (
     #     'rest_framework_simplejwt.authentication.JWTAuthentication',  # THIS ONE
@@ -226,11 +230,11 @@ REST_FRAMEWORK = {
 # }
 # AUTH_USER_MODEL = 'account.User'
 
-REST_FRAMEWORK = {
-    'DEFAULT_AUTHENTICATION_CLASSES': (
-        'rest_framework_simplejwt.authentication.JWTAuthentication',
-    )
-}
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     )
+# }
 
 SWAGGER_SETTINGS = {            
               'JSON_EDITOR': True, 
@@ -244,22 +248,22 @@ SWAGGER_SETTINGS = {
 #           'rest_framework.parsers.JSONParser',
 #    )
 import datetime
-JWT_AUTH = {
-    # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.my_jwt_response_handler',
-    # 'JWT_ENCODE_HANDLER':
-    # 'rest_framework_jwt.utils.jwt_encode_handler',
-    'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.jwt_response_payload_handler',
-    'JWT_PAYLOAD_HANDLER': 'account.utils.jwt_payload_handler',
-    'JWT_VERIFY': True,
-    'JWT_VERIFY_EXPIRATION': True,
-    'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
-    'JWT_AUTH_HEADER_PREFIX': 'Bearer',
-}
+# JWT_AUTH = {
+#     # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.my_jwt_response_handler',
+#     # 'JWT_ENCODE_HANDLER':
+#     # 'rest_framework_jwt.utils.jwt_encode_handler',
+#     'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.jwt_response_payload_handler',
+#     'JWT_PAYLOAD_HANDLER': 'account.utils.jwt_payload_handler',
+#     'JWT_VERIFY': True,
+#     'JWT_VERIFY_EXPIRATION': True,
+#     'JWT_EXPIRATION_DELTA': datetime.timedelta(seconds=3000),
+#     'JWT_AUTH_HEADER_PREFIX': 'Bearer',
+# }
 
-SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': datetime.timedelta(days=15),
-    'REFRESH_TOKEN_LIFETIME': datetime.timedelta(days=15),
-}
 
-ACTIVATE_JWT = True
-DRFSO2_URL_NAMESPACE = "drf"
+
+# REST_FRAMEWORK = {
+#     'DEFAULT_AUTHENTICATION_CLASSES': (
+#         'rest_framework_simplejwt.authentication.JWTAuthentication',
+#     )
+# }

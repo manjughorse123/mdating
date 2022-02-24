@@ -5,8 +5,10 @@ urlpatterns = [
     # user Registration
     path('login', Login.as_view(), name="Login"),
     path('otp/verify', OTPVerify.as_view(), name='OTPVerify'),
+    path('otp/verify/v2', OTPVerifyV2.as_view(), name='OTPVerify'),# OTPVerifyV2 for Jwt Token checking
+
     path('registration', Registration.as_view(), name='Registration'),
-    # path('user/data/', UserData.as_view(), name='UserData'),
+    path('user/data/', UserData.as_view(), name='UserData'),
     re_path(r'^user/update/profile/(?P<user_id>[0-9a-f-]+)$', UserUpdateProfile.as_view(), name="userupdate"),
     # path('signup/', UserCreateView.as_view(), name='signup'),
     #Master Api Urls 
@@ -18,6 +20,8 @@ urlpatterns = [
     # re_path('UserUpdatePassion/(?P<pk>[0-9a-f-]+)',  UserUpdatePassion.as_view({'get':'list'}), name='match_detail'),
 
     re_path(r'^get/user/detail/(?P<user_id>[0-9a-f-]+)$', GetUserDetail.as_view(), name='getuserdetail'),
+    re_path(r'^get/user/detail/v2/(?P<user_id>[0-9a-f-]+)$', GetUserDetailV2.as_view(), name='getuserdetail'),# GetUserDetailV2 v2version
+
     # re_path(r'^user/add/ideal-match/(?P<user_id>[0-9a-f-]+)$', UserUpdateIdealMatch.as_view(), name="userupdateidealmatch"),
     # re_path(r'^user/add/passion/(?P<user_id>[0-9a-f-]+)$', UserUpdatePassion.as_view(), name="userupdatepassion"),
     # re_path(r'^user/add/gender/(?P<user_id>[0-9a-f-]+)$', UserUpdateGender.as_view(), name="userupdategender"),
