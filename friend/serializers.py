@@ -140,12 +140,12 @@ class FollowRequestSerializer(serializers.ModelSerializer):
 class FollowAcceptSerializer(serializers.ModelSerializer):
    
         # def validate(self, attrs):
-        #     # import pdb;pdb.set_trace()
-        #     if FollowAccept.objects.filter(follow=attrs['follow']):
-        #         raise serializers.ValidationError(
-        #             {" Follower already Added"})
-        #
-        #     return attrs
+
+            # if FollowAccept.objects.filter(follow=attrs['follow']):
+            #     raise serializers.ValidationError(
+            #         {" Follower already Added"})
+            #
+            # return attrs
 
         def create(self, validated_data):
             # import pdb;pdb.set_trace()
@@ -159,6 +159,7 @@ class FollowAcceptSerializer(serializers.ModelSerializer):
         class Meta:
             model = FollowAccept
             fields = "__all__"
+
         # def to_representation(self, instance):
         #     response = super().to_representation(instance)
         #     response['follow'] = UserFriendSerilaizer(instance.follow).data

@@ -26,8 +26,8 @@ class AddFriendRequestSendView(GenericAPIView):
         request_body=openapi.Schema(
         type=openapi.TYPE_OBJECT,
         properties={
-            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
-            'friend': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
+            'sender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
+            'receiver': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
         }),
 
         tags = ['Friend']
@@ -114,8 +114,8 @@ class  AddFollowRequestView(GenericAPIView):
     )
    
     def get(self, request):
-        userInterest =FollowRequest.objects.all()
-        serializer = FollowRequestSerializer(userInterest, many=True)
+        user_follow =FollowRequest.objects.all()
+        serializer = FollowRequestSerializer(user_follow, many=True)
         return Response({"success": True,"status": 200,"message" :" User follow Request Detail" , "data": serializer.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
@@ -161,7 +161,10 @@ class FollowRequestAcceptView(GenericAPIView):
     )
 
     def post(self, request, format='json'):
-        serializer = FollowAcceptSerializer(data=request.data)
+        user = request.data['user']
+        follow = request.data['follow']
+
+        serializer = FollowRequestSerializer(data=request.data)
         
         if serializer.is_valid(): 
             # to_user= serializer.validated_data['follow']
@@ -171,15 +174,12 @@ class FollowRequestAcceptView(GenericAPIView):
             ab = serializer.validated_data['user']
             follow = serializer.validated_data['follow']
             if request.data['flag'] == '1':
-                if FollowAccept.objects.filter(follow=follow):
+                if FollowRequest.objects.filter(follow=follow):
                     return Response({"success": "error", "status": 400, "message": " Already followed"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    new_follow = FollowAccept.objects.create(user=ab, follow=follow, is_follow_accepted=True)
-                    obj = FollowRequest.objects.filter(follow=follow)
-                    obj = obj[0].id
-                    objs = FollowRequest.objects.filter(id=obj)
-                    objs.delete()
+                    new_follow = FollowRequest.objects.create(user=ab, follow=follow)
+
 
             if request.data['flag'] == '2':
                 obj = FollowRequest.objects.filter(follow=follow)
@@ -219,7 +219,7 @@ class GetFollowerView(GenericAPIView):
     def get(self, request, user_id, format=None):
         # import pdb;pdb.set_trace()
         follower_info = self.get_object(user_id)
-        serializer = FollowRequestFollowerSerializer(follower_info, many=True)
+        serializer = FollowRequestFollowingSerializer(follower_info, many=True)
         return Response({"success": True, "message" :" User following Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
 
 
