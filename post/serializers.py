@@ -33,12 +33,12 @@ class PostViewSerializers(ModelSerializer):
         model = PostView
         fields = "__all__"
 
-        def to_representation(self, instance):
-            response = super().to_representation(instance)
-            response['user'] = UserFriendSerilaizer(instance.user).data
-            response['post'] = UserPostUpdateSerilaizer(instance.post).data
-
-            return response
+        # def to_representation(self, instance):
+        #     response = super().to_representation(instance)
+        #     response['user'] = UserFriendSerilaizer(instance.user).data
+        #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
+        #
+        #     return response
 
 
 class PostLikeSerializers(ModelSerializer):
@@ -46,12 +46,12 @@ class PostLikeSerializers(ModelSerializer):
         model = PostLike
         fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['user'] = UserFriendSerilaizer(instance.user).data
-        response['post'] = UserPostUpdateSerilaizer(instance.post).data
-
-        return response
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['user'] = UserFriendSerilaizer(instance.user).data
+    #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
+    #
+    #     return response
 
 
 class PostShareSerializers(ModelSerializer):
@@ -59,12 +59,12 @@ class PostShareSerializers(ModelSerializer):
         model = PostShare
         fields = "__all__"
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['user'] = UserFriendSerilaizer(instance.user).data
-        response['post'] = UserPostUpdateSerilaizer(instance.post).data
-
-        return response
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['user'] = UserFriendSerilaizer(instance.user).data
+    #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
+    #
+    #     return response
 
 
 

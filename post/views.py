@@ -65,7 +65,7 @@ class PostUploadApi(GenericAPIView):
             return Response({"message": True,"status":201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
         return Response({"message": False,"status":400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
-
+from django.db.models import Q
 class UserImages(GenericAPIView):
     serializer_class = PostUploadSerializers
     @swagger_auto_schema(
@@ -74,29 +74,29 @@ class UserImages(GenericAPIView):
         tags = ['Post']
     )
     def get(self, request, user_id, *args, **kwargs):
-        # import pdb;pdb.set_trace()
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
-        # following_idss = []
-        # for i in range(len(following_ids)):
-        #
-        #     following_idsss = following_ids[i].follow
-        #     following_idss.append(following_idsss)
-        # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
-        # data_s =[]
-        # follow_serializer = PostUploadSerializers(posts_list, many=True)
+        friends_ids = FriendList.objects.filter(user_id=user_id)
+
+
+        following_id_list = []
+        friend_id_list = []
+
         for i in range(len(following_ids)):
-            obj =  following_ids[i]
-            print (obj.follow.id)
-            print("name",obj.follow.name)
 
-            users = PostUpload.objects.filter(user_id=obj.follow.id)|PostUpload.objects.filter(user_id=user_id)
+            following_id_data = following_ids[i].follow
+            following_id_list.append(following_id_data)
 
-            print ("users",users)
-        # user_ob = PostUpload.objects.filter(user_id=obj.id)
-            follow_serializer = PostUploadSerializers(users, many=True)
-            # serializer = PostUploadSerializers(user, many=True)
+        for fri in range(len(friends_ids)):
+            friend_id_data = friends_ids[fri].friends
+            friend_id_list.append(friend_id_data)
+
+        # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
+        posts_list = PostUpload.objects.filter(Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
+
+        follow_serializer = PostUploadSerializers(posts_list, many=True)
+
         return Response({"success": True ,"post": follow_serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
@@ -126,8 +126,8 @@ class PostReactionApi(GenericAPIView):
         properties={
             'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add Post Data'),
             'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
-            'title': openapi.Schema(type=openapi.TYPE_STRING, description='Add Title'),
-            'message': openapi.Schema(type=openapi.TYPE_STRING, description='Add Message'),
+            'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag  1 for view and 2 for like'),
+
         }),
 
         tags = ['Post']
@@ -201,7 +201,9 @@ class PostReactionApi(GenericAPIView):
         #                 {"message": "User Post Dislike Successfully", "success": "True", "data": serializerLike.data},
         #                 status=status.HTTP_201_CREATED)
         #     except Exception as e:
-        #         print(e)
+        #
+
+
         #         return Response({"message": "User Post Already Disliked", "success": "False", "data": serializerLike.data},
         #                         status=status.HTTP_201_CREATED)
 
@@ -210,7 +212,7 @@ class PostReactionApi(GenericAPIView):
             # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Internal Server Error! or Not Valid Input !!", "success": False, "status": 400},
+        return Response({"message": " Not Valid Input !!", "success": False, "status": 400},
                         status=status.HTTP_400_BAD_REQUEST)
 
 # class AllPostAPI(ListAPIView):
