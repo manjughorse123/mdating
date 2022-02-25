@@ -10,7 +10,8 @@ from rest_framework.views import APIView
 from rest_framework import status
 from rest_framework import viewsets
 from .filters import *
-
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
 
 class AddPostUserUpdateView(APIView):
     # permission_classes = (AllowAny,)
@@ -145,13 +146,25 @@ class MatchedUserProfileView(GenericAPIView):
     serializer_class = GetUserMatchProfileSerializer
     # permission_classes = (AllowAny,)
 
-    def get(self, request):
-        userInterest = UserMatchProfile.objects.all()
-        serializer = GetUserMatchProfileSerializer(userInterest, many=True)
-        return Response(
-            {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
-            status=status.HTTP_200_OK)
+    # def get(self, request):
+    #     userInterest = UserMatchProfile.objects.all()
+    #     serializer = GetUserMatchProfileSerializer(userInterest, many=True)
+    #     return Response(
+    #         {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
+    #         status=status.HTTP_200_OK)
+    @swagger_auto_schema(
 
+        operation_summary="Get Match Profile Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'user': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for dislike '),
+            }),
+
+        tags=['Match Profile']
+    )
     def post(self, request, format='json'):
         serializer = UserMatchProfileSerializer(data=request.data)
 

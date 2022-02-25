@@ -42,9 +42,11 @@ class UserPassionFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
     class Meta:
         model = User
-        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
+        # fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
+        fields = { 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'],
+                  'idealmatch': ['exact']}
 
-class UserFilterAPIV2(ListAPIView):
+class UserFilterAPI(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
@@ -53,10 +55,27 @@ class UserFilterAPIV2(ListAPIView):
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
 
+    # def get_queryset(self):
+    #     print ("request",self.request.user)
+    #     return self.request.account.users.all()
+
+    @swagger_auto_schema(
+
+        operation_summary="Get user Filter by Location,Passion,Gender ",
+
+        tags=['User Filter']
+    )
+    def get(self, request, *args, **kwargs):
+
+        response = super(UserFilterAPI, self).get(request, *args, **kwargs)
+        response.data['status'] = 200
+        response.data['message'] = 'Filtered Data!'
+        response.data['success'] = True
+        return response
 
 
 
-class UserFilterAPI(ListAPIView):
+class UserFilterAPIV2(ListAPIView):
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'

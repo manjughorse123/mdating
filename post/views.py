@@ -76,11 +76,14 @@ class UserImages(GenericAPIView):
     def get(self, request, user_id, *args, **kwargs):
 
         user = PostUpload.objects.filter(user_id=user_id)
-
-        following  =  FollowRequest.objects.filter(user_id=user_id)
+        # following_ids = request.user.following.values_list('id', flat=True)
+        following_ids  =  FollowRequest.objects.filter(user_id=user_id)
+        # following_ids = following_ids.id
+        # posts_list = PostUpload.objects.filter(user_id__in=following_ids) | PostUpload.objects.filter(user_id=user_id)
         data_s =[]
-        for i in range(len(following)):
-            obj =  following[i]
+        # follow_serializer = PostUploadSerializers(posts_list, many=True)
+        for i in range(len(following_ids)):
+            obj =  following_ids[i]
             print (obj.follow.id)
             print("name",obj.follow.name)
 

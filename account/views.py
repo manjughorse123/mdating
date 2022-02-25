@@ -630,7 +630,7 @@ class UserUpdateProfile(GenericAPIView):
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
-
+        print ("passion test ---------->", request.data)
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
