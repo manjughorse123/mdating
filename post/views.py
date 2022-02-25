@@ -74,13 +74,17 @@ class UserImages(GenericAPIView):
         tags = ['Post']
     )
     def get(self, request, user_id, *args, **kwargs):
-
+        # import pdb;pdb.set_trace()
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
-        # following_ids = following_ids.id
-        # posts_list = PostUpload.objects.filter(user_id__in=following_ids) | PostUpload.objects.filter(user_id=user_id)
-        data_s =[]
+        # following_idss = []
+        # for i in range(len(following_ids)):
+        #
+        #     following_idsss = following_ids[i].follow
+        #     following_idss.append(following_idsss)
+        # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
+        # data_s =[]
         # follow_serializer = PostUploadSerializers(posts_list, many=True)
         for i in range(len(following_ids)):
             obj =  following_ids[i]
@@ -145,7 +149,7 @@ class PostReactionApi(GenericAPIView):
         serializerShare = PostShareSerializers(data=request.data)
         if serializerView.is_valid():
             if flagdata == 1:
-                if PostView.objects.filter(user=user).exists():
+                if PostView.objects.filter(user=user,post=post).exists():
                     return Response(
                         {"message": "User Already Post Viewed","status":400, "success": False, "user": [serializerView.data]},
                         status=status.HTTP_400_BAD_REQUEST)
@@ -161,7 +165,7 @@ class PostReactionApi(GenericAPIView):
                         status=status.HTTP_201_CREATED)
         if serializerLike.is_valid():
             if flagdata == 2:
-                if PostLike.objects.filter(user=user).exists():
+                if PostLike.objects.filter(user=user,post=post).exists():
                     return Response(
                         {"message": "User Already Post Liked","status":400, "success": False, "user": [serializerLike.data]},
                         status=status.HTTP_400_BAD_REQUEST)
