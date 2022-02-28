@@ -1,23 +1,17 @@
-from uuid import UUID
-
-# Create your views here.
+from django.db.models import Q
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-from django.db.models import Sum, Value
-from django.db.models.functions import Coalesce
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework.generics import *
 from rest_framework.viewsets import *
+from rest_framework.parsers import *
+# from rest_framework.permissions import *
 from .models import *
 from .serializers import *
-from rest_framework.parsers import *
-from rest_framework.permissions import *
 from friend.models import *
-
-
 
 
 class GetPostUploadApi(GenericAPIView):
@@ -25,7 +19,6 @@ class GetPostUploadApi(GenericAPIView):
     @swagger_auto_schema(
       
         operation_summary = "Get All Post by Post id",
-       
         tags = ['Post']
     )
     def get(self, request, post_id, *args, **kwargs):
@@ -65,7 +58,7 @@ class PostUploadApi(GenericAPIView):
             return Response({"message": True,"status":201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
         return Response({"message": False,"status":400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
-from django.db.models import Q
+
 class UserImages(GenericAPIView):
     serializer_class = PostUploadSerializers
     @swagger_auto_schema(
@@ -78,8 +71,6 @@ class UserImages(GenericAPIView):
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
         friends_ids = FriendList.objects.filter(user_id=user_id)
-
-
         following_id_list = []
         friend_id_list = []
 
@@ -94,10 +85,10 @@ class UserImages(GenericAPIView):
 
         # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
         posts_list = PostUpload.objects.filter(Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
-
         follow_serializer = PostUploadSerializers(posts_list, many=True)
 
         return Response({"success": True ,"post": follow_serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
+
 
 
 class PostReactionApi(GenericAPIView):
@@ -156,8 +147,8 @@ class PostReactionApi(GenericAPIView):
 
                 else:
                     obj = obj[0]
-                    obj.is_view = obj.is_view + 1
-                    obj.save(update_fields=("is_view",))
+                    obj.is_view_count = obj.is_view_count + 1
+                    obj.save(update_fields=("is_view_count",))
                     serializerView.save()
 
                     return Response(
@@ -171,9 +162,8 @@ class PostReactionApi(GenericAPIView):
                         status=status.HTTP_400_BAD_REQUEST)
                 else:
                     obj = obj[0]
-                    obj.is_like = obj.is_like + 1
-
-                    obj.save(update_fields=("is_like",))
+                    obj.is_like_count = obj.is_like_count + 1
+                    obj.save(update_fields=("is_like_count",))
                     serializerLike.save()
 
                     return Response(
@@ -220,7 +210,7 @@ class PostReactionApi(GenericAPIView):
 #     serializer_class = PostUploadSerializers
 
 
-    
+
 
 class GetPostViewdetailView(GenericAPIView):
     serializer_class = PostViewSerializers
@@ -254,6 +244,7 @@ class GetPostViewdetailView(GenericAPIView):
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AllPostAPI(GenericAPIView):
+
     serializer_class = PostUploadSerializers
     @swagger_auto_schema(
       
@@ -293,3 +284,82 @@ class PostShareAPI(GenericAPIView):
         serializer = PostShareSerializers(post, many=True)
         return Response({"success": True, "status":200, "user": [serializer.data]}, status=status.HTTP_200_OK)
 
+
+
+class DeletePostApi (GenericAPIView):
+    def get_object(self,post_id):
+        try:
+            # pk = request.user
+            return PostUpload.objects.get(pk=post_id)
+        except PostUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Post Delete Api",
+
+        tags=['Post']
+    )
+
+    def delete(self, request, post_id, format=None):
+        post_view = self.get_object(post_id)
+        post_view.delete()
+        return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
+
+class DeletePostApi (GenericAPIView):
+
+    def get_object(self,post_id):
+        try:
+            # pk = request.user
+            return PostUpload.objects.get(pk=post_id)
+        except PostUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Post Delete Api",
+
+        tags=['Post']
+    )
+
+    def delete(self, request, post_id, format=None):
+        post_view = self.get_object(post_id)
+        post_view.delete()
+        return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
+
+
+
+class UpdatePostApi(GenericAPIView):
+    serializer_class = PostUploadSerializers
+
+    def get_object(self, post_id):
+        try:
+            return PostUpload.objects.get(pk=post_id)
+        except PostUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Post Update Api",
+
+        tags=['Post']
+    )
+    def patch(self, request, post_id, format=None):
+        post_data = self.get_object(post_id)
+        serializer = PostUploadSerializers(post_data, data=request.data,partial= True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                        {"message": "Post  Successfully Updated!", "status": 200, "success": True,
+                         "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # def put(self, request, *args, **kwargs):
+    #     post_id = self.kwargs.get('post_id')
+    #     post_up = get_object_or_404(id=post_id)
+    #     serializer = PostUploadSerializers(post_up, data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(
+    #             {"message": "Post  Successfully Updated!", "status": 200, "success": True,
+    #              "data": serializer.data})
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
