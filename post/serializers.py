@@ -67,4 +67,14 @@ class PostShareSerializers(ModelSerializer):
     #     return response
 
 
-
+# class UserPostLikeSerializers(ModelSerializer):
+#     class Meta:
+#         model = UserPostLike
+#         fields = "__all__"
+#
+# class UserPostSerializers(ModelSerializer):
+#     post_like = UserPostLikeSerializers()
+#
+#     class Meta:
+#         model = UserPost
+#         fields = ('post','title','post_like','message',)

@@ -93,22 +93,22 @@ class UserImages(GenericAPIView):
 
 class PostReactionApi(GenericAPIView):
     serializer_class = PostViewSerializers
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Post Reaction Api",
-       
-        tags = ['Post']
-    )
-
-    def get(self, request):
-        userView = PostView.objects.all()
-        userLike = PostLike.objects.all()
-        userShare = PostShare.objects.all()
-        serializerView = PostViewSerializers(userView, many=True)
-        serializerLike = PostLikeSerializers(userLike, many=True)
-        serializerShare = PostShareSerializers(userShare, many=True)
-        return Response({"success": True, "status":200,"data View": serializerView.data,"data View count": len(serializerView.data), "data Like": serializerLike.data,
-                        "message": "Post Reaction" ,"data share": serializerShare.data}, status=status.HTTP_200_OK)
+    # @swagger_auto_schema(
+    #
+    #     operation_summary = "Get Post Reaction Api",
+    #
+    #     tags = ['Post']
+    # )
+    #
+    # def get(self, request):
+    #     userView = PostView.objects.all()
+    #     userLike = PostLike.objects.all()
+    #     userShare = PostShare.objects.all()
+    #     serializerView = PostViewSerializers(userView, many=True)
+    #     serializerLike = PostLikeSerializers(userLike, many=True)
+    #     serializerShare = PostShareSerializers(userShare, many=True)
+    #     return Response({"success": True, "status":200,"data View": serializerView.data,"data View count": len(serializerView.data), "data Like": serializerLike.data,
+    #                     "message": "Post Reaction" ,"data share": serializerShare.data}, status=status.HTTP_200_OK)
     @swagger_auto_schema(
       
         operation_summary = "Create Post Reaction Api",
@@ -285,8 +285,29 @@ class PostShareAPI(GenericAPIView):
         return Response({"success": True, "status":200, "user": [serializer.data]}, status=status.HTTP_200_OK)
 
 
+#
+# class DeletePostApi (GenericAPIView):
+#     def get_object(self,post_id):
+#         try:
+#             # pk = request.user
+#             return PostUpload.objects.get(pk=post_id)
+#         except PostUpload.DoesNotExist:
+#             raise Http404
+#
+#     @swagger_auto_schema(
+#
+#         operation_summary=" Post Delete Api",
+#
+#         tags=['Post']
+#     )
+#
+#     def delete(self, request, post_id, format=None):
+#         post_view = self.get_object(post_id)
+#         post_view.delete()
+#         return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
 
 class DeletePostApi (GenericAPIView):
+
     def get_object(self,post_id):
         try:
             # pk = request.user
@@ -296,37 +317,22 @@ class DeletePostApi (GenericAPIView):
 
     @swagger_auto_schema(
 
-        operation_summary="Get Post Delete Api",
-
+        operation_summary="Post Delete Api",
         tags=['Post']
     )
 
     def delete(self, request, post_id, format=None):
         post_view = self.get_object(post_id)
-        post_view.delete()
-        return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
-
-class DeletePostApi (GenericAPIView):
-
-    def get_object(self,post_id):
-        try:
-            # pk = request.user
-            return PostUpload.objects.get(pk=post_id)
-        except PostUpload.DoesNotExist:
-            raise Http404
-
-    @swagger_auto_schema(
-
-        operation_summary="Get Post Delete Api",
-
-        tags=['Post']
-    )
-
-    def delete(self, request, post_id, format=None):
-        post_view = self.get_object(post_id)
-        post_view.delete()
-        return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
-
+        opeartion = post_view.delete()
+        # return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
+        data = {}
+        if opeartion:
+            data['success'] = "Successfully Deleted!"
+            data['status'] = 204
+        else :
+            data["failed"] = "Failed Deleted!"
+            data['status'] = 404
+        return Response(data=data)
 
 
 class UpdatePostApi(GenericAPIView):
@@ -340,7 +346,7 @@ class UpdatePostApi(GenericAPIView):
 
     @swagger_auto_schema(
 
-        operation_summary="Get Post Update Api",
+        operation_summary=" Post Update Api",
 
         tags=['Post']
     )
@@ -353,13 +359,54 @@ class UpdatePostApi(GenericAPIView):
                         {"message": "Post  Successfully Updated!", "status": 200, "success": True,
                          "data": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-    # def put(self, request, *args, **kwargs):
-    #     post_id = self.kwargs.get('post_id')
-    #     post_up = get_object_or_404(id=post_id)
-    #     serializer = PostUploadSerializers(post_up, data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response(
-    #             {"message": "Post  Successfully Updated!", "status": 200, "success": True,
-    #              "data": serializer.data})
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+# class UserImagesV2(GenericAPIView):
+#     serializer_class = UserPostSerializers
+#
+#     @swagger_auto_schema(
+#
+#         operation_summary="Get User Post by User Id  Api ",
+#         tags=['Post']
+#     )
+#     def get(self, request, user_id, *args, **kwargs):
+#         import pdb;pdb.set_trace()
+#         user = UserPost.objects.filter(user_id=user_id)
+#         print ("user", user)
+#         # ab = user[0].id
+#         # use_pso = UserPostLike.objects.filter(post=ab)
+#         # print (len(use_pso))
+#         # data_s = UserPost.objects.raw('SELECT * FROM  post_userpostlike')
+#         user_list = []
+#         for  i in range(len(user)):
+#             # print(i)
+#             user_list_data = user[i].id
+#             user_list.append(user_list_data)
+#         # print (data_s[0])
+#
+#         k = UserPost.objects.filter(userpostlike__post__in=user_list).values('id','userpostlike__post').distinct()
+#         # k = UserPostLike.objects.filter(userposts__user__in=user_list).distinct()
+#         # k = UserPost.objects.filter(userpostlike__post=9)
+#         print (k.query)
+#         # following_ids = request.user.following.values_list('id', flat=True)
+#         # following_ids = FollowRequest.objects.filter(user_id=user_id)
+#         # friends_ids = FriendList.objects.filter(user_id=user_id)
+#         # following_id_list = []
+#         # friend_id_list = []
+#         #
+#         # for i in range(len(following_ids)):
+#         #     following_id_data = following_ids[i].follow
+#         #     following_id_list.append(following_id_data)
+#         #
+#         # for fri in range(len(friends_ids)):
+#         #     friend_id_data = friends_ids[fri].friends
+#         #     friend_id_list.append(friend_id_data)
+#         #
+#         # # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
+#         # posts_list = UserPost.objects.filter(
+#         #     Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
+#         # follow_serializer = UserPostSerializers(posts_list, many=True)
+#         follow_serializer = UserPostSerializers(k, many=True)
+#         return Response(
+#             {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
+#             status=status.HTTP_200_OK)

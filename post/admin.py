@@ -5,7 +5,7 @@ from .models import *
 
 
 class PostUploadAdmin(admin.ModelAdmin):
-    list_display = ('title', 'user', 'message', 'is_view', 'is_like', 'is_share', 'id', 'create_at')
+    list_display = ('title', 'user', 'message',  'id', 'create_at')
     list_filter = ('create_at',)
 
 
@@ -34,3 +34,12 @@ class PostShareAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PostShare, PostShareAdmin)
+
+
+class NewPostUserAdmin(admin.ModelAdmin):
+    list_display = ('user', 'post', 'id', 'create_at')
+    list_filter = ('create_at',)
+
+
+# admin.site.register(UserPost, NewPostUserAdmin)
+# admin.site.register(UserPostLike)

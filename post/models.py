@@ -12,26 +12,56 @@ class PostUpload(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True, default="title")
     message = models.TextField(default="messages", blank=True, null=True)
     post = models.TextField( blank=True, null=True)
-    uploadvedio = models.TextField( blank=True, null=True)
-    is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
-    is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
-    is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
+    uploadvideo = models.TextField( blank=True, null=True)
+    is_view_count = models.PositiveIntegerField(default=0, blank=True, null=True)
+    is_like_count = models.PositiveIntegerField(default=0, blank=True, null=True)
+    is_share_count = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
 class PostView(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
 class PostLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
 class PostShare(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
+#
+# class UserPost(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userposts")
+#     title = models.CharField(max_length=255, blank=True, null=True, default="usertitle")
+#     message = models.TextField(default="messages", blank=True, null=True)
+#     post = models.TextField( blank=True, null=True)
+#     uploadvideo = models.TextField( blank=True, null=True)
+#
+#     create_at = models.DateTimeField(auto_now_add=True)
+#
+#     def __str__(self):
+#         return self.user.email
+#
+# class UserPostLike(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userpostlike")
+#     post = models.ForeignKey(UserPost, on_delete=models.CASCADE,related_name="userpostlike")
+#     is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
+#     create_at = models.DateTimeField(auto_now_add=True)
+#
+# class UserPostsLike(models.Model):
+#     user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="newuserposts")
+#     post = models.ForeignKey(UserPost, on_delete=models.CASCADE,related_name="usernewposts")
+#     is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
+#     create_at = models.DateTimeField(auto_now_add=True)
+#
+#     def __str__(self):
+#         return self.post
