@@ -8,7 +8,7 @@ class FriendList(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     friends = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="friends")
-    is_accepted = models.BooleanField(blank=False, null=False)
+    is_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
@@ -63,7 +63,7 @@ class FriendRequest(models.Model):
     sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
     receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver", )
 
-    friendrequestsent  = models.BooleanField(blank=False, null=False, default=True)
+    friendrequestsent  = models.BooleanField(blank=False, null=False, default=False)
 
     create_at = models.DateTimeField(auto_now_add=True)
 
@@ -75,7 +75,7 @@ class FollowRequest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user")
-    is_active = models.BooleanField(blank=False, null=False, default=True)
+    is_follow = models.BooleanField(blank=False, null=False, default=False)
 
     create_at = models.DateTimeField(auto_now_add=True)
 
@@ -87,7 +87,7 @@ class FollowAccept(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user_accept")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
     follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user_accept")
-    is_follow_accepted = models.BooleanField(blank=False, null=False)
+    is_follow_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

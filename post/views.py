@@ -139,6 +139,7 @@ class PostReactionApi(GenericAPIView):
         serializerLike = PostLikeSerializers(data=request.data)
         serializerShare = PostShareSerializers(data=request.data)
         if serializerView.is_valid():
+
             if flagdata == 1:
                 if PostView.objects.filter(user=user,post=post).exists():
                     return Response(
@@ -172,8 +173,8 @@ class PostReactionApi(GenericAPIView):
         if serializerShare.is_valid():
             if flagdata == 3:
                 obj = obj[0]
-                obj.is_share = obj.is_share + 1
-                obj.save(update_fields=("is_share",))
+                obj.is_share_count = obj.is_share_count + 1
+                obj.save(update_fields=("is_share_count",))
                 serializerShare.save()
 
                 return Response(
@@ -346,7 +347,19 @@ class UpdatePostApi(GenericAPIView):
 
     @swagger_auto_schema(
 
-        operation_summary=" Post Update Api",
+        operation_summary=" Get Post  Api",
+
+        tags=['Post']
+    )
+    def get(self, request, post_id, *args, **kwargs):
+        posts = PostUpload.objects.filter(id=post_id)
+        serializer = PostUploadSerializers(posts, many=True)
+        return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+
+        operation_summary=" Update Post Api",
 
         tags=['Post']
     )
@@ -361,52 +374,54 @@ class UpdatePostApi(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-# class UserImagesV2(GenericAPIView):
-#     serializer_class = UserPostSerializers
-#
-#     @swagger_auto_schema(
-#
-#         operation_summary="Get User Post by User Id  Api ",
-#         tags=['Post']
-#     )
-#     def get(self, request, user_id, *args, **kwargs):
-#         import pdb;pdb.set_trace()
-#         user = UserPost.objects.filter(user_id=user_id)
-#         print ("user", user)
-#         # ab = user[0].id
-#         # use_pso = UserPostLike.objects.filter(post=ab)
-#         # print (len(use_pso))
-#         # data_s = UserPost.objects.raw('SELECT * FROM  post_userpostlike')
-#         user_list = []
-#         for  i in range(len(user)):
-#             # print(i)
-#             user_list_data = user[i].id
-#             user_list.append(user_list_data)
-#         # print (data_s[0])
-#
-#         k = UserPost.objects.filter(userpostlike__post__in=user_list).values('id','userpostlike__post').distinct()
-#         # k = UserPostLike.objects.filter(userposts__user__in=user_list).distinct()
-#         # k = UserPost.objects.filter(userpostlike__post=9)
-#         print (k.query)
-#         # following_ids = request.user.following.values_list('id', flat=True)
-#         # following_ids = FollowRequest.objects.filter(user_id=user_id)
-#         # friends_ids = FriendList.objects.filter(user_id=user_id)
-#         # following_id_list = []
-#         # friend_id_list = []
-#         #
-#         # for i in range(len(following_ids)):
-#         #     following_id_data = following_ids[i].follow
-#         #     following_id_list.append(following_id_data)
-#         #
-#         # for fri in range(len(friends_ids)):
-#         #     friend_id_data = friends_ids[fri].friends
-#         #     friend_id_list.append(friend_id_data)
-#         #
-#         # # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
-#         # posts_list = UserPost.objects.filter(
-#         #     Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
-#         # follow_serializer = UserPostSerializers(posts_list, many=True)
-#         follow_serializer = UserPostSerializers(k, many=True)
-#         return Response(
-#             {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
-#             status=status.HTTP_200_OK)
+class UserImagesV2(GenericAPIView):
+    serializer_class = PostUploadSerializers
+
+    @swagger_auto_schema(
+
+        operation_summary="Get User Post by User Id  Api ",
+        tags=['Post']
+    )
+    def get(self, request, user_id, *args, **kwargs):
+
+        user = PostUpload.objects.filter(user_id=user_id)
+        print ("user", user)
+        # ab = user[0].id
+        # use_pso = UserPostLike.objects.filter(post=ab)
+        # print (len(use_pso))
+        # data_s = UserPost.objects.raw('SELECT * FROM  post_userpostlike')
+        user_list = []
+        for  i in range(len(user)):
+            # print(i)
+            user_list_data = user[i].id
+            user_list.append(user_list_data)
+        # print (data_s[0])
+
+        k = PostUpload.objects.filter(postlike__post__in=user_list).distinct()
+        # k = PostLike.objects.select_related('post').filter
+        # k = PostUpload.objects.filter(postlike__post__in=user_list).values('id', 'postlike__post').distinct()
+        # k = UserPostLike.objects.filter(userposts__user__in=user_list).distinct()
+        # k = UserPost.objects.filter(userpostlike__post=9)
+        print (k.query)
+        # following_ids = request.user.following.values_list('id', flat=True)
+        # following_ids = FollowRequest.objects.filter(user_id=user_id)
+        # friends_ids = FriendList.objects.filter(user_id=user_id)
+        # following_id_list = []
+        # friend_id_list = []
+        #
+        # for i in range(len(following_ids)):
+        #     following_id_data = following_ids[i].follow
+        #     following_id_list.append(following_id_data)
+        #
+        # for fri in range(len(friends_ids)):
+        #     friend_id_data = friends_ids[fri].friends
+        #     friend_id_list.append(friend_id_data)
+        #
+        # # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
+        # posts_list = UserPost.objects.filter(
+        #     Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
+        # follow_serializer = UserPostSerializers(posts_list, many=True)
+        follow_serializer = PostUploadSerializers(k, many=True)
+        return Response(
+            {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
+            status=status.HTTP_200_OK)

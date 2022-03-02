@@ -105,18 +105,18 @@ class GetFriendRequestListView(GenericAPIView):
 class  AddFollowRequestView(GenericAPIView):
     serializer_class = FollowRequestSerializer
     # permission_classes = (AllowAny,)
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Follow All User Request ",
-       
-
-        tags = ['Follow']
-    )
-   
-    def get(self, request):
-        user_follow =FollowRequest.objects.all()
-        serializer = FollowRequestSerializer(user_follow, many=True)
-        return Response({"success": True,"status": 200,"message" :" User follow Request Detail" , "data": serializer.data}, status=status.HTTP_200_OK)
+    # @swagger_auto_schema(
+    #
+    #     operation_summary = "Get Follow All User Request ",
+    #
+    #
+    #     tags = ['Follow']
+    # )
+    #
+    # def get(self, request):
+    #     user_follow =FollowRequest.objects.all()
+    #     serializer = FollowRequestSerializer(user_follow, many=True)
+    #     return Response({"success": True,"status": 200,"message" :" User follow Request Detail" , "data": serializer.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
       
@@ -281,19 +281,18 @@ class GetFollowingView(GenericAPIView): # temperly stop
 
 class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
     serializer_class = FriendListSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Friend Request Accept Api",
-        
-
-        tags = ['Friend']
-    )
-    def get(self, request):
-        friend_list = FriendList.objects.all()
-        serializer = FriendListSerializer(friend_list, many=True)
-        return Response(
-            {"success": True, "message": " User Accept Request Detail", "status": 200, "data": serializer.data},
-            status=status.HTTP_200_OK)
+    # @swagger_auto_schema(
+    #
+    #     operation_summary = "Get Friend Request Accept Api",
+    #
+    #     tags = ['Friend']
+    # )
+    # def get(self, request):
+    #     friend_list = FriendList.objects.all()
+    #     serializer = FriendListSerializer(friend_list, many=True)
+    #     return Response(
+    #         {"success": True, "message": " User Accept Request Detail", "status": 200, "data": serializer.data},
+    #         status=status.HTTP_200_OK)
     @swagger_auto_schema(
       
         operation_summary = "Friend Request Accept Post Api",

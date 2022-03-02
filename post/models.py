@@ -20,24 +20,31 @@ class PostUpload(models.Model):
 
 
 class PostView(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="postview")
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE, related_name="postsview")
     is_view = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.post.post
 
 
 class PostLike(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE ,related_name="postlike")
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE, related_name="postlike")
     is_like = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.post.post
+
 
 class PostShare(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE)
-    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE,related_name="postshare")
+    post = models.ForeignKey(PostUpload, on_delete=models.CASCADE,related_name="postshare")
     is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return self.post.post
 #
 # class UserPost(models.Model):
 #     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="userposts")

@@ -36,7 +36,7 @@ class PostViewSerializers(ModelSerializer):
         # def to_representation(self, instance):
         #     response = super().to_representation(instance)
         #     response['user'] = UserFriendSerilaizer(instance.user).data
-        #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
+        #     # response['post'] = UserPostUpdateSerilaizer(instance.post).data
         #
         #     return response
 
@@ -49,7 +49,7 @@ class PostLikeSerializers(ModelSerializer):
     # def to_representation(self, instance):
     #     response = super().to_representation(instance)
     #     response['user'] = UserFriendSerilaizer(instance.user).data
-    #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
+    #     # response['post'] = UserPostUpdateSerilaizer(instance.post).data
     #
     #     return response
 
