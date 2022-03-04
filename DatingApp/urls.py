@@ -39,6 +39,7 @@ urlpatterns = [
     path('api/', include('matchprofile.urls'),name='matchprofile'),
     path('api/', include('masterdata.urls'),name='masterdata'),
 
+
     # path('', include('masterapp.urls')),
     # path('verify/', include('userverification.urls')),
     # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),

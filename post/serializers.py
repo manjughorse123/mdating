@@ -1,11 +1,13 @@
 from django.contrib.auth import get_user_model
 from rest_framework.serializers import *
+from rest_framework import serializers
 from .models import *
 from account.models import *
 from rest_framework.fields import SerializerMethodField
 
 
 class PostUploadSerializers(ModelSerializer):
+    # is_liked = serializers.BooleanField(read_only=True)
     class Meta:
         model = PostUpload
         fields = '__all__'
@@ -25,7 +27,7 @@ class UserFriendSerilaizer(ModelSerializer):
 class UserPostUpdateSerilaizer(ModelSerializer):
     class Meta:
         model = PostUpload
-        fields = ('id','user','post',)
+        fields = '__all__'
 
 
 class PostViewSerializers(ModelSerializer):
@@ -46,12 +48,12 @@ class PostLikeSerializers(ModelSerializer):
         model = PostLike
         fields = "__all__"
 
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['user'] = UserFriendSerilaizer(instance.user).data
-    #     # response['post'] = UserPostUpdateSerilaizer(instance.post).data
-    #
-    #     return response
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerilaizer(instance.user).data
+        response['post'] = UserPostUpdateSerilaizer(instance.post).data
+
+        return response
 
 
 class PostShareSerializers(ModelSerializer):

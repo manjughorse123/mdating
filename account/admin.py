@@ -25,7 +25,7 @@ class UserAdmin(admin.ModelAdmin):
 #             'css/main.css',)
 
 #     form = TestModelForm
-    list_display = ('email', 'mobile', 'name', 'id','create_at',)
+    list_display = ('email', 'mobile', 'name', 'id','create_at','location')
     list_display_links = ('email', 'name')
     list_filter = ('email', 'mobile', 'name', 'create_at')
 #     list_per_page = 10

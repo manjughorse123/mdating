@@ -1,4 +1,5 @@
 # import jwt
+import http.client
 from operator import add
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
@@ -6,10 +7,7 @@ from drf_yasg import openapi
 from django.conf import settings
 from rest_framework import viewsets
 from rest_framework.generics import *
-from rest_framework.permissions import IsAuthenticated
-# from rest_framework_jwt.settings import api_settings
-# from rest_framework_jwt.settings import api_settings
-import http.client
+from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
 from post.serializers import *
@@ -18,8 +16,8 @@ from .models import *
 from .serializers import *
 from friend.models import *
 from friend.serializers import *
+from account.utils import generate_access_token, generate_refresh_token
 
-from rest_framework.permissions import AllowAny, IsAuthenticated
 
 
 def send_otp(mobile, otp):
@@ -84,6 +82,7 @@ class Login(GenericAPIView):
 
 
 class Registration(CreateAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = UserSerializer
     @swagger_auto_schema(
       
@@ -96,7 +95,7 @@ class Registration(CreateAPIView):
             'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
             'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
             'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
-            'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description='User Date of Birth'),
+            'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description=' date of birth must be in YYYY-MM-DD format.'),
             
 
         }),
@@ -105,6 +104,7 @@ class Registration(CreateAPIView):
         tags = ['Account']
     )
     def post(self, request):
+
         try:
             email = request.data['email']
             mobile = request.data['mobile']
@@ -165,7 +165,6 @@ class UserCreateView(GenericAPIView):
 
 
     def post(self, request, format='json'):
-
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
 
@@ -214,11 +213,18 @@ class OTPVerify(GenericAPIView):
     def post(self, request):
 
         try:
-            mobile = request.POST.get("mobile")
-            otp = request.POST.get("otp")
-            country_code = request.POST.get("country_code")
+            mobile = request.data['mobile']
+            otp = request.data['otp']
+            country_code = request.data['country_code']
+            mobile = int(mobile)
+            otp = int(otp)
+
             user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
-            if user_obj.otp == otp:
+            # print( user_obj.id)
+            # user_obj =user_obj.id
+            user_obj_otp = int(user_obj.otp)
+
+            if user_obj_otp == otp:
 
                 user_obj.is_phone_verified = True
 
@@ -242,8 +248,8 @@ class OTPVerify(GenericAPIView):
 
                      },
                     status=status.HTTP_200_OK)
-            return Response({'success': "success", 'message': 'Wrong OTP', "status": 403,"data": serializers.data},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({'success': "success", 'message': 'Wrong OTP', "status": 404,"data": serializers.data},
+                            status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(e)
@@ -253,6 +259,7 @@ class OTPVerify(GenericAPIView):
 
 
 class UserData(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = (UserSerializer )
 
 
@@ -280,20 +287,26 @@ class UserData(GenericAPIView):
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
         followaccept = FollowRequest.objects.filter(follow_id=user_id)
+        friendrequest = FriendRequest.objects.filter(receiver_id=user_id)
+        friendaccept = FriendList.objects.filter(user_id=user_id)
 
         userserializer = UserSerializer(user)
         postsrializer = PostUploadSerializers(post, many=True)
         followserializer = FollowRequestFollowingSerializer(follow, many=True)
         followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
+        friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
+        friendaccserializer = FriendListSerializer(friendaccept, many=True)
+
         return Response({"success": True,"message" : "User  Profile TimeLine!" ,"user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
-                         "post": postsrializer.data, "MediaCount": len(mediaserializer.data),
+                         "post": postsrializer.data,"friendaccept":friendaccserializer.data ,"friendrequest":friendreqserializer.data,"MediaCount": len(mediaserializer.data),
                          "media": mediaserializer.data, "Following": len(followserializer.data),
                          "Follower": len(followacceptserializer.data),
                          }, status=status.HTTP_200_OK)
 
 
 class UserUpdate(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     @swagger_auto_schema(
@@ -325,227 +338,10 @@ class UserUpdate(GenericAPIView):
 
 
 
-class AddPassionView(GenericAPIView):
-    # permission_classes = (AllowAny,)
-    serializer_class = PassionSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Passion Api",
-    
-
-        tags = ['Master data']
-    )
-    def get(self, request):
-        passion = Passion.objects.all()
-        serializer = PassionSerializer(passion, many=True)
-        return Response({"success": True, "base_url": "http://18.224.254.170" , "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    # def post(self, request, format='json'):
-    #     serializer = PassionSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddGenderView(GenericAPIView):
-    # permission_classes = (AllowAny,)
-    serializer_class = GenderSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Gender Api",
-
-        tags = ['Master data']
-    )
-
-
-    def get(self, request):
-        gender = Gender.objects.all()
-        serializer = GenderSerializer(gender, many=True)
-        return Response({"success": True, "base_url": "http://18.224.254.170/media/" , "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    # def post(self, request, format='json'):
-    #     serializer = GenderSerializer(data=request.data)
-    #     if serializer.is_valid():
-    #         gender = serializer.validated_data['gender']
-    #         check_gender = Gender.objects.filter(gender=gender).first()
-    #
-    #         if check_gender:
-    #             return Response({"message": "Gender Already Exists with  This name! "},
-    #                             status=status.HTTP_400_BAD_REQUEST)
-    #         serializer.save()
-    #         return Response({"success": True,"base_url": "http://18.224.254.170/media/" , "status" : 201
-    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-class AddUserMediaView(GenericAPIView):
-    # permission_classes = (AllowAny,)
-    serializer_class = UserMediaSerializer
-    def get(self, request):
-        userMedia = UserMedia.objects.all()
-        serializer = UserMediaSerializer(userMedia, many=True)
-        return Response({"success": True, "status" : 200, "data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-
-        serializer = UserMediaSerializer(data=request.data)
-
-        if serializer.is_valid():
-            name = serializer.validated_data['name']
-            check_name = UserMedia.objects.filter(name=name).first()
-
-            if check_name:
-                return Response({"message": "media Already Exists with  This name! "},
-                                status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response({"success": True, "status" : 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error","status" : 200,  "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddMaritalStatusView(GenericAPIView):
-    serializer_class = MaritalStatusSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Marital Status Api",
-    
-
-        tags = ['Master data']
-    )
-
-    def get(self, request):
-        meritalstatus = MaritalStatus.objects.all()
-        serializer = MaritalStatusSerializer(meritalstatus, many=True)
-        return Response({"success": True, "status" : 200,"base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
-
-    # def post(self, request, format='json'):
-    #
-    #     serializer = MaritalStatusSerializer(data=request.data)
-    #
-    #     if serializer.is_valid():
-    #         m_status = serializer.validated_data['status']
-    #         check_status = MaritalStatus.objects.filter(status=m_status).first()
-    #
-    #         if check_status:
-    #             return Response({"message": "media Already Exists with  This name! "},
-    #                             status=status.HTTP_400_BAD_REQUEST)
-    #         serializer.save()
-    #         return Response({"success": True,  "status" : 201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"success": "error", "status" : 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddIdealMatchView(GenericAPIView):
-    serializer_class = IdealMatchSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Ideal Match Api",
-    
-
-        tags = ['Master data']
-    )
-
-    def get(self, request):
-
-        idealMatch = IdealMatch.objects.all()
-
-        serializer = IdealMatchSerializer(idealMatch, many=True)
-        return Response({"success": True,"base_url": "http://18.224.254.170/media/", "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    # def post(self, request, format='json'):
-    #     serializer = IdealMatchSerializer(data=request.data)
-    #
-    #     if serializer.is_valid():
-    #         idealmatch = serializer.validated_data['idealmatch']
-    #
-    #         check_name = IdealMatch.objects.filter(idealmatch=idealmatch).first()
-    #
-    #         if check_name:
-    #             return Response({"message": "idealmatch Already Exists with  This name! "},
-    #                             status=status.HTTP_400_BAD_REQUEST)
-    #         serializer.save()
-    #         return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"success": "error", "status" : 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-class AddUserImageView(GenericAPIView):
-    serializer_class = UserImageSerializer
-    # permission_classes = (AllowAny,)
-    # @swagger_auto_schema(
-    #     operation_description="POST description override using decorator",
-    #     operation_summary = "User Media Api",
-    #     request_body=UserSerializer,
-
-    #                     # request_body is used to specify parameters
-    #     #                 request_body = openapi.Schema(
-    #     #                     # request_body=UserSerializer,
-    #     # type=openapi.TYPE_OBJECT,
-    #     # required=['name'],
-    #     # properties={
-    #     #     'name': openapi.Schema(type=openapi.TYPE_STRING),
-    #     #     'id': "userid auto incremeted",
-    #     # },
-    # # ),
-    #                                    # tags = ['my custom tag']
-    # )
-
-    def get(self, request):
-        idealMatch = User.objects.all()
-        serializer = UserImageSerializer(idealMatch, many=True)
-        return Response({"success": True, "base_url": "http://18.224.254.170/media/","data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-
-        serializer = UserImageSerializer(data=request.data)
-
-        if serializer.is_valid():
-            # idealmatch = serializer.validated_data['idealmatch']
-            # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
-
-            # if check_name:
-            #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
-            serializer.save()
-            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddHeigthView(GenericAPIView):
-    serializer_class  = HeightSerializer
-    @swagger_auto_schema(
-      
-        operation_summary = "Get Tall Api",
-    
-
-        tags = ['Master data']
-    )
-
-    def get(self, request):
-        height = Heigth.objects.all()
-        serializer = HeightSerializer(height, many=True)
-        return Response({"success": True,   "status" : 200,"data": serializer.data}, status=status.HTTP_200_OK)
-
-    # def post(self, request, format='json'):
-    #
-    #     serializer = HeightSerializer(data=request.data)
-    #
-    #     if serializer.is_valid():
-    #         serializer.save()
-    #         return Response({"success": True , "status" : 201
-    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
-    #     else:
-    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-    #
 
 class GetUserDetail(GenericAPIView):
 
-    # permission_classes = (IsAuthenticated,)
+    permission_classes = (IsAuthenticated,)
     """
     Retrieve, update or delete  a media instance.
     """
@@ -601,6 +397,7 @@ class UserUpdateIdealMatch(GenericAPIView):
 
 
 class UserUpdateProfile(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
     @swagger_auto_schema(
@@ -625,12 +422,10 @@ class UserUpdateProfile(GenericAPIView):
     )
 
     def put(self, request, *args, **kwargs):
-        # import pdb;pdb.set_trace()
-
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
-        print ("passion test ---------->", request.data)
+
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
@@ -815,6 +610,7 @@ class UserUpdateMaritalStatus(GenericAPIView):
 
 
 class UserDelete(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
    
@@ -840,6 +636,7 @@ class UserDelete(GenericAPIView):
 
 
 class OTPVerifyV2(GenericAPIView):
+    permission_classes= [AllowAny]
     serializer_class = UserLoginSerializer
 
     @swagger_auto_schema(
@@ -858,29 +655,24 @@ class OTPVerifyV2(GenericAPIView):
     def post(self, request):
 
         try:
-            mobile = request.POST.get("mobile")
-            otp = request.POST.get("otp")
-            country_code = request.POST.get("country_code")
+            mobile = request.data['mobile']
+            otp = request.data['otp']
+            country_code = request.data['country_code']
+            mobile = int(mobile)
+            otp = int(otp)
+
             user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
-            if user_obj.otp == otp:
+            # print( user_obj.id)
+            # user_obj =user_obj.id
+            user_obj_otp  = int(user_obj.otp)
+            if user_obj_otp == otp:
 
                 user_obj.is_phone_verified = True
-                # data = generate_jwt_token(user_obj, {})
-                # print (data)
-                # if user_obj is not None:
-                    # jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
-                    # jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
-                    # #
-                    # payload = jwt_payload_handler(user_obj)
-                    # token = jwt_encode_handler(payload)
-                    # # payload = jwt_payload_handler(user_obj)
-                    # # token = jwt.encode(payload, settings.SECRET_KEY)
-                    # #
-                    #
-                    # print (token)
-                # print ("decoded",decoded)
-                #  url call token
+                access_token = generate_access_token(user_obj)
+                refresh_token = generate_refresh_token(user_obj)
 
+                # response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
+                # print(access_token)
                 user_obj.save()
                 if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
                     user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
@@ -889,8 +681,8 @@ class OTPVerifyV2(GenericAPIView):
                     is_complete_profile = False
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True,
-                     'token': token, "user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True,"token":access_token
+                      ,"user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -916,14 +708,15 @@ class GetUserDetailV2(GenericAPIView):
     """
     Retrieve, Checklist Api.
     """
+    permission_classes = (IsAuthenticated,)
     serializer_class = UserDetailSerializer
-    permission_classes = [IsAuthenticated,]
+    # permission_classes = [IsAuthenticated,]
 
-    def get_object(self, user_id):
-        try:
-            return User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            raise Http404
+    # def get_object(self, user_id):
+    #     try:
+    #         return User.objects.get(id=user_id)
+    #     except User.DoesNotExist:
+    #         raise Http404
 
     @swagger_auto_schema(
 
@@ -931,9 +724,235 @@ class GetUserDetailV2(GenericAPIView):
 
         tags=['Account']
     )
-    def get(self, request, user_id, format=None):
+    def get(self, request,  format=None):
 
-        adduserdetail = self.get_object(user_id)
-        serializer = UserDetailSerializer(adduserdetail)
+        # adduserdetail = self.get_object(user_id)
+        req = request.user
+        # print (req)
+        serializer = UserDetailSerializer(req)
+        return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
+
+# master apis Api View
+
+class AddPassionView(GenericAPIView):
+    # permission_classes = (AllowAny,)
+    serializer_class = PassionSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Passion Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        passion = Passion.objects.all()
+        serializer = PassionSerializer(passion, many=True)
+        return Response({"success": True, "base_url": "http://18.224.254.170", "status": 200, "data": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    # def post(self, request, format='json'):
+    #     serializer = PassionSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddGenderView(GenericAPIView):
+    # permission_classes = (AllowAny,)
+    serializer_class = GenderSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Gender Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        gender = Gender.objects.all()
+        serializer = GenderSerializer(gender, many=True)
+        return Response(
+            {"success": True, "base_url": "http://18.224.254.170/media/", "status": 200, "data": serializer.data},
+            status=status.HTTP_200_OK)
+
+    # def post(self, request, format='json'):
+    #     serializer = GenderSerializer(data=request.data)
+    #     if serializer.is_valid():
+    #         gender = serializer.validated_data['gender']
+    #         check_gender = Gender.objects.filter(gender=gender).first()
+    #
+    #         if check_gender:
+    #             return Response({"message": "Gender Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True,"base_url": "http://18.224.254.170/media/" , "status" : 201
+    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddUserMediaView(GenericAPIView):
+    # permission_classes = (AllowAny,)
+    serializer_class = UserMediaSerializer
+
+    def get(self, request):
+        userMedia = UserMedia.objects.all()
+        serializer = UserMediaSerializer(userMedia, many=True)
         return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+
+        serializer = UserMediaSerializer(data=request.data)
+
+        if serializer.is_valid():
+            name = serializer.validated_data['name']
+            check_name = UserMedia.objects.filter(name=name).first()
+
+            if check_name:
+                return Response({"message": "media Already Exists with  This name! "},
+                                status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({"success": True, "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "status": 200, "data": serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddMaritalStatusView(GenericAPIView):
+    serializer_class = MaritalStatusSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Marital Status Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        meritalstatus = MaritalStatus.objects.all()
+        serializer = MaritalStatusSerializer(meritalstatus, many=True)
+        return Response(
+            {"success": True, "status": 200, "base_url": "http://18.224.254.170/media/", "data": serializer.data},
+            status=status.HTTP_200_OK)
+
+    # def post(self, request, format='json'):
+    #
+    #     serializer = MaritalStatusSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         m_status = serializer.validated_data['status']
+    #         check_status = MaritalStatus.objects.filter(status=m_status).first()
+    #
+    #         if check_status:
+    #             return Response({"message": "media Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True,  "status" : 201 ,"data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status" : 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddIdealMatchView(GenericAPIView):
+    serializer_class = IdealMatchSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Ideal Match Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        idealMatch = IdealMatch.objects.all()
+
+        serializer = IdealMatchSerializer(idealMatch, many=True)
+        return Response(
+            {"success": True, "base_url": "http://18.224.254.170/media/", "status": 200, "data": serializer.data},
+            status=status.HTTP_200_OK)
+
+    # def post(self, request, format='json'):
+    #     serializer = IdealMatchSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         idealmatch = serializer.validated_data['idealmatch']
+    #
+    #         check_name = IdealMatch.objects.filter(idealmatch=idealmatch).first()
+    #
+    #         if check_name:
+    #             return Response({"message": "idealmatch Already Exists with  This name! "},
+    #                             status=status.HTTP_400_BAD_REQUEST)
+    #         serializer.save()
+    #         return Response({"success": True, "status": 201,"data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "status" : 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddUserImageView(GenericAPIView):
+    serializer_class = UserImageSerializer
+
+    # permission_classes = (AllowAny,)
+    # @swagger_auto_schema(
+    #     operation_description="POST description override using decorator",
+    #     operation_summary = "User Media Api",
+    #     request_body=UserSerializer,
+
+    #                     # request_body is used to specify parameters
+    #     #                 request_body = openapi.Schema(
+    #     #                     # request_body=UserSerializer,
+    #     # type=openapi.TYPE_OBJECT,
+    #     # required=['name'],
+    #     # properties={
+    #     #     'name': openapi.Schema(type=openapi.TYPE_STRING),
+    #     #     'id': "userid auto incremeted",
+    #     # },
+    # # ),
+    #                                    # tags = ['my custom tag']
+    # )
+
+    def get(self, request):
+        idealMatch = User.objects.all()
+        serializer = UserImageSerializer(idealMatch, many=True)
+        return Response({"success": True, "base_url": "http://18.224.254.170/media/", "data": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+
+        serializer = UserImageSerializer(data=request.data)
+
+        if serializer.is_valid():
+            # idealmatch = serializer.validated_data['idealmatch']
+            # check_name =UserIdealMatch.objects.filter(idealmatch=idealmatch).first()
+
+            # if check_name:
+            #     return Response({"message": "idealmatch Already Exists with  This name! "}, status=status.HTTP_400_BAD_REQUEST)
+            serializer.save()
+            return Response({"success": True, "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class AddHeigthView(GenericAPIView):
+    serializer_class = HeightSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Tall Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        height = Heigth.objects.all()
+        serializer = HeightSerializer(height, many=True)
+        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
+
+    # def post(self, request, format='json'):
+    #
+    #     serializer = HeightSerializer(data=request.data)
+    #
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response({"success": True , "status" : 201
+    #                             , "data": serializer.data}, status=status.HTTP_201_CREATED)
+    #     else:
+    #         return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+    #
 

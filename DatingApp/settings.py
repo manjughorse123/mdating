@@ -236,7 +236,14 @@ REST_FRAMEWORK = {
 #     )
 # }
 
-SWAGGER_SETTINGS = {            
+SWAGGER_SETTINGS = {
+    'SECURITY_DEFINITIONS': {
+        'api_key': {
+            'type': 'apiKey',
+            'in': 'header',
+            'name': 'Authorization'
+        }
+    },
               'JSON_EDITOR': True, 
                'DEFAULT_MODEL_DEPTH':-1     
         }
@@ -277,8 +284,6 @@ REST_FRAMEWORK = {
     # )
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_PERMISSION_CLASSES': [],
-
-
 }
 
 REFRESH_TOKEN_SECRET='django-insecure-8(y+s39b-%2r0gi(tzp-m!a&wl21r#xgt#75mt#s_d)y38wqyo'

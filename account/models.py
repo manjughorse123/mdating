@@ -234,8 +234,21 @@ class User(AbstractBaseUser):
     # objects = UserManager()
     USERNAME_FIELD = 'mobile'
 
-    def age(self):
-        return int((datetime.date.today() - self.birth_date).days / 365.25)
+    # def age(self):
+    #     return int((datetime.date.today() - self.birth_date).days / 365.25)
+
+    # def age(self):
+    #     import datetime
+    #     dob = self.birth_date
+    #     tod = datetime.date.today()
+    #     my_age = (tod.year - dob.year) - int((tod.month, tod.day) < (dob.month, dob.day))
+    #     return my_age
+    @property
+    def calculate_age(self):
+        import datetime
+        return int((datetime.datetime.now() - self.birthday).days / 365.25)
+
+    age = property(calculate_age)
 
     def __str__(self):
         return str(self.email)

@@ -67,6 +67,7 @@ class UserImages(GenericAPIView):
         tags = ['Post']
     )
     def get(self, request, user_id, *args, **kwargs):
+        import pdb;pdb.set_trace()
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
@@ -84,10 +85,21 @@ class UserImages(GenericAPIView):
             friend_id_list.append(friend_id_data)
 
         # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
-        posts_list = PostUpload.objects.filter(Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
-        follow_serializer = PostUploadSerializers(posts_list, many=True)
+        # posts_list = PostUpload.objects.filter(Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
+        posts_list = PostUpload.objects.filter(
+            Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
+        psss = []
+        for i in range(len(posts_list)):
+            dat = posts_list[i].id
+            psss.append(dat)
 
-        return Response({"success": True ,"post": follow_serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
+        ps = PostLike.objects.filter(post_id__in=psss, user_id=user_id).select_related('post')
+        print (ps)
+        follow_serializer = PostUploadSerializers(posts_list,many=True)
+        follow_serializers = PostUploadSerializers(ps, many=True)
+        postlike_serializers = PostLikeSerializers(ps, many=True)
+
+        return Response({"success": True ,'post_like': postlike_serializers.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
 
@@ -373,7 +385,8 @@ class UpdatePostApi(GenericAPIView):
                          "data": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
-
+from django.db.models import Prefetch, Exists, OuterRef
+from django.db.models import Count
 class UserImagesV2(GenericAPIView):
     serializer_class = PostUploadSerializers
 
@@ -383,7 +396,7 @@ class UserImagesV2(GenericAPIView):
         tags=['Post']
     )
     def get(self, request, user_id, *args, **kwargs):
-
+        # import pdb;pdb.set_trace()
         user = PostUpload.objects.filter(user_id=user_id)
         print ("user", user)
         # ab = user[0].id
@@ -397,8 +410,12 @@ class UserImagesV2(GenericAPIView):
             user_list.append(user_list_data)
         # print (data_s[0])
 
-        k = PostUpload.objects.filter(postlike__post__in=user_list).distinct()
-        # k = PostLike.objects.select_related('post').filter
+        # k = PostUpload.objects.filter(postlike__post__in=user_list).select_related('postlike').distinct()
+        # k = PostUpload.objects \
+        #     .annotate(is_liked=Exists(PostLike.objects.filter(
+        #     user=user, post=OuterRef('13'))))
+            # .order_by('title')
+        k = PostLike.objects.select_related('post').annotate(total=Count('post')).distinct()
         # k = PostUpload.objects.filter(postlike__post__in=user_list).values('id', 'postlike__post').distinct()
         # k = UserPostLike.objects.filter(userposts__user__in=user_list).distinct()
         # k = UserPost.objects.filter(userpostlike__post=9)
@@ -421,7 +438,7 @@ class UserImagesV2(GenericAPIView):
         # posts_list = UserPost.objects.filter(
         #     Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
         # follow_serializer = UserPostSerializers(posts_list, many=True)
-        follow_serializer = PostUploadSerializers(k, many=True)
+        follow_serializer = PostLikeSerializers(k, many=True)
         return Response(
             {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
             status=status.HTTP_200_OK)
