@@ -20,6 +20,7 @@ from . models import *
 
 
 class UserMediaAPI(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
     @swagger_auto_schema(
       
@@ -34,6 +35,7 @@ class UserMediaAPI(GenericAPIView):
 
 
 class UserMediaAPIPost(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
     def get(self, request, *args, **kwargs):
         media = MediaPost.objects.all()
@@ -41,6 +43,7 @@ class UserMediaAPIPost(GenericAPIView):
         return Response({"success": True, "status":200 , "post": serializer.data},status=status.HTTP_200_OK)
 
 class GetMediaUploadApi(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = MediaPostSerializers
     @swagger_auto_schema(
       
@@ -55,6 +58,7 @@ class GetMediaUploadApi(GenericAPIView):
         return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 
 class MediaUploadApi(GenericAPIView):
+    permission_classes = (IsAuthenticate,)
     serializer_class = MediaPostSerializers
     # def get(self, request, *args, **kwargs):
     #     posts = MediaPost.objects.all()
@@ -67,7 +71,7 @@ class MediaUploadApi(GenericAPIView):
         type=openapi.TYPE_OBJECT,
         properties={
             'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
-            'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+
             'caption': openapi.Schema(type=openapi.TYPE_STRING, description='Add Caption'),
             
         }),
@@ -79,7 +83,7 @@ class MediaUploadApi(GenericAPIView):
         data = {
             'caption': request.data.get('caption'),
             'media': request.data.get('media'),
-            'user': request.data.get('user')
+            'user': request.user.id
 
         }
         serializer = MediaPostSerializers(data=data)
@@ -96,6 +100,7 @@ class MediaUploadApi(GenericAPIView):
 
 
 class MediaReactionApi(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
 
     def get(self, request):
@@ -190,6 +195,7 @@ class MediaReactionApi(GenericAPIView):
 
 
 class MediaViewAPI(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaView.objects.filter(media_id=id)
@@ -199,6 +205,7 @@ class MediaViewAPI(GenericAPIView):
 
 
 class MediaLikeAPI(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaLike.objects.filter(media_id=id)
@@ -208,6 +215,7 @@ class MediaLikeAPI(GenericAPIView):
 
 
 class MediaShareAPI(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = MediaPostSerializers
     def get(self, request, id, *args, **kwargs):
         media = MediaShare.objects.filter(media_id=id)
