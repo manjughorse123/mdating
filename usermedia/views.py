@@ -58,7 +58,7 @@ class GetMediaUploadApi(GenericAPIView):
         return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 
 class MediaUploadApi(GenericAPIView):
-    permission_classes = (IsAuthenticate,)
+    permission_classes = (IsAuthenticated,)
     serializer_class = MediaPostSerializers
     # def get(self, request, *args, **kwargs):
     #     posts = MediaPost.objects.all()
