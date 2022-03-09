@@ -7,6 +7,7 @@ from account.serializers import *
 from likeuser.serilaizers import *
 from matchprofile.models import UserMatchProfile
 from .models import *
+from rest_framework.permissions import  *
 
 
 # class AddFriendRequestSendView(APIView):
@@ -30,7 +31,7 @@ from .models import *
 
 
 class UserLikeView(APIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         userInterest = UserLike.objects.all()
@@ -56,7 +57,7 @@ class UserLikeView(APIView):
 
 
 class UserLikeNewView(APIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,)
 
     def get(self, request):
         user = request.data.get('user')

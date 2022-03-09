@@ -6,14 +6,12 @@ from .serializers import *
 from rest_framework.views import *
 from .models import *
 from rest_framework.viewsets import *
-
+from rest_framework.permissions import *
 
 
 class AddFriendRequestSendView(GenericAPIView):
     serializer_class = GetFriendRequestSerializer
-    # permission_classes = (AllowAny,)
-    
-   
+    permission_classes = (AllowAny,)
 
     # def get(self, request):
     #     # import pdb;pdb.set_trace()
@@ -50,7 +48,7 @@ class AddFriendRequestSendView(GenericAPIView):
 
 class AddFriendRequestAcceptView(GenericAPIView):
     serializer_class = FriendListSerializer
-    # permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,)
    
 
     def get(self, request):
@@ -76,6 +74,7 @@ class AddFriendRequestAcceptView(GenericAPIView):
 
 
 class GetFriendRequestListView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = FriendRequestListSerializer
     """
     Retrieve, update or delete a Get Follower instance.
@@ -104,7 +103,7 @@ class GetFriendRequestListView(GenericAPIView):
 
 class  AddFollowRequestView(GenericAPIView):
     serializer_class = FollowRequestSerializer
-    # permission_classes = (AllowAny,)
+    permission_classes = (AllowAny,)
     # @swagger_auto_schema(
     #
     #     operation_summary = "Get Follow All User Request ",
@@ -141,6 +140,7 @@ class  AddFollowRequestView(GenericAPIView):
 
 
 class FollowRequestAcceptView(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = FollowAcceptSerializer
    
     # def get(self, request):
@@ -197,6 +197,7 @@ class FollowRequestAcceptView(GenericAPIView):
 
 # GetFollowerView
 class GetFollowerView(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = FollowRequestFollowingSerializer
     """
     Retrieve, update or delete a Get Followering instance.
@@ -226,6 +227,7 @@ class GetFollowerView(GenericAPIView):
 
 
 class GetFollowerV2View(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = FollowRequestFollowerV2Serializer
     """
     Retrieve, update or delete a Get Follower instance.
@@ -253,6 +255,7 @@ class GetFollowerV2View(GenericAPIView):
 
 # Get Following View
 class GetFollowingView(GenericAPIView): # temperly stop
+    permission_classes = (AllowAny,)
     QuerySet = FollowAccept.objects.all()
     serializer_class = FollowListFollowingSerializer
     """
@@ -280,6 +283,7 @@ class GetFollowingView(GenericAPIView): # temperly stop
 
 
 class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = FriendListSerializer
     # @swagger_auto_schema(
     #
@@ -306,6 +310,7 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
         tags = ['Friend']
     )
     def post(self, request, format='json'):
+
         serializer = FriendListSerializer(data=request.data)
 
         if serializer.is_valid():
@@ -330,6 +335,18 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
                 objs.delete()
                 return Response({"success": True,"message": "Friend Request Deleted !" ,"status": 200},status=status.HTTP_200_OK)
 
+            if request.data['flag'] == '3': # unfriend user
+                if FriendList.objects.filter(friends=friends):
+                    obj = FriendList.objects.filter(friends=friends)
+                    obj = obj[0].id
+                    objs = FriendList.objects.filter(id=obj)
+                    objs.delete()
+                    return Response({"success": True, "status": 200, "message": "User  Unfriend"},
+                                    status=status.HTTP_200_SUCCESS)
+                else :
+                    return Response({"success": "error", "status": 400, "message": "User Already Unfriend"},
+                                    status=status.HTTP_400_BAD_REQUEST)
+
             serializer.save()
 
             return Response(
@@ -340,6 +357,7 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
                              "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 class GetFriendRequestAcceptView(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = FriendRequestAcceptSerializer
     """
     Retrieve API FOR Friend Accept List.

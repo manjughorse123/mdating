@@ -1,5 +1,6 @@
 import json
-
+from datetime import date
+from django.utils.timezone import now
 import django_filters
 from django.db.models import F
 from django.http import HttpResponse
@@ -33,6 +34,14 @@ from drf_yasg import openapi
 class UserFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
 
+    def age_range(min_age, max_age):
+        current = now().date()
+        min_date = date(current.year - min_age, current.month, current.day)
+        max_date = date(current.year - max_age, current.month, current.day)
+
+        return User.objects.filter(birth_date__gte=max_date,
+                                    birth_date__lte=min_date).order_by("birth_date")
+
     class Meta:
         model = User
         fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], }
@@ -40,6 +49,9 @@ class UserFilter(filters.FilterSet):
 
 class UserPassionFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
+
+
+
     class Meta:
         model = User
         # fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
@@ -90,10 +102,17 @@ class UserFilterAPIV2(ListAPIView):
         tags = ['User Filter']
     )
 
-    def list(self, request):
-        queryset = User.objects.all()
-        serializer = UserFilterSerializer(queryset, many=True)
-        return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+    # def list(self, request):
+    #     queryset = User.objects.all()
+    #     serializer = UserFilterSerializer(queryset, many=True)
+    #     return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+    def get(self, request, *args, **kwargs):
+
+        response = super(UserFilterAPI, self).get(request, *args, **kwargs)
+        response.data['status'] = 200
+        response.data['message'] = 'Filtered Data!'
+        response.data['success'] = True
+        return response
 
 class FollowDetails(GenericAPIView):
     serilaizer_class = (FollowRequestSerializer)

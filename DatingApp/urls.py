@@ -41,7 +41,6 @@ urlpatterns = [
 
 
     # path('', include('masterapp.urls')),
-    # path('verify/', include('userverification.urls')),
     # path('api/token/', TokenObtainSlidingView.as_view(), name='token_obtain'),
     # path('api/token/refresh/', TokenRefreshSlidingView.as_view(), name='token_refresh'),
     # path('token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
