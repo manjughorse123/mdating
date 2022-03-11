@@ -6,7 +6,8 @@ from .views import *
 urlpatterns = [
     path('post/', PostUploadApi.as_view(), name='postapi'),
     # path('post/<int:post_id>', GetPostUploadApi.as_view(), name="postapi"),
-    re_path(r'^user/get-all-post/(?P<user_id>[0-9a-f-]+)$', UserImages.as_view(), name="userimages"),
+    # re_path(r'^user/get-all-post/(?P<user_id>[0-9a-f-]+)$', UserImages.as_view(), name="userimages"),
+    path('user/get-all-post/', UserImages.as_view(), name="userimages"),
     re_path(r'^user/get-all-post/v2/(?P<user_id>[0-9a-f-]+)$', UserImagesV2.as_view(), name="userimages"),
     path('post/reaction/', PostReactionApi.as_view(), name="postreactionapi"),
     # path('post/reaction/<int:id>', PostReactionApi.as_view(), name="postreactionapi"),

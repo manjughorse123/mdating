@@ -8,13 +8,14 @@ from rest_framework.views import APIView
 from rest_framework.generics import *
 from rest_framework.viewsets import *
 from rest_framework.parsers import *
-# from rest_framework.permissions import *
+from rest_framework.permissions import *
 from .models import *
 from .serializers import *
 from friend.models import *
 
 
 class GetPostUploadApi(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class =  PostUploadSerializers
     @swagger_auto_schema(
       
@@ -28,6 +29,7 @@ class GetPostUploadApi(GenericAPIView):
 
 
 class PostUploadApi(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class =  PostUploadSerializers
     @swagger_auto_schema(
       
@@ -48,7 +50,8 @@ class PostUploadApi(GenericAPIView):
             'title': request.data.get('title'),
             'message': request.data.get('message'),
             'post': request.data.get('post'),
-            'user': request.data.get('user')
+            # 'user': request.data.get('user')
+            'user' : request.user.id
 
         }
         serializer = PostUploadSerializers(data=data)
@@ -60,14 +63,29 @@ class PostUploadApi(GenericAPIView):
 
 
 class UserImages(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostUploadSerializers
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
     @swagger_auto_schema(
       
         operation_summary = "Get User Post by User Id  Api ",
         tags = ['Post']
     )
-    def get(self, request, user_id, *args, **kwargs):
-        import pdb;pdb.set_trace()
+
+
+    def get(self, request, *args, **kwargs):
+        user_id = request.user.id
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
@@ -84,26 +102,16 @@ class UserImages(GenericAPIView):
             friend_id_data = friends_ids[fri].friends
             friend_id_list.append(friend_id_data)
 
-        # posts_list = PostUpload.objects.filter(user_id__in=following_idss) | PostUpload.objects.filter(user_id=user_id)
-        # posts_list = PostUpload.objects.filter(Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
         posts_list = PostUpload.objects.filter(
-            Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).distinct()
-        psss = []
-        for i in range(len(posts_list)):
-            dat = posts_list[i].id
-            psss.append(dat)
+            Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).order_by('-create_at').distinct()
 
-        ps = PostLike.objects.filter(post_id__in=psss, user_id=user_id).select_related('post')
-        print (ps)
-        follow_serializer = PostUploadSerializers(posts_list,many=True)
-        follow_serializers = PostUploadSerializers(ps, many=True)
-        postlike_serializers = PostLikeSerializers(ps, many=True)
+        follow_serializer = PostUploadSerializers(posts_list,context={'request': request},many=True)
 
-        return Response({"success": True ,'post_like': postlike_serializers.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
-
+        return Response({"success": True ,'post': follow_serializer.data,"message" :"User Post by User ","status":200}, status=status.HTTP_200_OK)
 
 
 class PostReactionApi(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = PostViewSerializers
     # @swagger_auto_schema(
     #
@@ -226,6 +234,7 @@ class PostReactionApi(GenericAPIView):
 
 
 class GetPostViewdetailView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostViewSerializers
     """
     Retrieve, update or delete  a media instance.
@@ -257,6 +266,7 @@ class GetPostViewdetailView(GenericAPIView):
     #     return Response(status=status.HTTP_204_NO_CONTENT)
 
 class AllPostAPI(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
 
     serializer_class = PostUploadSerializers
     @swagger_auto_schema(
@@ -272,6 +282,7 @@ class AllPostAPI(GenericAPIView):
 
 
 class PostViewAPI(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class  = PostViewSerializers
 
     def get(self, request, id, *args, **kwargs):
@@ -282,6 +293,7 @@ class PostViewAPI(GenericAPIView):
 
 
 class PostLikeAPI(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostLikeSerializers
     def get(self, request, id, *args, **kwargs):
         post = PostLike.objects.filter(post_id=id)
@@ -290,6 +302,7 @@ class PostLikeAPI(GenericAPIView):
 
 
 class PostShareAPI(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostShareSerializers
 
     def get(self, request, id, *args, **kwargs):
@@ -320,6 +333,7 @@ class PostShareAPI(GenericAPIView):
 #         return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
 
 class DeletePostApi (GenericAPIView):
+    permission_classes = (IsAuthenticated,)
 
     def get_object(self,post_id):
         try:
@@ -349,6 +363,7 @@ class DeletePostApi (GenericAPIView):
 
 
 class UpdatePostApi(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
     serializer_class = PostUploadSerializers
 
     def get_object(self, post_id):
@@ -388,6 +403,7 @@ class UpdatePostApi(GenericAPIView):
 from django.db.models import Prefetch, Exists, OuterRef
 from django.db.models import Count
 class UserImagesV2(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = PostUploadSerializers
 
     @swagger_auto_schema(
@@ -442,3 +458,6 @@ class UserImagesV2(GenericAPIView):
         return Response(
             {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
             status=status.HTTP_200_OK)
+
+
+

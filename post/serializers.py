@@ -8,9 +8,20 @@ from rest_framework.fields import SerializerMethodField
 
 class PostUploadSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
+    isLiked = serializers.SerializerMethodField()
+    isViewed = serializers.SerializerMethodField()
     class Meta:
         model = PostUpload
-        fields = '__all__'
+        fields = ('user','post','title', 'is_like_count','is_view_count','isLiked','isViewed')
+
+    def get_isLiked(self, obj):
+        requestUser = self.context['request'].user
+        return PostLike.objects.filter(post=obj, user=requestUser).exists()
+
+    def get_isViewed(self, obj):
+        requestUser = self.context['request'].user
+        return PostView.objects.filter(post=obj, user=requestUser).exists()
+
 
     def to_representation(self, instance):
         response = super().to_representation(instance)

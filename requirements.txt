@@ -47,6 +47,7 @@ phonenumbers==8.12.40
 Pillow==8.4.0
 pipenv==2021.11.23
 platformdirs==2.4.1
+psycopg2-binary==2.8.6
 pycparser==2.21
 PyJWT==2.1.0
 pyparsing==3.0.7
