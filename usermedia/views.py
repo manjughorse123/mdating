@@ -79,7 +79,7 @@ class MediaUploadApi(GenericAPIView):
         tags = ['User Media']
     )
     def post(self, request, *args, **kwargs):
-        user=request.data.get('user')
+        user=request.user.id
         data = {
             'caption': request.data.get('caption'),
             'media': request.data.get('media'),
@@ -90,8 +90,6 @@ class MediaUploadApi(GenericAPIView):
 
         if serializer.is_valid():
             obj  = User.objects.filter(id = user)
-
-
             obj.update(is_media = True)
             serializer.save()
 
