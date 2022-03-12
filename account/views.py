@@ -194,7 +194,7 @@ class UserCreateView(GenericAPIView):
 
 
 # from rest_framework_jwt.settings import api_settings
-class OTPVerify(GenericAPIView):
+class OTPVerifyV2(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
     @swagger_auto_schema(
@@ -293,7 +293,7 @@ class UserData(GenericAPIView):
         friendaccept = FriendList.objects.filter(user_id=user_id)
 
         userserializer = UserSerializer(user)
-        postsrializer = PostUploadSerializers(post, many=True)
+        postsrializer = PostUploadSerializers(post,context={'request': request} ,many=True)
         followserializer = FollowRequestFollowingSerializer(follow, many=True)
         followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
         mediaserializer = MediaPostSerializers(media, many=True)
@@ -643,7 +643,7 @@ class UserDelete(GenericAPIView):
         return Response({'status':204,'message':'User Successfully Deleted!' ,'success':True},status=status.HTTP_204_NO_CONTENT)
 
 
-class OTPVerifyV2(GenericAPIView):
+class OTPVerify(GenericAPIView):
     permission_classes= [AllowAny]
     serializer_class = UserLoginSerializer
 

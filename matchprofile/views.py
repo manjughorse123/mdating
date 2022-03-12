@@ -120,7 +120,7 @@ class  PostCountLikeView(APIView):
             if request.data['flag'] == '2':
                 if UserToUserLike.objects.get(like_profile_user=like_profile_user):
                     
-                    return Response({"success": "error","status": 400,"message":  "User Already Dislike Profile "}, status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"success": "error","status": 400,"message":  "User Already Unlike Profile "}, status=status.HTTP_400_BAD_REQUEST)
                 else :    
                     obj = UserToUserLike.objects.get(user=ab)
                 
@@ -144,7 +144,7 @@ class  PostCountLikeView(APIView):
 
 class MatchedUserProfileView(GenericAPIView):
     serializer_class = GetUserMatchProfileSerializer
-    # permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     # def get(self, request):
     #     userInterest = UserMatchProfile.objects.all()
@@ -158,14 +158,15 @@ class MatchedUserProfileView(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'user': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-                'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
-                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for dislike '),
+                'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+                'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='User liked profile id '),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for profile dislike '),
             }),
 
         tags=['Match Profile']
     )
     def post(self, request, format='json'):
+
         serializer = UserMatchProfileSerializer(data=request.data)
 
         if serializer.is_valid():

@@ -5,7 +5,7 @@ urlpatterns = [
     # user Registration
     path('login', Login.as_view(), name="Login"),
     path('otp/verify', OTPVerify.as_view(), name='OTPVerify'),
-    path('otp/verify/v2', OTPVerifyV2.as_view(), name='OTPVerify'),# OTPVerifyV2 for Jwt Token checking
+    # path('otp/verify/v2', OTPVerifyV2.as_view(), name='OTPVerify'),# OTPVerifyV2 for Jwt Token checking
 
     path('registration', Registration.as_view(), name='Registration'),
     # re_path(r'user/data/(?P<user_id>[0-9a-f-]+)$', UserData.as_view(), name='UserData'),
