@@ -82,8 +82,6 @@ class UserImages(GenericAPIView):
         operation_summary = "Get User Post by User Id  Api ",
         tags = ['Post']
     )
-
-
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
         user = PostUpload.objects.filter(user_id=user_id)

@@ -4,7 +4,7 @@ from .models import *
 
 
 class MediaPostAdmin(admin.ModelAdmin):
-    list_display = ('user', 'media', 'id', 'is_view', 'is_like', 'is_share', 'create_at')
+    list_display = ('user', 'media', 'id', 'view_count', 'like_count', 'share_count', 'create_at')
     list_filter = ('create_at', 'user')
 
 
