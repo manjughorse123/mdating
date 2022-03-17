@@ -6,6 +6,20 @@ from account.models import *
 from rest_framework.fields import SerializerMethodField
 
 
+class PostUploadCreateSerializers(ModelSerializer):
+    # is_liked = serializers.BooleanField(read_only=True)
+
+    class Meta:
+        model = PostUpload
+        fields = '__all__'
+
+
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerilaizer(instance.user).data
+
+        return response
 class PostUploadSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
     isLiked = serializers.SerializerMethodField()

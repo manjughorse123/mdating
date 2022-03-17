@@ -33,6 +33,7 @@ class UserMediaAPI(GenericAPIView):
             'format': self.format_kwarg,
             'view': self
         }
+
     @swagger_auto_schema(
       
         operation_summary = "User Media By User Id",

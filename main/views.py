@@ -24,7 +24,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from matchprofile.models import *
-
+from rest_framework.permissions import *
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -60,7 +60,7 @@ class UserPassionFilter(filters.FilterSet):
         # fields = ('age_range','gender','passion',)
 
 class UserFilterAPI(ListAPIView):
-
+    permissions_class = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'

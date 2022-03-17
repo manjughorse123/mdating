@@ -30,7 +30,7 @@ class GetPostUploadApi(GenericAPIView):
 
 class PostUploadApi(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class =  PostUploadSerializers
+    serializer_class =  PostUploadCreateSerializers
     @swagger_auto_schema(
       
         operation_summary = "Create Post Api",

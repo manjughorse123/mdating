@@ -457,7 +457,6 @@ class UserUpdateProfile(GenericAPIView):
             user_data.save(update_fields=["is_gender"])
 
         if 'passion' in request.data:
-            print("passion------->", request.data)
             user_data.is_passion = True
             user_data.save(update_fields=["is_passion"])
 
