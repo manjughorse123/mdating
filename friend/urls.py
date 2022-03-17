@@ -6,7 +6,7 @@ urlpatterns = [
     path('friend-request-send/', AddFriendRequestSendView.as_view(), name='send_request'),
     # path('friend-request-accept/', AddFriendRequestAcceptView.as_view(), name='accept'),
     path('friend-request-accept-user/', AddFriendRequestAcceptDeatilApiView.as_view(), name='accept'),
-    re_path(r'^get-friend-req-list/(?P<user_id>[0-9a-f-]+)$', GetFriendRequestListView.as_view(), name="get_friend_req_list"),
+    path('get-friend-req-list/', GetFriendRequestListView.as_view(), name="get_friend_req_list"),
     path('get-friend-req-accept-list/', GetFriendRequestAcceptView.as_view(),
             name="get_friend_req_list"),
     # re_path(r'^get-friend-req-accept-list/(?P<user_id>[0-9a-f-]+)$', GetFriendRequestAcceptView.as_view(), name="get_friend_req_list"),

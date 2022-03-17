@@ -7,6 +7,8 @@ from rest_framework.views import *
 from .models import *
 from rest_framework.viewsets import *
 from rest_framework.permissions import *
+from account.models import *
+from account.serializers import *
 
 
 class AddFriendRequestSendView(GenericAPIView):
@@ -14,7 +16,7 @@ class AddFriendRequestSendView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     # def get(self, request):
-    #     # import pdb;pdb.set_trace()
+
     #     userInterest =FriendRequest.objects.all()
     #     serializer = GetFriendRequestSerializer(userInterest, many=True)
     #     return Response({"success": True, "message" :" User  Send Request Detail" ,"status" :200,"data": serializer.data}, status=status.HTTP_200_OK)
@@ -81,24 +83,38 @@ class GetFriendRequestListView(GenericAPIView):
 
     """
     
-    def get_object(self, user_id):
-        try:
-            return FriendRequest.objects.filter(receiver_id=user_id)
-        except FriendRequest.DoesNotExist:
-            raise Http404
+    # def get_object(self, user_id):
+    #     try:
+    #         return FriendRequest.objects.filter(receiver_id=user_id)
+    #     except FriendRequest.DoesNotExist:
+    #         raise Http404
     @swagger_auto_schema(
-      
         operation_summary = "Get Send Friend Rquest Api By User ID ",
-        
         tags = ['Friend']
     )
 
-   
-    def get(self, request, user_id, format=None):
+    def get(self, request, format=None):
+        user_id = request.user.id
+        user_data = User.objects.filter(id=user_id)
+        dataa = User.objects.filter(city=user_data[0].city).exclude(id= request.user.id)
+        list_suugest = []
+        for user_list_id in range(len(dataa)):
+            fetch_data = dataa[user_list_id].id
+            list_suugest.append(fetch_data)
 
-        friend_req_list = self.get_object(user_id)
+        for friend_list_id in range(len(list_suugest)):
+
+            if FriendRequest.objects.filter(receiver_id__in=list_suugest):
+                saa = FriendRequest.objects.filter(receiver_id=list_suugest[0])
+                if not saa is None:
+                    list_suugest.remove(saa[0].receiver_id)
+
+        friend_req_list = FriendRequest.objects.filter(receiver_id=user_id)
+        user_suggest_friend = User.objects.filter(id__in=list_suugest)
+
+        datata = UserFriendSerilaizer( user_suggest_friend ,many=True)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
-        return Response({"success": True, "status": 200 ,"message": "Detail","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':[]}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200 ,"message": "Detail","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':datata.data}, status=status.HTTP_200_OK)
 
 
 class  AddFollowRequestView(GenericAPIView):
@@ -141,7 +157,7 @@ class  AddFollowRequestView(GenericAPIView):
 
 class FollowRequestAcceptView(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = FollowAcceptSerializer
+    serializer_class = FollowSerializer
    
     # def get(self, request):
     #     follow_accept =FollowAccept.objects.all()
@@ -155,6 +171,7 @@ class FollowRequestAcceptView(GenericAPIView):
         properties={
             'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
             'follow': openapi.Schema(type=openapi.TYPE_STRING, description='Add Follow Id'),
+            'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Flag 1 for Follow and flag 2 for UnFollow'),
         }),
 
         tags = ['Follow']
@@ -178,7 +195,7 @@ class FollowRequestAcceptView(GenericAPIView):
                     return Response({"success": "error", "status": 400, "message": " Already followed"},
                                     status=status.HTTP_400_BAD_REQUEST)
                 else:
-                    new_follow = FollowRequest.objects.create(user=ab, follow=follow)
+                    new_follow = FollowRequest.objects.create(user=ab, follow=follow,is_follow =True)
 
 
             if request.data['flag'] == '2':
@@ -186,10 +203,10 @@ class FollowRequestAcceptView(GenericAPIView):
                 obj = obj[0].id
                 objs = FollowRequest.objects.filter(id=obj)
                 objs.delete()
-                return Response({"success": True, "message": "Follow Request Deleted !", "status": 200},
+                return Response({"success": True, "message": "user UnFollow ", "status": 200},
                                 status=status.HTTP_200_OK)
             
-            return Response({"success": True, "message": "Follow Request Accept", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True, "message": "Send Follow Request!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message": "Follow Request Already","status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -218,7 +235,7 @@ class GetFollowerView(GenericAPIView):
     )
 
     def get(self, request, user_id, format=None):
-        # import pdb;pdb.set_trace()
+
         follower_info = self.get_object(user_id)
         serializer = FollowRequestFollowingSerializer(follower_info, many=True)
         return Response({"success": True, "message" :" User following Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
@@ -310,13 +327,33 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
         tags = ['Friend']
     )
     def post(self, request, format='json'):
-
+        
         serializer = FriendListSerializer(data=request.data)
 
         if serializer.is_valid():
-            # import pdb;pdb.set_trace()
+
             ab = serializer.validated_data['user']
             friends = serializer.validated_data['friends']
+            # friend1 = FriendList.objects.filter(user_id=ab)
+            # friend2 = FriendList.objects.filter(user_id=friends)
+            #
+            # friend1_id_list = []
+            # friend2_id_list = []
+            #
+            # for i in range(len(friend1)):
+            #     friend_id_data = friend1[i].friends
+            #     friend1_id_list.append(friend_id_data)
+            #
+            # for i in range(len(friend2)):
+            #     friend_id_data = friend2[i].friends
+            #     friend2_id_list.append(friend_id_data)
+            #
+            # abs = [x for x in friend1_id_list if x in friend2_id_list]
+            # print (abs)
+            # print(x)
+            # friends_1 = FriendListSerializer(friend1,many=True)
+            # friends_2 = FriendListSerializer(friend2, many=True)
+            # [x for x in a if x in b]
             if request.data['flag'] == '1': # add friend
                 if FriendList.objects.filter(friends=friends):
                     return Response({"success": "error", "status": 400, "message": "User Already friend"},
@@ -379,6 +416,9 @@ class GetFriendRequestAcceptView(GenericAPIView):
     def get(self, request, format=None):
         user_id = request.user.id
         friend_req_list = FriendList.objects.filter(user_id=user_id)
+        suggected_friend = User.objects.all().exclude(id=user_id)[:5]
         serializer = FriendRequestAcceptSerializer(friend_req_list, many=True)
-        return Response({"success": True, "status": 200 ,"message": "Friend Request Accept!","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':[]}, status=status.HTTP_200_OK)
+        suggected_friends = UserFriendSerilaizer(suggected_friend,many=True)
+        return Response({"success": True, "status": 200 ,"message": "Friend Request Accept!","data": serializer.data, 'data_count' :len(serializer.data),'suggest_friend_data':suggected_friends.data}, status=status.HTTP_200_OK)
+
 

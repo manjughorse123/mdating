@@ -34,29 +34,30 @@ from drf_yasg import openapi
 class UserFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
 
-    def age_range(min_age, max_age):
-        current = now().date()
-        min_date = date(current.year - min_age, current.month, current.day)
-        max_date = date(current.year - max_age, current.month, current.day)
-
-        return User.objects.filter(birth_date__gte=max_date,
-                                    birth_date__lte=min_date).order_by("birth_date")
+    # def age_range(min_age, max_age):
+    #     current = now().date()
+    #     min_date = date(current.year - min_age, current.month, current.day)
+    #     max_date = date(current.year - max_age, current.month, current.day)
+    #
+    #     return User.objects.filter(birth_date__gte=max_date,
+    #                                 birth_date__lte=min_date).order_by("birth_date")
 
     class Meta:
         model = User
-        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], }
+        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range']}
 
 
 class UserPassionFilter(filters.FilterSet):
     birth_date = DateFromToRangeFilter()
-
-
+    # age_range = django_filters.CharFilter(
+    #     field_name='calculate_age')
 
     class Meta:
         model = User
         # fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
-        fields = { 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'],
+        fields = {'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'],
                   'idealmatch': ['exact']}
+        # fields = ('age_range','gender','passion',)
 
 class UserFilterAPI(ListAPIView):
     queryset = User.objects.all()
@@ -70,12 +71,27 @@ class UserFilterAPI(ListAPIView):
     # def get_queryset(self):
     #     print ("request",self.request.user)
     #     return self.request.account.users.all()
+    def get_queryset(self):
+        if 'min_age'  in self.request.GET:
+            min_age = self.request.GET['min_age']
+
+        if 'max_age'  in self.request.GET:
+            max_age = self.request.GET['max_age']
+
+
+        current = now().date()
+        min_date = date(current.year - int(min_age), current.month, current.day)
+        max_date = date(current.year - int(max_age), current.month, current.day)
+
+        return User.objects.filter(birth_date__gte=max_date,
+                                       birth_date__lte=min_date).order_by("birth_date")
 
     @swagger_auto_schema(
 
         operation_summary="Get user Filter by Location,Passion,Gender ",
 
         tags=['User Filter']
+
     )
     def get(self, request, *args, **kwargs):
 
@@ -106,6 +122,8 @@ class UserFilterAPIV2(ListAPIView):
     #     queryset = User.objects.all()
     #     serializer = UserFilterSerializer(queryset, many=True)
     #     return Response({"message": "User Matched Profile","status": 200, "success": True,'data': serializer.data},status= status.HTTP_200_OK)
+
+
     def get(self, request, *args, **kwargs):
 
         response = super(UserFilterAPI, self).get(request, *args, **kwargs)
@@ -171,12 +189,12 @@ class UserMatchProfileFilterAPI(ListAPIView):
                         status=status.HTTP_200_OK)
 
 
-class UserPassionFilter(filters.FilterSet):
-    birth_date = DateFromToRangeFilter()
-    class Meta:
-        model = User
-        fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
-
+# class UserPassionFilter(filters.FilterSet):
+#     birth_date = DateFromToRangeFilter()
+#     class Meta:
+#         model = User
+#         fields = {'id': ['exact'], 'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'], 'idealmatch':['exact']}
+# 
 
 class UserPassionFilterAPI(ListAPIView):
 

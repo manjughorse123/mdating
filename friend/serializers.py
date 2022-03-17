@@ -59,7 +59,11 @@ class GetFriendRequestSerializer(serializers.ModelSerializer):
 #                 {"Mobile no": "no  should be  10 digit."})
 
 #         return attrs
+class FriendListUserSerializer(serializers.ModelSerializer):
 
+    class Meta:
+        model = FriendList
+        fields = ('user', 'friends', 'is_accepted')
 
 class FriendListSerializer(serializers.ModelSerializer):
    
@@ -71,7 +75,26 @@ class FriendListSerializer(serializers.ModelSerializer):
         #             {"friend request was  already accept"})
         #
         #     return attrs
-    
+        is_mutual = serializers.SerializerMethodField()
+        def get_is_mutual(self,obj):
+
+            friend1 = FriendList.objects.filter(user_id=obj.user)
+            friend2 = FriendList.objects.filter(user_id=obj.friends)
+
+            friend1_id_list = []
+            friend2_id_list = []
+
+            for i in range(len(friend1)):
+               friend_id_data = friend1[i].friends
+               friend1_id_list.append(friend_id_data)
+
+            for i in range(len(friend2)):
+               friend_id_data = friend2[i].friends
+               friend2_id_list.append(friend_id_data)
+
+            abs = [x for x in friend1_id_list if x in friend2_id_list]
+            return abs
+
         def create(self, validated_data):
             # import pdb;pdb.set_trace()
             to_user= validated_data.get('friends')
@@ -83,7 +106,7 @@ class FriendListSerializer(serializers.ModelSerializer):
 
         class Meta:
             model = FriendList
-            fields = "__all__"
+            fields = ('user','friends','is_accepted','is_mutual')
 
 
 
@@ -193,9 +216,29 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
 # FriendRequest list
 class FriendRequestListSerializer(serializers.ModelSerializer):
 
-        class Meta:
-            model  = FriendRequest
-            fields = ('sender',)
+    is_mutual = serializers.SerializerMethodField()
+
+    def get_is_mutual(self, obj):
+        friend1 = FriendList.objects.filter(user_id=obj.sender)
+        friend2 = FriendList.objects.filter(user_id=obj.receiver)
+
+        friend1_id_list = []
+        friend2_id_list = []
+
+        for i in range(len(friend1)):
+            friend_id_data = friend1[i].friends
+            friend1_id_list.append(friend_id_data)
+
+        for i in range(len(friend2)):
+            friend_id_data = friend2[i].friends
+            friend2_id_list.append(friend_id_data)
+
+        abs = [x for x in friend1_id_list if x in friend2_id_list]
+        return len(abs)
+
+    class Meta:
+        model  = FriendRequest
+        fields = ('sender','receiver','is_mutual')
 
         def to_representation(self, instance):
             response = super().to_representation(instance)
@@ -224,3 +267,20 @@ class FollowListFollowingSerializer(serializers.ModelSerializer):
             response = super().to_representation(instance)
             response['follow'] = UserFriendSerilaizer(instance.follow).data
             return response
+
+
+ # friend1 = FriendList.objects.filter(user_id=ab)
+ #            friend2 = FriendList.objects.filter(user_id=friends)
+ #
+ #            friend1_id_list = []
+ #            friend2_id_list = []
+ #
+ #            for i in range(len(friend1)):
+ #                friend_id_data = friend1[i].friends
+ #                friend1_id_list.append(friend_id_data)
+ #
+ #            for i in range(len(friend2)):
+ #                friend_id_data = friend2[i].friends
+ #                friend2_id_list.append(friend_id_data)
+ #
+ #            abs = [x for x in friend1_id_list if x in friend2_id_list]
