@@ -364,11 +364,24 @@ class UpdatePostApi(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = PostUploadSerializers
 
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
     def get_object(self, post_id):
         try:
             return PostUpload.objects.get(pk=post_id)
         except PostUpload.DoesNotExist:
             raise Http404
+
 
     @swagger_auto_schema(
 
@@ -378,7 +391,7 @@ class UpdatePostApi(GenericAPIView):
     )
     def get(self, request, post_id, *args, **kwargs):
         posts = PostUpload.objects.filter(id=post_id)
-        serializer = PostUploadSerializers(posts, many=True)
+        serializer = PostUploadSerializers(posts,context = {'request': request}, many=True)
         return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data},
                         status=status.HTTP_200_OK)
 
@@ -403,7 +416,6 @@ from django.db.models import Count
 class UserImagesV2(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = PostUploadSerializers
-
     @swagger_auto_schema(
 
         operation_summary="Get User Post by User Id  Api ",
