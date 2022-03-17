@@ -60,6 +60,7 @@ class UserPassionFilter(filters.FilterSet):
         # fields = ('age_range','gender','passion',)
 
 class UserFilterAPI(ListAPIView):
+
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
@@ -72,18 +73,21 @@ class UserFilterAPI(ListAPIView):
     #     print ("request",self.request.user)
     #     return self.request.account.users.all()
     def get_queryset(self):
+
         if 'min_age'  in self.request.GET:
             min_age = self.request.GET['min_age']
+            current = now().date()
+            min_date = date(current.year - int(min_age), current.month, current.day)
 
         if 'max_age'  in self.request.GET:
             max_age = self.request.GET['max_age']
+            current = now().date()
+            max_date = date(current.year - int(max_age), current.month, current.day)
+        # current = now().date()
+        # min_date = date(current.year - int(min_age), current.month, current.day)
+        # max_date = date(current.year - int(max_age), current.month, current.day)
 
-
-        current = now().date()
-        min_date = date(current.year - int(min_age), current.month, current.day)
-        max_date = date(current.year - int(max_age), current.month, current.day)
-
-        return User.objects.filter(birth_date__gte=max_date,
+            return User.objects.filter(birth_date__gte=max_date,
                                        birth_date__lte=min_date).order_by("birth_date")
 
     @swagger_auto_schema(
