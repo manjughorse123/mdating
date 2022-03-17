@@ -248,7 +248,7 @@ class User(AbstractBaseUser):
         import datetime
         return int((datetime.datetime.now() - self.birthday).days / 365.25)
 
-    age = property(calculate_age)
+    # age = property(calculate_age)
 
     def __str__(self):
         return str(self.email)

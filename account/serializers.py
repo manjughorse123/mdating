@@ -73,6 +73,8 @@ class UserSerializer(serializers.ModelSerializer):
     #     return data
 
 
+
+
 class RegisterSerializer(serializers.ModelSerializer):
     """
     Serializer for Regiter User endpoint.
@@ -267,3 +269,10 @@ class UserGenderSerializer(serializers.ModelSerializer):
         model = User
         fields = ('gender',)
         read_only_fields = ('id','email','name','mobile',)
+
+
+class UserVerifiedSerilaizer(serializers.ModelSerializer):
+
+    class Meta:
+        model = User
+        fields = ('id','name','is_verified')

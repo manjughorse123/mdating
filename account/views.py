@@ -269,7 +269,18 @@ class UserData(GenericAPIView):
             return User.objects.get(id=id)
         except User.DoesNotExist:
             raise Http404
+        
+    def get_serializer_context(self):
 
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
     @swagger_auto_schema(
 
             operation_summary="User Detail Profile Time Line Api",
@@ -283,8 +294,9 @@ class UserData(GenericAPIView):
             tags=['Account']
         )
     def get(self, request, format=None):
+
         user_id = request.user.id
-        user = self.get_object(user_id)
+        user = User.objects.get(id=user_id)
         post = PostUpload.objects.filter(user_id=user_id)
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
@@ -296,15 +308,25 @@ class UserData(GenericAPIView):
         postsrializer = PostUploadSerializers(post,context={'request': request} ,many=True)
         followserializer = FollowRequestFollowingSerializer(follow, many=True)
         followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
-        mediaserializer = MediaPostSerializers(media, many=True)
+        mediaserializer = GetMediaPostSerializers(media,context={'request': request}, many=True)
         friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
-        friendaccserializer = FriendListSerializer(friendaccept, many=True)
+        friendaccserializer = FriendListUserSerializer(friendaccept, many=True)
 
-        return Response({"success": True,"message" : "User  Profile TimeLine!" ,"user": userserializer.data,"status": 200, "PostCount": len(postsrializer.data),
-                         "post": postsrializer.data,"friendaccept":friendaccserializer.data ,"friendrequest":friendreqserializer.data,"MediaCount": len(mediaserializer.data),
-                         "media": mediaserializer.data, "Following": len(followserializer.data),
+        return Response({
+                        "user": userserializer.data,
+                         "PostCount": len(postsrializer.data),
+                         "post": postsrializer.data,
+                         "friendaccept":friendaccserializer.data ,######
+                         "friendrequest":friendreqserializer.data,
+                         "MediaCount": len(mediaserializer.data),
+                         "media": mediaserializer.data,
+                         "Following": len(followserializer.data),
                          "Follower": len(followacceptserializer.data),
-                         }, status=status.HTTP_200_OK)
+                            "success": True,
+                            "message": "User  Profile TimeLine!",
+                            "status": 200,
+                         },
+                        status=status.HTTP_200_OK)
 
 
 class UserUpdate(GenericAPIView):
@@ -741,4 +763,110 @@ class GetUserDetailV2(GenericAPIView):
         return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
 
 
+from django.contrib.auth import logout
+class LogoutApiView(APIView):
+    permission_class = (IsAuthenticated,)
 
+    @swagger_auto_schema(
+
+        operation_summary=" Api for User Logout ",
+
+        tags=['Account']
+    )
+    def get(self, request, format=None):
+        # simply delete the token to force a login
+        # print(request.user.auth_token.delete())
+        logout(request)
+        return Response({'message': "Successfully LogOut",'status':200 ,'success': True},status=status.HTTP_200_OK)
+
+
+
+class UserVerifiedAPI(GenericAPIView):
+
+    """
+    Retrieve, Checklist Api.
+    """
+    permission_classes = (IsAuthenticated,)
+    serializer_class = UserVerifiedSerilaizer
+    # permission_classes = [IsAuthenticated,]
+
+    # def get_object(self, user_id):
+    #     try:
+    #         return User.objects.get(id=user_id)
+    #     except User.DoesNotExist:
+    #         raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary=" Api for User Verified ",
+
+        tags=['Account']
+    )
+    def get(self, request,  format=None):
+
+        # adduserdetail = self.get_object(user_id)
+        req = request.user
+        # print (req)
+        serializer = UserVerifiedSerilaizer(req)
+        return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
+
+
+from usermedia.models import *
+from usermedia.serializers import *
+
+class UserEditProfileMediaAPI(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    def get(self, request, *args, **kwargs):
+        user_id = request.user.id
+        # user_id = self.kwargs.get('user_id')
+        user_data = get_object_or_404(User, id=user_id)
+        user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
+        print (len(user_edit_data))
+        # user_data = User.objects.filter(id=user_id)
+        serializer = UserSerializer(user_data,)
+        user_edit = UserMediaEditSerializer(user_edit_data , many=True)
+        # if serializer.is_valid():
+        #     user_data = serializer.save()
+        return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
+                             "data": serializer.data,'edit-data' : user_edit.data}, status= status.HTTP_200_OK)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    @swagger_auto_schema(
+
+        operation_summary="User Update Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+                'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
+                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
+                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+
+            }),
+
+        tags=['Account']
+    )
+
+
+    def put(self, request, *args, **kwargs):
+        import pdb;pdb.set_trace()
+        user_id = request.user.id
+        # user_id = self.kwargs.get('user_id')
+        user_data = get_object_or_404(User, id=user_id)
+        user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
+        # serializer = UserSerializer(user_edit_data, data=request.data)
+        serializer = UserMediaEditSerializer(user_edit_data, data=request.data)
+
+        if serializer.is_valid():
+            user_edit_data = serializer.save()
+
+            return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
+                             "data": UserSerializer(user_edit_data).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
