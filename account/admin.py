@@ -18,6 +18,37 @@ class TestModelForm(forms.ModelForm):
 
 #         }
 
+class WidgetForm(forms.ModelForm):
+    extra_field = forms.CharField(required=False)
+
+    def processData(self, input):
+        # example of error handling
+        if False:
+            raise forms.ValidationError('Processing failed!')
+
+        return input + " has been processed"
+
+    def save(self, commit=True):
+        extra_field = self.cleaned_data.get('extra_field', None)
+
+        # self.description = "my result" note that this does not work
+
+        # Get the form instance so I can write to its fields
+        instance = super(WidgetForm, self).save(commit=commit)
+
+        # this writes the processed data to the description field
+        instance.about = self.processData(extra_field)
+
+        if commit:
+            instance.save()
+
+        return instance
+
+    class Meta:
+        model = User
+        fields = "__all__"
+
+
 class UserAdmin(admin.ModelAdmin):
 #     class Media:
 #         js = ('app/formset_handlers.js',)

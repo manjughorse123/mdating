@@ -20,6 +20,7 @@ class PostUploadCreateSerializers(ModelSerializer):
         response['user'] = UserFriendSerilaizer(instance.user).data
 
         return response
+
 class PostUploadSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
     isLiked = serializers.SerializerMethodField()
@@ -105,3 +106,10 @@ class PostShareSerializers(ModelSerializer):
 #     class Meta:
 #         model = UserPost
 #         fields = ('post','title','post_like','message',)
+
+
+class PostUploadUpdateSerializers(ModelSerializer):
+
+    class Meta:
+        model = PostUpload
+        fields = ('post','title', 'message',)

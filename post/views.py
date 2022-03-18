@@ -130,7 +130,6 @@ class UserImages(GenericAPIView):
         friends_ids = FriendList.objects.filter(user_id=user_id)
         following_id_list = []
         friend_id_list = []
-
         for i in range(len(following_ids)):
 
             following_id_data = following_ids[i].follow
@@ -402,7 +401,7 @@ class DeletePostApi (GenericAPIView):
 
 class UpdatePostApi(GenericAPIView):
     permission_classes = (IsAuthenticated,)
-    serializer_class = PostUploadSerializers
+    serializer_class = PostUploadUpdateSerializers
 
     def get_serializer_context(self):
 
@@ -443,7 +442,7 @@ class UpdatePostApi(GenericAPIView):
     )
     def patch(self, request, post_id, format=None):
         post_data = self.get_object(post_id)
-        serializer = PostUploadSerializers(post_data, data=request.data,partial= True)
+        serializer = PostUploadUpdateSerializers(post_data, data=request.data,partial= True)
         if serializer.is_valid():
             serializer.save()
             return Response(
