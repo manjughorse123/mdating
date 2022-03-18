@@ -222,11 +222,11 @@ class GetFollowerView(GenericAPIView):
     """
    
   
-    def get_object(self, user_id):
-        try:
-            return FollowRequest.objects.filter(user_id=user_id)
-        except FollowRequest.DoesNotExist:
-            raise Http404
+    # def get_object(self, user_id):
+    #     try:
+    #         return FollowRequest.objects.filter(user_id=user_id)
+    #     except FollowRequest.DoesNotExist:
+    #         raise Http404
     @swagger_auto_schema(
       
         operation_summary = "Get Following Api",
@@ -234,13 +234,11 @@ class GetFollowerView(GenericAPIView):
         tags = ['Follow']
     )
 
-    def get(self, request, user_id, format=None):
-
-        follower_info = self.get_object(user_id)
+    def get(self, request,  format=None):
+        user_id = request.user.id
+        follower_info = FollowRequest.objects.filter(user_id=user_id)
         serializer = FollowRequestFollowingSerializer(follower_info, many=True)
         return Response({"success": True, "message" :" User following Detail" ,"data": serializer.data,"status": 200, 'data_count' :len(serializer.data) }, status=status.HTTP_200_OK)
-
-
 
 
 class GetFollowerV2View(GenericAPIView):
@@ -251,11 +249,19 @@ class GetFollowerV2View(GenericAPIView):
 
     """
 
-    def get_object(self, user_id):
-        try:
-            return FollowRequest.objects.filter(follow_id=user_id)
-        except FollowRequest.DoesNotExist:
-            raise Http404
+    # def get_object(self, user_id):
+    #     try:
+    #         return FollowRequest.objects.filter(follow_id=user_id)
+    #     except FollowRequest.DoesNotExist:
+    #         raise Http404    # def get_object(self, user_id):
+    #     try:
+    #         return FollowRequest.objects.filter(follow_id=user_id)
+    #     except FollowRequest.DoesNotExist:
+    #         raise Http404    # def get_object(self, user_id):
+    #     try:
+    #         return FollowRequest.objects.filter(follow_id=user_id)
+    #     except FollowRequest.DoesNotExist:
+    #         raise Http404
 
     @swagger_auto_schema(
 
@@ -263,8 +269,9 @@ class GetFollowerV2View(GenericAPIView):
 
         tags=['Follow']
     )
-    def get(self, request, user_id, format=None):
-        follower_info = self.get_object(user_id)
+    def get(self, request,  format=None):
+        user_id = request.user.id
+        follower_info = FollowRequest.objects.filter(follow_id=user_id)
         serializer = FollowRequestFollowerV2Serializer(follower_info, many=True)
         return Response({"success": True, "message": " User follower Detail", "data": serializer.data, "status": 200,
                          'data_count': len(serializer.data)}, status=status.HTTP_200_OK)

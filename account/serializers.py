@@ -275,4 +275,4 @@ class UserVerifiedSerilaizer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id','name','is_verified')
+        fields = ('id','name','is_register_user_verified')

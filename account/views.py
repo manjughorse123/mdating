@@ -789,11 +789,11 @@ class UserVerifiedAPI(GenericAPIView):
     serializer_class = UserVerifiedSerilaizer
     # permission_classes = [IsAuthenticated,]
 
-    # def get_object(self, user_id):
-    #     try:
-    #         return User.objects.get(id=user_id)
-    #     except User.DoesNotExist:
-    #         raise Http404
+    def get_object(self, user_id):
+        try:
+            return User.objects.get(id=user_id)
+        except User.DoesNotExist:
+            raise Http404
 
     @swagger_auto_schema(
 
@@ -801,12 +801,12 @@ class UserVerifiedAPI(GenericAPIView):
 
         tags=['Account']
     )
-    def get(self, request,  format=None):
+    def get(self, request,  user_id,format=None):
 
-        # adduserdetail = self.get_object(user_id)
-        req = request.user
+        adduserdetail = self.get_object(user_id)
+        # req = request.user
         # print (req)
-        serializer = UserVerifiedSerilaizer(req)
+        serializer = UserVerifiedSerilaizer(adduserdetail)
         return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
 
 
@@ -855,7 +855,7 @@ class UserEditProfileMediaAPI(GenericAPIView):
 
 
     def put(self, request, *args, **kwargs):
-        import pdb;pdb.set_trace()
+
         user_id = request.user.id
         # user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)

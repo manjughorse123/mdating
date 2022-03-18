@@ -54,13 +54,53 @@ class PostUploadApi(GenericAPIView):
             'user' : request.user.id
 
         }
-        serializer = PostUploadSerializers(data=data)
-        if serializer.is_valid():
-            serializer.save()
+        title= request.data.get('title'),
+        message = request.data.get('message'),
+        post=  request.data.get('post'),
+        # 'user': request.data.get('user')
+        user =  request.user.id
 
-            return Response({"message": True,"status":201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
-        return Response({"message": False,"status":400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
+        if post is not None:
+            user= request.user.id
+            string = request.data['post']
+            name = string.split(',')
 
+            for i in range(len(name)):
+                aa = PostUpload.objects.create(user=request.user,post=name[i],message=message, title=title)
+            return Response({"success": True, "message": "User Post Added!","status": 201,"post": "post"}, status=status.HTTP_201_CREATED)
+        return Response({"status": 400 ,"message": False}, status=status.HTTP_400_BAD_REQUEST)
+
+        # serializer = PostUploadSerializers(data=data)
+        # if serializer.is_valid():
+        #     serializer.save()
+        #
+        #     return Response({"message": True,"status":201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
+        # return Response({"message": False,"status":400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
+    # def post(self, request, *args, **kwargs):
+    #
+    #     # user=request.user.id
+    #
+    #     caption =request.data.get('caption'),
+    #     media = request.data.get('media'),
+    #     if media is not None:
+    #         user= request.user.id
+    #         obj = User.objects.filter(id=user)
+    #         obj.update(is_media=True)
+    #         string = request.data['media']
+    #         name = string.split(',')
+    #
+    #         for i in range(len(name)):
+    #             aa = MediaPost.objects.create(user=request.user,media=name[i],caption=caption)
+    #
+    #         # print (aa)
+    #
+    #         # if serializer.is_valid():
+    #         #
+    #         #     # serializer.save()
+    #         #     # serializers = serializer.data['media']
+    #
+    #         return Response({"success": True, "message": "User Media Added!","status": 201,"post": "post"}, status=status.HTTP_201_CREATED)
+    #     return Response({"status": 400 ,"message": False}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserImages(GenericAPIView):
     permission_classes = (IsAuthenticated,)
