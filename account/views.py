@@ -822,15 +822,15 @@ class UserEditProfileMediaAPI(GenericAPIView):
         user_id = request.user.id
         # user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
-        user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
-        print (len(user_edit_data))
+        user_edit_data = MediaPost.objects.filter(user_id=user_id)
+        # print (len(user_edit_data))
         # user_data = User.objects.filter(id=user_id)
         serializer = UserSerializer(user_data,)
         user_edit = UserMediaEditSerializer(user_edit_data , many=True)
         # if serializer.is_valid():
         #     user_data = serializer.save()
         return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
-                             "data": serializer.data,'edit-data' : user_edit.data}, status= status.HTTP_200_OK)
+                             "data": serializer.data,'media' : user_edit.data}, status= status.HTTP_200_OK)
         # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
     @swagger_auto_schema(
