@@ -33,7 +33,10 @@ def send_otp(mobile, otp):
 
 
 class Login(GenericAPIView):
+    permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
+
+
     @swagger_auto_schema(
       
         operation_summary = "User Login Api",
@@ -51,8 +54,8 @@ class Login(GenericAPIView):
     def post(self, request, *args, **kwargs):
 
         try:
-            mobile = request.POST.get('mobile')
-            country_code = request.POST.get('country_code')
+            mobile = request.data['mobile']
+            country_code = request.data['country_code']
             # otp = request.POST.get("otp")
             user = User.objects.filter(mobile=mobile, country_code=country_code).first()
             if user is None:

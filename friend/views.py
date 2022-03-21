@@ -94,6 +94,7 @@ class GetFriendRequestListView(GenericAPIView):
     )
 
     def get(self, request, format=None):
+
         user_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         dataa = User.objects.filter(city=user_data[0].city).exclude(id= request.user.id)
@@ -106,11 +107,14 @@ class GetFriendRequestListView(GenericAPIView):
 
             if FriendRequest.objects.filter(receiver_id__in=list_suugest):
                 saa = FriendRequest.objects.filter(receiver_id=list_suugest[0])
-                if not saa is None:
+                if not saa:
+                    list_suugest
+                else :
                     list_suugest.remove(saa[0].receiver_id)
 
+
         friend_req_list = FriendRequest.objects.filter(receiver_id=user_id)
-        user_suggest_friend = User.objects.filter(id__in=list_suugest)
+        user_suggest_friend = User.objects.filter(id__in=list_suugest)[:5]
 
         datata = UserFriendSerilaizer( user_suggest_friend ,many=True)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
