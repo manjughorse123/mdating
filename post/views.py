@@ -15,7 +15,7 @@ from friend.models import *
 
 
 class GetPostUploadApi(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny]
     serializer_class =  PostUploadSerializers
     @swagger_auto_schema(
       
@@ -29,7 +29,7 @@ class GetPostUploadApi(GenericAPIView):
 
 
 class PostUploadApi(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class =  PostUploadCreateSerializers
     @swagger_auto_schema(
       
@@ -148,7 +148,7 @@ class UserImages(GenericAPIView):
 
 
 class PostReactionApi(GenericAPIView):
-    permission_classes = (AllowAny,)
+    permission_classes = [AllowAny,]
     serializer_class = PostViewSerializers
     # @swagger_auto_schema(
     #
@@ -271,7 +271,7 @@ class PostReactionApi(GenericAPIView):
 
 
 class GetPostViewdetailView(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class = PostViewSerializers
     """
     Retrieve, update or delete  a media instance.

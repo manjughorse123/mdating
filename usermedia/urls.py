@@ -11,6 +11,8 @@ urlpatterns = [
     # path('user/like/<int:id>', MediaLikeAPI.as_view(), name='MediaViewAPI'),
     # path('user/share/<int:id>', MediaShareAPI.as_view(), name='MediaViewAPI'),
     path('upload/', MediaUploadApi.as_view(), name='media-upload'),
+    path('upload/', MediaUploadV2Api.as_view(), name='media-upload'),
+
     # path('media/delete/', UserMediaDeleteApi.as_view(), name='media-delete-api'),
     re_path(r'^delete/media/(?P<media_id>[0-9a-f-]+)$', UserMediaDeleteApi.as_view(), name="media-delete"),
     # path('media/<int:id>', GetMediaUploadApi.as_view(), name='MediaUploadApi'),

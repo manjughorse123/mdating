@@ -67,7 +67,7 @@ class UserMediaAPIPost(GenericAPIView):
         return Response({"success": True, "status":200 , "post": serializer.data},status=status.HTTP_200_OK)
 
 class GetMediaUploadApi(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class = GetMediaPostSerializers
     @swagger_auto_schema(
       
@@ -82,7 +82,7 @@ class GetMediaUploadApi(GenericAPIView):
         return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
 
 class MediaUploadApi(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class = MediaPostSerializers
     # def get(self, request, *args, **kwargs):
     #     posts = MediaPost.objects.all()
@@ -107,7 +107,7 @@ class MediaUploadApi(GenericAPIView):
         type=openapi.TYPE_OBJECT,
         properties={
             'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
-
+            'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add user'),
             'caption': openapi.Schema(type=openapi.TYPE_STRING, description='Add Caption'),
             
         }),
@@ -129,16 +129,63 @@ class MediaUploadApi(GenericAPIView):
 
             for i in range(len(name)):
                 aa = MediaPost.objects.create(user=request.user,media=name[i],caption=caption)
-
-            # print (aa)
-
-            # if serializer.is_valid():
-            #
-            #     # serializer.save()
-            #     # serializers = serializer.data['media']
-
             return Response({"success": True, "message": "User Media Added!","status": 201,"post": "post"}, status=status.HTTP_201_CREATED)
         return Response({"status": 400 ,"message": False}, status=status.HTTP_400_BAD_REQUEST)
+
+
+class MediaUploadV2Api(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = MediaPostSerializers
+
+    # def get(self, request, *args, **kwargs):
+    #     posts = MediaPost.objects.all()
+    #     serializer = MediaPostSerializers(posts, many=True)
+    #     return Response({"status":200 ,"success":True, "post": serializer.data}, status=status.HTTP_200_OK)
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    @swagger_auto_schema(
+
+        operation_summary="Create User Media Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
+
+                'caption': openapi.Schema(type=openapi.TYPE_STRING, description='Add Caption'),
+
+            }),
+
+        tags=['User Media']
+    )
+    def post(self, request, *args, **kwargs):
+
+        # user=request.user.id
+
+        caption = request.data.get('caption'),
+        media = request.data.get('media'),
+        if media is not None:
+            user = request.user.id
+            obj = User.objects.filter(id=user)
+            obj.update(is_media=True)
+            string = request.data['media']
+            name = string.split(',')
+
+            for i in range(len(name)):
+                aa = MediaPost.objects.create(user=request.user, media=name[i], caption=caption)
+            return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"},
+                            status=status.HTTP_201_CREATED)
+        return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaReactionApi(GenericAPIView):
