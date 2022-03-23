@@ -742,25 +742,15 @@ class GetUserDetailV2(GenericAPIView):
     """
     permission_classes = (IsAuthenticated,)
     serializer_class = UserDetailSerializer
-    # permission_classes = [IsAuthenticated,]
-
-    # def get_object(self, user_id):
-    #     try:
-    #         return User.objects.get(id=user_id)
-    #     except User.DoesNotExist:
-    #         raise Http404
 
     @swagger_auto_schema(
-
-        operation_summary=" Get User Detail",
-
+        operation_summary=" Get User Detail(Checklist Api)",
         tags=['Account']
     )
     def get(self, request,  format=None):
 
-        # adduserdetail = self.get_object(user_id)
         req = request.user
-        # print (req)
+
         serializer = UserDetailSerializer(req)
         return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
 
@@ -816,59 +806,59 @@ class UserVerifiedAPI(GenericAPIView):
 from usermedia.models import *
 from usermedia.serializers import *
 
-class UserEditProfileMediaAPI(GenericAPIView):
+class UserProfileMediaEditAPI(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
 
-    def get(self, request, *args, **kwargs):
-        user_id = request.user.id
-        # user_id = self.kwargs.get('user_id')
-        user_data = get_object_or_404(User, id=user_id)
-        user_edit_data = MediaPost.objects.filter(user_id=user_id)
-        # print (len(user_edit_data))
-        # user_data = User.objects.filter(id=user_id)
-        serializer = UserSerializer(user_data,)
-        user_edit = UserMediaEditSerializer(user_edit_data , many=True)
-        # if serializer.is_valid():
-        #     user_data = serializer.save()
-        return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
-                             "data": serializer.data,'media' : user_edit.data}, status= status.HTTP_200_OK)
-        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
     @swagger_auto_schema(
-
-        operation_summary="User Update Api",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
-                'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
-                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
-                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
-                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
-
-            }),
-
+        operation_summary="Get Api For User Edit",
         tags=['Account']
     )
+    def get(self, request, *args, **kwargs):
+        user_data = get_object_or_404(User, id=request.user.id)
+        user_edit_data = MediaPost.objects.filter(user_id=request.user.id)
+
+        serializer = UserSerializer(user_data,)
+        user_edit = UserMediaEditSerializer(user_edit_data , many=True)
+
+        return Response({"message": "Get Data For User Edit", "status": 200, "success": True,
+                             "data": serializer.data,'media' : user_edit.data}, status= status.HTTP_200_OK)
 
 
-    def put(self, request, *args, **kwargs):
-
-        user_id = request.user.id
-        # user_id = self.kwargs.get('user_id')
-        user_data = get_object_or_404(User, id=user_id)
-        user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
-        # serializer = UserSerializer(user_edit_data, data=request.data)
-        serializer = UserMediaEditSerializer(user_edit_data, data=request.data)
-
-        if serializer.is_valid():
-            user_edit_data = serializer.save()
-
-            return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
-                             "data": UserSerializer(user_edit_data).data})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    # @swagger_auto_schema(
+    # 
+    #     operation_summary="User Update Api",
+    #     request_body=openapi.Schema(
+    #         type=openapi.TYPE_OBJECT,
+    #         properties={
+    #             'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+    #             'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+    #             'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+    #             'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
+    #             'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
+    #             'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
+    #             'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
+    #             'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+    # 
+    #         }),
+    # 
+    #     tags=['Account']
+    # )
+    # 
+    # 
+    # def put(self, request, *args, **kwargs):
+    # 
+    #     user_id = request.user.id
+    #     # user_id = self.kwargs.get('user_id')
+    #     user_data = get_object_or_404(User, id=user_id)
+    #     user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
+    #     # serializer = UserSerializer(user_edit_data, data=request.data)
+    #     serializer = UserMediaEditSerializer(user_edit_data, data=request.data)
+    # 
+    #     if serializer.is_valid():
+    #         user_edit_data = serializer.save()
+    # 
+    #         return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
+    #                          "data": UserSerializer(user_edit_data).data})
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

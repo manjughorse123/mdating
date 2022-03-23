@@ -55,7 +55,7 @@ class UserAdmin(admin.ModelAdmin):
 #         css = (
 #             'css/main.css',)
 
-#     form = TestModelForm
+    form = TestModelForm
     list_display = ('email', 'mobile', 'name', 'id','create_at','location')
     list_display_links = ('email', 'name')
     list_filter = ('email', 'mobile', 'name', 'create_at')
