@@ -40,8 +40,9 @@ class UserMediaAPI(GenericAPIView):
 
         tags = ['User Media']
     )
-    def get(self, request, user_id, *args, **kwargs):
-        user = MediaPost.objects.filter(user_id=user_id)
+    def get(self, request, *args, **kwargs):
+
+        user = MediaPost.objects.filter(user_id=request.user.id)
         serializer = GetMediaPostSerializers(user,context={'request': request}, many=True)
         return Response({"media": serializer.data ,"status":200 ,"success": True}, status=status.HTTP_200_OK)
 
@@ -144,15 +145,15 @@ class MediaReactionApi(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     serializer_class = MediaPostSerializers
 
-    def get(self, request):
-        userView = MediaView.objects.all()
-        userLike = MediaLike.objects.all()
-        userShare = MediaShare.objects.all()
-        serializerView = MediaViewSerializers(userView, many=True)
-        serializerLike = MediaLikeSerializers(userLike, many=True)
-        serializerShare = MediaShareSerializers(userShare, many=True)
-        return Response({"success": True, "status":200 ,"data View": serializerView.data, "data Like": serializerLike.data,
-                         "data share": serializerShare.data}, status=status.HTTP_200_OK)
+    # def get(self, request):
+    #     userView = MediaView.objects.all()
+    #     userLike = MediaLike.objects.all()
+    #     userShare = MediaShare.objects.all()
+    #     serializerView = MediaViewSerializers(userView, many=True)
+    #     serializerLike = MediaLikeSerializers(userLike, many=True)
+    #     serializerShare = MediaShareSerializers(userShare, many=True)
+    #     return Response({"success": True, "status":200 ,"data View": serializerView.data, "data Like": serializerLike.data,
+    #                      "data share": serializerShare.data}, status=status.HTTP_200_OK)
 
     @swagger_auto_schema(
 

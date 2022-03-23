@@ -1,9 +1,6 @@
 from django.db import models
 from account.models import *
-
-
 # Create your models here.
-
 
 class MediaPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
