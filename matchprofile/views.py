@@ -1,146 +1,67 @@
-from django.shortcuts import render, get_object_or_404
-from rest_framework.generics import *
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from .serializers import *
-from rest_framework.permissions import IsAuthenticated
-from .models import *
-import random
-from rest_framework.views import APIView
-from rest_framework import status
-from rest_framework import viewsets
-from .filters import *
+from datetime import date
+from django.utils.timezone import now
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
+from rest_framework.generics import *
+from rest_framework.response import Response
+from rest_framework.permissions import IsAuthenticated, AllowAny
+from rest_framework import status
+from rest_framework.filters import OrderingFilter, SearchFilter
+from rest_framework_gis.filters import DistanceToPointFilter ,DistanceToPointOrderingFilter
+from django_filters.rest_framework import DjangoFilterBackend
+from django_filters import rest_framework as filters, IsoDateTimeFilter, DurationFilter, DateFromToRangeFilter, \
+    MultipleChoiceFilter, TypedChoiceFilter, ModelChoiceFilter, RangeFilter, ModelMultipleChoiceFilter, CharFilter
 
-class AddPostUserUpdateView(APIView):
-    # permission_classes = (AllowAny,)
+from matchprofile.serializers import *
+from matchprofile.models import *
+from account.models import *
 
-    def get(self, request):
-        userInterest = PostUserUpdate.objects.all()
-        serializer = PostUserUpdateSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+class UserFieldFilter(filters.FilterSet):
+    birth_date = DateFromToRangeFilter()
 
-    def post(self, request, format='json'):
-        serializer = PostUserUpdateSerializer(data=request.data)
+    class Meta:
+        model = User
+        fields = {'gender': ['exact'], 'birth_date': ['exact', 'range'], 'passion': ['exact'],
+                  'idealmatch': ['exact']}
 
-        if serializer.is_valid():
+class UserFilterAPI(ListAPIView):
+    permission_classes = [AllowAny]
+    queryset = User.objects.all()
+    serializer_class = UserFilterSerializer
+    distance_filter_field = 'location'
+    filterset_class = UserFieldFilter
+    filter_backends = (
+        DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
-            serializer.save()
+    def get_queryset(self):
 
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        if 'min_age'  in self.request.GET:
+            min_age = self.request.GET['min_age']
+            current = now().date()
+            min_date = date(current.year - int(min_age), current.month, current.day)
 
+        if 'max_age'  in self.request.GET:
+            max_age = self.request.GET['max_age']
+            current = now().date()
+            max_date = date(current.year - int(max_age), current.month, current.day)
 
-class PostUserReactSerializerView(APIView):
-    # permission_classes = (AllowAny,)
+            return User.objects.filter(birth_date__gte=max_date,
+                                       birth_date__lte=min_date).order_by("birth_date")
 
-    def get(self, request):
-        userInterest = PostUserReact.objects.all()
-        serializer = PostUserReactSerializer(userInterest, many=True)
-        return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
+    @swagger_auto_schema(
 
-    def post(self, request, format='json'):
+        operation_summary="Get user Filter by Location,Passion,Gender ",
 
-        serializer = PostUserReactSerializer(data=request.data)
+        tags=['User Filter']
 
-        if serializer.is_valid():
-            obj = PostUserUpdate.objects.filter(id=1)
-            obj = obj[0]
-            obj.is_view = obj.is_view + 1
-            obj.save(update_fields=("is_view",))
-            serializer.save()
+    )
+    def get(self, request, *args, **kwargs):
 
-            return Response({"success": "True", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-class AddMatchLikeUserProfileView(APIView):
-    # permission_classes = (AllowAny,)
-
-    def get(self, request):
-        userInterest =UserMatchProfile.objects.all()
-        serializer = UserMatchProfileSerializer(userInterest, many=True)
-        return Response({"success": True, "status": 200,"message": "Match Profile Data","data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = UserMatchProfileSerializer(data=request.data)
-        if serializer.is_valid():   
-
-            serializer.save()
-            
-            return Response({"success": True,"status": 201,"message": "User Match Profile Created!", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": False, "status": 400,"message": "Match Profile Data Not Found","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-class AddLikeToLikeView(APIView):
-    # permission_classes = (AllowAny,)
-
-    def get(self, request):
-        userInterest =UserToUserLike.objects.all()
-        serializer = UserToUserLikeSerializer(userInterest, many=True)
-        return Response({"success": True, "status": 200,"message": "User Profile Liked!","data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = UserToUserLikeSerializer(data=request.data)
-        
-        if serializer.is_valid():   
-                
-            serializer.save()
-            
-            return Response({"success": True,"status": 201,"message": "Liked User Profile", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
- 
-class  PostCountLikeView(APIView):
-    # permission_classes = (AllowAny,)
-
-    def get(self, request):
-        userInterest =UserToUserUnLike.objects.all()
-        serializer = UserToUserUnLikeSerializer(userInterest, many=True)
-        return Response({"success": True, "status": 200,"message": "Match Profile Data Count","data": serializer.data}, status=status.HTTP_200_OK)
-
-    def post(self, request, format='json'):
-        serializer = UserToUserUnLikeSerializer(data=request.data)
-        
-        if serializer.is_valid():  
-            ab = serializer.validated_data['user']
-            like_profile_user = serializer.validated_data['like_profile_user']
-            if request.data['flag'] == '1':
-                if UserToUserLike.objects.get(like_profile_user=like_profile_user):
-                    return Response({"success": "error","status": 400,"message":  "User Already like Profile "}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                obj = UserToUserLike.objects.get(user=ab)
-                obj.is_like = True
-                obj.save(update_fields=("is_like", ))
-                
-            if request.data['flag'] == '2':
-                if UserToUserLike.objects.get(like_profile_user=like_profile_user):
-                    
-                    return Response({"success": "error","status": 400,"message":  "User Already Unlike Profile "}, status=status.HTTP_400_BAD_REQUEST)
-                else :    
-                    obj = UserToUserLike.objects.get(user=ab)
-                
-                    obj.is_like = False
-                    obj.save(update_fields=("is_like", ))
-            if request.data['flag'] == '3':
-          
-                obj = UserToUserLike.objects.get(user=ab)
-                obj =  obj.id 
-                objs = UserToUserLike.objects.get(id=obj) 
-                objs.delete()
-        
-            serializer.save()
-            
-            return Response({"success": True,"status": 201,"message": "Match Profile Data", "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status": 400,"data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-
-
+        response = super(UserFilterAPI, self).get(request, *args, **kwargs)
+        response.data['status'] = 200
+        response.data['message'] = 'Filtered Data!'
+        response.data['success'] = True
+        return response
 
 class MatchedUserProfileView(GenericAPIView):
     serializer_class = GetUserMatchProfileSerializer

@@ -1,7 +1,8 @@
-from .models import *
+
+from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
 from account.models import *
-
+from .models import *
 
 #
 class UserPassionMatchSerializer(serializers.ModelSerializer):
@@ -58,3 +59,10 @@ class GetUserMatchProfileSerializer(serializers.ModelSerializer):
 
         return response
 
+class UserFilterSerializer(GeoFeatureModelSerializer):
+
+
+    class Meta:
+        model = User
+        geo_field = "location"
+        fields = ('id', 'gender', 'birth_date', 'location','passion','idealmatch','name','image')
