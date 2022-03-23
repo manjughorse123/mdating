@@ -4,6 +4,7 @@ from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from .serializers import FAQSerializer
 from rest_framework.views import *
+from rest_framework.permissions import  *
 from friend.models import *
 from rest_framework.viewsets import *
 from account.models import *
@@ -11,7 +12,7 @@ from account.serializers import *
 
 # Create your views here.
 class FAQView(GenericAPIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = [AllowAny,]
     serializer_class = FAQSerializer
     @swagger_auto_schema(
       
@@ -44,7 +45,7 @@ class FAQView(GenericAPIView):
 
 
 class GetMasterData(GenericAPIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = [AllowAny,]
     serializer_class = GenderSerializer
 
     @swagger_auto_schema(
