@@ -60,7 +60,7 @@ class UserPassionFilter(filters.FilterSet):
         # fields = ('age_range','gender','passion',)
 
 class UserFilterAPI(ListAPIView):
-    permissions_class = (AllowAny,)
+    permissions_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
