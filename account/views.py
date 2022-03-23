@@ -263,7 +263,7 @@ class OTPVerifyV2(GenericAPIView):
 
 
 class UserData(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class = (UserSerializer )
 
 
@@ -296,9 +296,9 @@ class UserData(GenericAPIView):
 
             tags=['Account']
         )
-    def get(self, request, format=None):
+    def get(self, request, user_id ,format=None):
 
-        user_id = request.user.id
+        # user_id = request.user.id
         user = User.objects.get(id=user_id)
         post = PostUpload.objects.filter(user_id=user_id)
         media = MediaPost.objects.filter(user_id=user_id)
@@ -308,10 +308,10 @@ class UserData(GenericAPIView):
         friendaccept = FriendList.objects.filter(user_id=user_id)
 
         userserializer = UserSerializer(user)
-        postsrializer = PostUploadSerializers(post,context={'request': request} ,many=True)
+        postsrializer = PostUploadSerializers(post ,many=True)
         followserializer = FollowRequestFollowingSerializer(follow, many=True)
         followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
-        mediaserializer = GetMediaPostSerializers(media,context={'request': request}, many=True)
+        mediaserializer = GetMediaPostSerializers(media, many=True)
         friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
         friendaccserializer = FriendListUserSerializer(friendaccept, many=True)
 
@@ -330,6 +330,78 @@ class UserData(GenericAPIView):
                             "status": 200,
                          },
                         status=status.HTTP_200_OK)
+
+
+
+
+class UserDataV2(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = (UserSerializer)
+
+    def get_object(self, id):
+        try:
+            return User.objects.get(id=id)
+        except User.DoesNotExist:
+            raise Http404
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    @swagger_auto_schema(
+
+        operation_summary="User Detail Profile Time Line Api",
+        # request_body=openapi.Schema(
+        # type=openapi.TYPE_OBJECT,
+        # properties={
+        #     'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+        #     'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+        # }),
+
+        tags=['Account']
+    )
+    def get(self, request, format=None):
+
+        user_id = request.user.id
+        user = User.objects.get(id=user_id)
+        post = PostUpload.objects.filter(user_id=user_id)
+        media = MediaPost.objects.filter(user_id=user_id)
+        follow = FollowRequest.objects.filter(user_id=user_id)
+        followaccept = FollowRequest.objects.filter(follow_id=user_id)
+        friendrequest = FriendRequest.objects.filter(receiver_id=user_id)
+        friendaccept = FriendList.objects.filter(user_id=user_id)
+
+        userserializer = UserSerializer(user)
+        postsrializer = PostUploadV2Serializers(post, context={'request': request}, many=True)
+        followserializer = FollowRequestFollowingSerializer(follow, many=True)
+        followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
+        mediaserializer = GetMediaV2PostSerializers(media, context={'request': request}, many=True)
+        friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
+        friendaccserializer = FriendListUserSerializer(friendaccept, many=True)
+
+        return Response({
+            "user": userserializer.data,
+            "PostCount": len(postsrializer.data),
+            "post": postsrializer.data,
+            "friendaccept": friendaccserializer.data,  ######
+            "friendrequest": friendreqserializer.data,
+            "MediaCount": len(mediaserializer.data),
+            "media": mediaserializer.data,
+            "Following": len(followserializer.data),
+            "Follower": len(followacceptserializer.data),
+            "success": True,
+            "message": "User  Profile TimeLine!",
+            "status": 200,
+        },
+            status=status.HTTP_200_OK)
 
 
 class UserUpdate(GenericAPIView):
@@ -368,7 +440,7 @@ class UserUpdate(GenericAPIView):
 
 class GetUserDetail(GenericAPIView):
 
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     """
     Retrieve, update or delete  a media instance.
     """
@@ -425,7 +497,7 @@ class UserUpdateIdealMatch(GenericAPIView):
 
 
 class UserUpdateProfile(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     queryset = User.objects.all()
     serializer_class = UserSerializer
     @swagger_auto_schema(
@@ -449,9 +521,9 @@ class UserUpdateProfile(GenericAPIView):
         tags = ['Account']
     )
 
-    def put(self, request, *args, **kwargs):
-        user_id = request.user.id
-        # user_id = self.kwargs.get('user_id')
+    def put(self, request, user_id,*args, **kwargs):
+        # user_id = request.user.id
+        user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
 
@@ -486,6 +558,74 @@ class UserUpdateProfile(GenericAPIView):
         if serializer.is_valid():
             user_data = serializer.save()
             return Response({"message" : "User Profile is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(user_data).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+
+class UserUpdateProfileV2(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="User Update Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+                'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
+                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
+                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+
+            }),
+
+        tags=['Account']
+    )
+    def put(self, request, *args, **kwargs):
+        user_id = request.user.id
+        # user_id = self.kwargs.get('user_id')
+        user_data = get_object_or_404(User, id=user_id)
+        serializer = UserSerializer(user_data, data=request.data)
+
+        if 'gender' in request.data:
+            user_data.is_gender = True
+            user_data.save(update_fields=["is_gender"])
+
+        if 'passion' in request.data:
+            user_data.is_passion = True
+            user_data.save(update_fields=["is_passion"])
+
+        if 'idealmatch' in request.data:
+            user_data.is_idealmatch = True
+            user_data.save(update_fields=["is_idealmatch"])
+
+        if 'interest_in' in request.data:
+            user_data.is_interest_in = True
+            user_data.save(update_fields=["is_interest_in"])
+
+        if 'location' in request.data:
+            user_data.is_location = True
+            user_data.save(update_fields=["is_location"])
+
+        if 'tall' in request.data:
+            user_data.is_tall = True
+            user_data.save(update_fields=["is_tall"])
+
+        if 'marital_status' in request.data:
+            user_data.is_marital_status = True
+            user_data.save(update_fields=["is_marital_status"])
+
+        if serializer.is_valid():
+            user_data = serializer.save()
+            return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
+                             "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class UserUpdateGender(GenericAPIView):

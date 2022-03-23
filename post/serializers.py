@@ -23,6 +23,17 @@ class PostUploadCreateSerializers(ModelSerializer):
 
 class PostUploadSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
+    # isLiked = serializers.SerializerMethodField()
+    # isViewed = serializers.SerializerMethodField()
+    class Meta:
+        model = PostUpload
+        fields = '__all__'
+
+
+
+
+class PostUploadV2Serializers(ModelSerializer):
+    # is_liked = serializers.BooleanField(read_only=True)
     isLiked = serializers.SerializerMethodField()
     isViewed = serializers.SerializerMethodField()
     class Meta:

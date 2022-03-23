@@ -51,6 +51,18 @@ class MediaPostSerializers(ModelSerializer):
         fields = ('user','like_count' ,'view_count', 'media','share_count','caption')
 
 class GetMediaPostSerializers(ModelSerializer):
+
+    # def get_isViewed(self, obj):
+    #     requestUser = self.context['request'].user
+    #     return MediaView.objects.filter(media=obj, user=requestUser).exists()
+
+    class Meta:
+        model = MediaPost
+        fields = '__all__'
+
+
+
+class GetMediaV2PostSerializers(ModelSerializer):
     isLiked = serializers.SerializerMethodField()
     # isViewed = serializers.SerializerMethodField()
 
@@ -65,8 +77,6 @@ class GetMediaPostSerializers(ModelSerializer):
     class Meta:
         model = MediaPost
         fields = ('id','user','isLiked','like_count' , 'media','caption')
-
-
 class MediaViewSerializers(ModelSerializer):
     class Meta:
         model = MediaView

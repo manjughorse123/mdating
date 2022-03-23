@@ -103,7 +103,7 @@ class PostUploadApi(GenericAPIView):
     #     return Response({"status": 400 ,"message": False}, status=status.HTTP_400_BAD_REQUEST)
 
 class UserImages(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [AllowAny,]
     serializer_class = PostUploadSerializers
 
     def get_serializer_context(self):
@@ -122,8 +122,8 @@ class UserImages(GenericAPIView):
         operation_summary = "Get User Post by User Id  Api ",
         tags = ['Post']
     )
-    def get(self, request, *args, **kwargs):
-        user_id = request.user.id
+    def get(self, request,user_id, *args, **kwargs):
+        # user_id = request.user.id
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids  =  FollowRequest.objects.filter(user_id=user_id)
@@ -452,6 +452,7 @@ class UpdatePostApi(GenericAPIView):
 
 from django.db.models import Prefetch, Exists, OuterRef
 from django.db.models import Count
+
 class UserImagesV2(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = PostUploadSerializers
@@ -508,5 +509,55 @@ class UserImagesV2(GenericAPIView):
             {"success": True, "post": follow_serializer.data, "message": "User Post by User ","status": 200},
             status=status.HTTP_200_OK)
 
+
+
+
+## Version 2 API
+class UserImagesV2API(GenericAPIView):
+    permission_classes = (IsAuthenticated,)
+    serializer_class = PostUploadSerializers
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    @swagger_auto_schema(
+
+        operation_summary="Get User Post by User Id  Api ",
+        tags=['Post']
+    )
+    def get(self, request, *args, **kwargs):
+        user_id = request.user.id
+        user = PostUpload.objects.filter(user_id=user_id)
+        # following_ids = request.user.following.values_list('id', flat=True)
+        following_ids = FollowRequest.objects.filter(user_id=user_id)
+        friends_ids = FriendList.objects.filter(user_id=user_id)
+        following_id_list = []
+        friend_id_list = []
+        for i in range(len(following_ids)):
+            following_id_data = following_ids[i].follow
+            following_id_list.append(following_id_data)
+
+        for fri in range(len(friends_ids)):
+            friend_id_data = friends_ids[fri].friends
+            friend_id_list.append(friend_id_data)
+
+        posts_list = PostUpload.objects.filter(
+            Q(user_id__in=following_id_list) | Q(user=user_id) | Q(user_id__in=friend_id_list)).order_by(
+            '-create_at').distinct()
+
+        follow_serializer = PostUploadSerializers(posts_list, context={'request': request}, many=True)
+
+        return Response(
+            {"success": True, 'post': follow_serializer.data, "message": "User Post by User ", "status": 200},
+            status=status.HTTP_200_OK)
 
 
