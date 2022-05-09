@@ -1,37 +1,49 @@
-from .models import *
+import imp
 from rest_framework import serializers
+
+from friend.models import *
 from account.serializers import *
+from usermedia.models import *
+from usermedia.serializers import *
 
 
-class UserFriendSerilaizer(serializers.ModelSerializer):
+class UserFriendSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+
+    def get_age(self, obj):
+        age = User.calculate_age(obj.birth_date)
+
+        return age
+
     class Meta:
         model = User
-        fields = ('name', 'id', 'image')
+        fields = ('name', 'id', 'image', 'country',
+                  'birth_date', 'address', 'city', 'age',)
+
 
 class FriendRequestSerializer(serializers.ModelSerializer):
-   
-        def validate(self, attrs):
-            # import pdb;pdb.set_trace()
-            if attrs['sender']:
-                sender =attrs['sender']
-                if FriendRequest.objects.filter(sender=sender):
-                    raise serializers.ValidationError(
-                        {"friend request was  already send"})
 
-            return attrs
+    # def validate(self, attrs):
+    #
+    #     if attrs['friend']:
+    #         friend =attrs['friend']
+    #         if FriendRequest.objects.filter(friend=friend):
+    #             raise serializers.ValidationError(
+    #                 {"friend request was  already send"})
 
-        def create(self, validated_data):
-            # import pdb;pdb.set_trace()
-            to_user= validated_data.get('receiver')
-            from_user = validated_data.get('sender')
-            friend_request, created = FriendRequest.objects.update_or_create(
-             receiver=to_user , sender=from_user)
-            
-            return friend_request
+    #     return attrs
 
-        class Meta:
-            model = FriendRequest
-            fields = '__all__'
+    def create(self, validated_data):
+        to_user = validated_data.get('user')
+        from_user = validated_data.get('friend')
+        friend_request, created = FriendRequest.objects.update_or_create(
+            user=to_user, friend=from_user)
+
+        return friend_request
+
+    class Meta:
+        model = FriendRequest
+        fields = ('friend', 'friendrequestsent', 'id')
 
 
 class GetFriendRequestSerializer(serializers.ModelSerializer):
@@ -41,175 +53,238 @@ class GetFriendRequestSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['sender'] = UserFriendSerilaizer(instance.sender).data
-        response['receiver'] = UserFriendSerilaizer(instance.receiver).data
+        response['friend'] = UserFriendSerializer(instance.friend).data
+        response['user'] = UserFriendSerializer(instance.user).data
         return response
 
 
-
-# def validate(self, attrs):
-#         if attrs['password'] != attrs['confrim_password']:
-
-#             raise serializers.ValidationError(
-#                 {"password": "Password fields didn't match."})
-
-#         if int(attrs['mobile']) < 10:
-
-#             raise serializers.ValidationError(
-#                 {"Mobile no": "no  should be  10 digit."})
-
-#         return attrs
 class FriendListUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendList
-        fields = ('user', 'friends', 'is_accepted')
+        fields = ('user', 'friends', 'is_accepted', 'id',)
+
 
 class FriendListSerializer(serializers.ModelSerializer):
-   
-        # def validate(self, attrs):
-        #     # import pdb;pdb.set_trace()
-        #     # to_user= validated_data.get('friends')
-        #     if FriendList.objects.filter(friends = attrs['friends']):
-        #         raise serializers.ValidationError(
-        #             {"friend request was  already accept"})
-        #
-        #     return attrs
-        is_mutual = serializers.SerializerMethodField()
-        def get_is_mutual(self,obj):
 
-            friend1 = FriendList.objects.filter(user_id=obj.user)
-            friend2 = FriendList.objects.filter(user_id=obj.friends)
+    # def validate(self, attrs):
 
-            friend1_id_list = []
-            friend2_id_list = []
+    #     # to_user= validated_data.get('friends')
+    #     if FriendList.objects.filter(friends = attrs['friends']):
+    #         raise serializers.ValidationError(
+    #             {"friend request was  already accept"})
+    #
+    #     return attrs
+    is_mutual = serializers.SerializerMethodField()
 
-            for i in range(len(friend1)):
-               friend_id_data = friend1[i].friends
-               friend1_id_list.append(friend_id_data)
+    def get_is_mutual(self, obj):
+        requestUser = self.context['request'].user
+        friend1 = FriendList.objects.filter(user_id=requestUser)
+        friend2 = FriendList.objects.filter(user_id=str(obj['friends'].id))
 
-            for i in range(len(friend2)):
-               friend_id_data = friend2[i].friends
-               friend2_id_list.append(friend_id_data)
+        friend1_id_list = []
+        friend2_id_list = []
 
-            abs = [x for x in friend1_id_list if x in friend2_id_list]
-            return abs
+        for i in range(len(friend1)):
+            friend_id_data = friend1[i].friends
+            friend1_id_list.append(friend_id_data)
 
-        def create(self, validated_data):
-            # import pdb;pdb.set_trace()
-            to_user= validated_data.get('friends')
-            from_user = validated_data.get('user')
-            friend_request, created = FriendList.objects.update_or_create(
-            friends =to_user , user=from_user)
-            
-            return friend_request
+        for i in range(len(friend2)):
+            friend_id_data = friend2[i].friends
+            friend2_id_list.append(friend_id_data)
 
-        class Meta:
-            model = FriendList
-            fields = ('user','friends','is_accepted','is_mutual')
+        abs = [x for x in friend1_id_list if x in friend2_id_list]
+        if not abs:
+            return 0
+        return len(abs)
 
+    def create(self, validated_data):
+
+        to_user = validated_data.get('friends')
+        from_user = validated_data.get('user')
+        friend_request, created = FriendList.objects.update_or_create(
+            friends=to_user, user=from_user)
+
+        return friend_request
+
+    class Meta:
+        model = FriendList
+        fields = ('friends', 'is_accepted', 'is_mutual', 'id',)
 
 
 class FollowSerializer(serializers.ModelSerializer):
-   
-        def validate(self, attrs):
-            # import pdb;pdb.set_trace()
-            if FriendRequest.objects.filter(is_active = True):
-                raise serializers.ValidationError(
-                    {"friend request was  already send"})
 
-            return attrs
+    def validate(self, attrs):
 
-        def create(self, validated_data):
-            # import pdb;pdb.set_trace()
-            to_user= validated_data.get('receiver')
-            from_user = validated_data.get('sender')
-            friend_request, created = FriendList.objects.update_or_create(
-            user =to_user , friends=from_user)
-            
-            return friend_request
+        if FriendRequest.objects.filter(is_active=True):
+            raise serializers.ValidationError(
+                {"friend request was  already send"})
 
-        class Meta:
-            model = FriendRequest
-            fields = "__all__"
+        return attrs
 
+    def create(self, validated_data):
+
+        to_user = validated_data.get('user')
+        from_user = validated_data.get('friend')
+        friend_request, created = FriendList.objects.update_or_create(
+            user=to_user, friends=from_user)
+
+        return friend_request
+
+    class Meta:
+        model = FriendRequest
+        fields = "__all__"
+
+
+# class SendFollowRequestSerializers(serializers.ModelSerializer):
+
+#         # def validate(self, attrs):
+
+#         #     if FollowRequest.objects.filter(follow=attrs['follow']):
+#         #         raise serializers.ValidationError(
+#         #             {" user is already follow"})
+
+#         #     return attrs
+
+#         def create(self, validated_data):
+
+#             user= validated_data.get('user')
+#             follow = validated_data.get('follow')
+#             follow_request, created = FollowRequest.objects.update_or_create(
+#             user =user , follow=follow)
+
+#             return follow_request
+
+#         class Meta:
+#             model = FollowRequest
+#             fields = '__all__'
 
 
 class FollowRequestSerializer(serializers.ModelSerializer):
-   
-        # def validate(self, attrs):
-        #     # import pdb;pdb.set_trace()
-        #     # follow = validate.get()
-        #     if FollowRequest.objects.filter(follow= attrs['follow']):
-        #         raise serializers.ValidationError(
-        #             {" user is alrady follow"})
-        #
-        #     return attrs
 
-        def create(self, validated_data):
-            user= validated_data.get('user')
-            follow = validated_data.get('follow')
-            follow_request, created = FollowRequest.objects.update_or_create(
-            user =user , follow=follow)
-            
-            return follow_request
+    def validate(self, attrs):
 
-        class Meta:
-            model = FollowRequest
-            fields = "__all__"
+        if FollowRequest.objects.filter(follow=attrs['follow']):
+            raise serializers.ValidationError(
+                {" user is already follow"})
 
-    
+        return attrs
+
+    # def create(self, validated_data):
+    #     user= validated_data.get('user')
+    #     follow = validated_data.get('follow')
+    #     follow_request, created = FollowRequest.objects.update_or_create(
+    #     user =user , follow=follow)
+
+    #     return follow_request
+
+    class Meta:
+        model = FollowRequest
+        fields = ('follow', 'id',)
+
 
 class FollowAcceptSerializer(serializers.ModelSerializer):
-   
-        # def validate(self, attrs):
 
-            # if FollowAccept.objects.filter(follow=attrs['follow']):
-            #     raise serializers.ValidationError(
-            #         {" Follower already Added"})
-            #
-            # return attrs
+    # def validate(self, attrs):
 
-        def create(self, validated_data):
-            # import pdb;pdb.set_trace()
-            user= validated_data.get('user')
-            follow = validated_data.get('follow')
-            follow_accept, created = FollowAccept.objects.update_or_create(
-            user =user , follow=follow)
-            
-            return follow_accept
+    # if FollowAccept.objects.filter(follow=attrs['follow']):
+    #     raise serializers.ValidationError(
+    #         {" Follower already Added"})
+    #
+    # return attrs
 
-        class Meta:
-            model = FollowAccept
-            fields = "__all__"
+    def create(self, validated_data):
 
-        # def to_representation(self, instance):
-        #     response = super().to_representation(instance)
-        #     response['follow'] = UserFriendSerilaizer(instance.follow).data
-        #     return response
+        user = validated_data.get('user')
+        follow = validated_data.get('follow')
+        follow_accept, created = FollowAccept.objects.update_or_create(
+            user=user, follow=follow)
 
+        return follow_accept
 
+    class Meta:
+        model = FollowAccept
+        fields = "__all__"
+
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['follow'] = UserFriendSerializer(instance.follow).data
+    #     return response
 
 
 class FollowRequestFollowingSerializer(serializers.ModelSerializer):
 
-        class Meta:
-            model  = FollowRequest
-            fields = ('follow',)
-        def to_representation(self, instance):
-            response = super().to_representation(instance)
-            response['follow'] = UserFriendSerilaizer(instance.follow).data
-            return response
+    is_mutual = serializers.SerializerMethodField()
 
+    def get_is_mutual(self, obj):
+        # print(self)
 
-class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
+        follow1 = FollowRequest.objects.filter(
+            user_id=obj.user)
+        follow2 = FollowRequest.objects.filter(
+            user_id=obj.follow)
+
+        follow1_id_list = []
+        follow2_id_list = []
+
+        for i in range(len(follow1)):
+            friend_id_data = follow1[i].follow
+            follow1_id_list.append(friend_id_data)
+
+        for i in range(len(follow2)):
+            friend_id_data = follow2[i].user
+            follow2_id_list.append(friend_id_data)
+
+        abs = [x for x in follow1_id_list if x in follow2_id_list]
+        if not abs:
+            return 0
+        return len(abs)
+
     class Meta:
         model = FollowRequest
-        fields = ('user',)
+        fields = ('follow', 'user', 'is_follow', 'id', 'is_mutual',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['user'] = UserFriendSerilaizer(instance.user).data
+        response['follow'] = UserFriendSerializer(instance.follow).data
+        return response
+
+
+class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
+
+    is_mutual = serializers.SerializerMethodField()
+
+    def get_is_mutual(self, obj):
+        # print(self)
+
+        follow1 = FollowRequest.objects.filter(
+            user_id=obj.user)
+        follow2 = FollowRequest.objects.filter(
+            user_id=obj.follow)
+
+        follow1_id_list = []
+        follow2_id_list = []
+
+        for i in range(len(follow1)):
+            friend_id_data = follow1[i].follow
+            follow1_id_list.append(friend_id_data)
+
+        for i in range(len(follow2)):
+            friend_id_data = follow2[i].user
+            follow2_id_list.append(friend_id_data)
+
+        abs = [x for x in follow1_id_list if x in follow2_id_list]
+        if not abs:
+            return 0
+        return len(abs)
+
+    class Meta:
+        model = FollowRequest
+        fields = ('user', 'follow', 'is_follow', 'id', 'is_mutual',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerializer(instance.user).data
         return response
 
 
@@ -219,8 +294,57 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
     is_mutual = serializers.SerializerMethodField()
 
     def get_is_mutual(self, obj):
-        friend1 = FriendList.objects.filter(user_id=obj.sender)
-        friend2 = FriendList.objects.filter(user_id=obj.receiver)
+        friend1 = FriendList.objects.filter(user_id=obj.friend)
+        friend2 = FriendList.objects.filter(user_id=obj.user)
+
+        friend1_id_list = []
+        friend2_id_list = []
+
+        for i in range(len(friend1)):
+            friend_id_data = friend1[i].friends
+            friend1_id_list.append(friend_id_data)
+
+        for i in range(len(friend2)):
+            friend_id_data = friend2[i].friends
+            friend2_id_list.append(friend_id_data)
+
+        abs = [x for x in friend1_id_list if x in friend2_id_list]
+        if not abs:
+            return 0
+        return len(abs)
+
+    class Meta:
+        model = FriendRequest
+        fields = ('friend', 'user', 'is_mutual', 'id',)
+
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['friend'] = UserFriendSerializer(instance.friend).data
+    #     return response
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerializer(instance.user).data
+        return response
+
+# SendRequestListSerializer
+
+
+class SendRequestListSerializer(serializers.ModelSerializer):
+
+    is_mutual = serializers.SerializerMethodField()
+    media = serializers.SerializerMethodField()
+
+    def get_media(self, obj):
+
+        medias_data = MediaPost.objects.filter(user=obj.friend)
+        media_data = GetMediaPostSerializers(medias_data, many=True)
+
+        return media_data.data
+
+    def get_is_mutual(self, obj):
+        friend1 = FriendList.objects.filter(user_id=obj.friend)
+        friend2 = FriendList.objects.filter(user_id=obj.user)
 
         friend1_id_list = []
         friend2_id_list = []
@@ -237,50 +361,202 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
         return len(abs)
 
     class Meta:
-        model  = FriendRequest
-        fields = ('sender','receiver','is_mutual')
+        model = FriendRequest
+        fields = ('friend', 'user', 'is_mutual', 'media', 'id',)
 
-        def to_representation(self, instance):
-            response = super().to_representation(instance)
-            response['sender'] = UserFriendSerilaizer(instance.sender).data
-            return response
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['friend'] = UserFriendSerializer(instance.friend).data
+        return response
+
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['user'] = UserFriendSerializer(instance.user).data
+    #     return response
+
 
 # FriendRequest  Accept list
 
 class FriendRequestAcceptSerializer(serializers.ModelSerializer):
+    is_mutual = serializers.SerializerMethodField()
+
+    def get_is_mutual(self, obj):
+        friend1 = FriendList.objects.filter(user_id=obj.friends)
+        friend2 = FriendList.objects.filter(user_id=obj.user)
+
+        friend1_id_list = []
+        friend2_id_list = []
+
+        for i in range(len(friend1)):
+            friend_id_data = friend1[i].friends
+            friend1_id_list.append(friend_id_data)
+
+        for i in range(len(friend2)):
+            friend_id_data = friend2[i].friends
+            friend2_id_list.append(friend_id_data)
+
+        abs = [x for x in friend1_id_list if x in friend2_id_list]
+
+        if not abs:
+            return 0
+        return len(abs)
+
     class Meta:
         model = FriendList
-        fields = ('friends',)
+        fields = ('friends', 'id', 'user', 'is_mutual',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['friends'] = UserFriendSerilaizer(instance.friends).data
+        response['friends'] = UserFriendSerializer(instance.friends).data
         return response
 
 
 class FollowListFollowingSerializer(serializers.ModelSerializer):
 
-        class Meta:
-            model  = FollowAccept
-            fields = ('follow',)
-        def to_representation(self, instance):
-            response = super().to_representation(instance)
-            response['follow'] = UserFriendSerilaizer(instance.follow).data
-            return response
+    class Meta:
+        model = FollowAccept
+        fields = ('follow',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['follow'] = UserFriendSerializer(instance.follow).data
+        return response
 
 
- # friend1 = FriendList.objects.filter(user_id=ab)
- #            friend2 = FriendList.objects.filter(user_id=friends)
- #
- #            friend1_id_list = []
- #            friend2_id_list = []
- #
- #            for i in range(len(friend1)):
- #                friend_id_data = friend1[i].friends
- #                friend1_id_list.append(friend_id_data)
- #
- #            for i in range(len(friend2)):
- #                friend_id_data = friend2[i].friends
- #                friend2_id_list.append(friend_id_data)
- #
- #            abs = [x for x in friend1_id_list if x in friend2_id_list]
+class SendFollowRequestSerializer(serializers.ModelSerializer):
+
+    # def validate(self, attrs):
+    #     if attrs['follow']:
+    #         follow =attrs['follow']
+    #         if FollowRequest.objects.filter(follow= follow):
+    #             raise serializers.ValidationError(
+    #                 {" user is alrady follow"})
+    #         return attrs
+
+    def create(self, validated_data):
+        user = validated_data.get('user')
+        follow = validated_data.get('follow')
+        follow_request, created = FollowRequest.objects.update_or_create(
+            user=user, follow=follow)
+
+        return follow_request
+
+    class Meta:
+        model = FollowRequest
+        fields = ('follow', 'is_follow', 'id',)
+
+    #    FollowBackSerializer
+
+
+class FollowBackSerializer(serializers.ModelSerializer):
+
+    def create(self, validated_data):
+        user = validated_data.get('user')
+        follow = validated_data.get('follow')
+        follow_request, created = FollowRequest.objects.update_or_create(
+            user=user, follow=follow)
+
+        return follow_request
+
+    class Meta:
+        model = FollowRequest
+        fields = ('follow', 'is_follow', 'id',)
+
+
+# class FollowBackSerializer(serializers.ModelSerializer):
+
+#     def create(self, validated_data):
+#         user = validated_data.get('user')
+#         follow = validated_data.get('follow')
+#         follow_request, created = FollowAccept.objects.update_or_create(
+#             user=user, follow=follow)
+
+#         return follow_request
+
+#     class Meta:
+#         model = FollowAccept
+#         fields = ('follow', 'is_follow_accepted',)
+
+
+class GetFollowBackSerializer(serializers.ModelSerializer):
+
+    is_mutual = serializers.SerializerMethodField()
+
+    def get_is_mutual(self, obj):
+        # print(self)
+
+        follow1 = FollowRequest.objects.filter(
+            user_id=obj.user)
+        follow2 = FollowRequest.objects.filter(
+            user_id=obj.follow)
+
+        follow1_id_list = []
+        follow2_id_list = []
+
+        for i in range(len(follow1)):
+            friend_id_data = follow1[i].follow
+            follow1_id_list.append(friend_id_data)
+
+        for i in range(len(follow2)):
+            friend_id_data = follow2[i].user
+            follow2_id_list.append(friend_id_data)
+
+        abs = [x for x in follow1_id_list if x in follow2_id_list]
+        if not abs:
+            return 0
+        return len(abs)
+
+    class Meta:
+        model = FollowRequest
+        fields = ('id', 'is_follow', 'user', 'follow', 'is_mutual')
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['follow'] = UserFriendSerializer(instance.follow).data
+        return response
+
+# class GetFollowBackSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = FollowAccept
+#         fields = '__all__'
+
+
+class UserSuggestionSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+
+    def get_age(self, obj):
+        age = User.calculate_age(obj.birth_date)
+
+        return age
+
+    is_mutual = serializers.SerializerMethodField()
+
+    def get_is_mutual(self, obj):
+
+        requestuser = self.context['request']
+        friend1 = FriendList.objects.filter(user_id=requestuser)
+
+        friend2 = FriendList.objects.filter(user_id=obj)
+
+        friend1_id_list = []
+        friend2_id_list = []
+
+        for i in range(len(friend1)):
+            friend_id_data = friend1[i].friends
+            friend1_id_list.append(friend_id_data)
+
+        for i in range(len(friend2)):
+            friend_id_data = friend2[i].friends
+            friend2_id_list.append(friend_id_data)
+
+        abs = [x for x in friend1_id_list if x in friend2_id_list]
+
+        if not abs:
+            return 0
+        return len(abs)
+
+    class Meta:
+        model = User
+        fields = ('name', 'id', 'image', 'country',
+                  'birth_date', 'address', 'city', 'age', 'is_mutual',)

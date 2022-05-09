@@ -9,6 +9,7 @@ https://docs.djangoproject.com/en/4.0/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
+import datetime
 import os.path
 from datetime import timedelta
 from pathlib import Path
@@ -33,7 +34,7 @@ ALLOWED_HOSTS = ['*', '0.0.0.0', '0.0.0.0:80']
 
 INSTALLED_APPS = [
     'jazzmin',
-    'admin_interface',
+    # 'admin_interface',
     'django_toggle_switch_widget',
     'django_object_actions',
     'django.contrib.admin',
@@ -106,27 +107,26 @@ WSGI_APPLICATION = 'DatingApp.wsgi.application'
 #        'PORT': '5432',
 #    }
 # }
-# DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'datingapps',
-#        'USER': 'dating',
-#        'PASSWORD': 'toor',
-#        'HOST': 'localhost',
-#        'PORT': '5432',
-#    }
-# }
-
-
 
 DATABASES = {
     'default': {
-        # 'ENGINE': 'django.db.backends.sqlite3',
-        'ENGINE': 'django.contrib.gis.db.backends.spatialite',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
+        'NAME': 'dating',
+        'USER': 'datinguser',
+        'PASSWORD': 'dating',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
+
+# DATABASES = {
+#     'default': {
+#         # 'ENGINE': 'django.db.backends.sqlite3',
+#         'ENGINE': 'django.contrib.gis.db.backends.spatialite',
+#         'NAME': BASE_DIR / 'db.sqlite3',
+#     }
+# }
 
 
 # Password validation
@@ -188,10 +188,10 @@ AUTH_KEY = 'YOUR_KEY_HERE'
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
-         'rest_framework.authentication.TokenAuthentication',
+        'rest_framework.authentication.TokenAuthentication',
         'rest_framework.authentication.SessionAuthentication',
     ),
-'   DEFAULT_PERMISSION_CLASSES': (
+    '   DEFAULT_PERMISSION_CLASSES': (
         'rest_framework.permissions.IsAuthenticated',),
 
     'DEFAULT_FILTER_BACKENDS': (
@@ -202,13 +202,13 @@ REST_FRAMEWORK = {
         'django_filters.rest_framework.DjangoFilterBackend',
         # 'rest_framework.filters.DjangoFilterBackend',
         #                             'rest_framework.filters.OrderingFilter',
-        
+
     ),
     'DEFAULT_PARSER_CLASSES': (
-          'rest_framework.parsers.FormParser',
-          'rest_framework.parsers.MultiPartParser',
-          'rest_framework.parsers.JSONParser',
-   ),
+        'rest_framework.parsers.FormParser',
+        'rest_framework.parsers.MultiPartParser',
+        'rest_framework.parsers.JSONParser',
+    ),
 
 
 
@@ -245,9 +245,9 @@ SWAGGER_SETTINGS = {
             'name': 'Authorization'
         }
     },
-              'JSON_EDITOR': True, 
-               'DEFAULT_MODEL_DEPTH':-1     
-        }
+    'JSON_EDITOR': True,
+    'DEFAULT_MODEL_DEPTH': -1
+}
 
 
 #   'DEFAULT_PARSER_CLASSES': (
@@ -255,7 +255,6 @@ SWAGGER_SETTINGS = {
 #           'rest_framework.parsers.MultiPartParser',
 #           'rest_framework.parsers.JSONParser',
 #    )
-import datetime
 # JWT_AUTH = {
 #     # 'JWT_RESPONSE_PAYLOAD_HANDLER': 'account.utils.my_jwt_response_handler',
 #     # 'JWT_ENCODE_HANDLER':
@@ -269,7 +268,6 @@ import datetime
 # }
 
 
-
 # REST_FRAMEWORK = {
 #     'DEFAULT_AUTHENTICATION_CLASSES': (
 #         'rest_framework_simplejwt.authentication.JWTAuthentication',
@@ -281,13 +279,16 @@ REST_FRAMEWORK = {
         'account.authentication.SafeJWTAuthentication',
     ),
     'DEFAULT_PERMISSION_CLASSES': (
-        'rest_framework.permissions.IsAuthenticated', # make all endpoints private
-    )
+        'rest_framework.permissions.IsAuthenticated',  # make all endpoints private
+    ),
     # 'DEFAULT_AUTHENTICATION_CLASSES': [],
     # 'DEFAULT_PERMISSION_CLASSES': [],
+    'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'PAGE_SIZE': 100
 }
 
-REFRESH_TOKEN_SECRET='django-insecure-8(y+s39b-%2r0gi(tzp-m!a&wl21r#xgt#75mt#s_d)y38wqyo'
+
+REFRESH_TOKEN_SECRET = 'django-insecure-8(y+s39b-%2r0gi(tzp-m!a&wl21r#xgt#75mt#s_d)y38wqyo'
 
 DEFAULTS = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=15),

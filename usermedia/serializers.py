@@ -1,7 +1,6 @@
 from rest_framework.serializers import *
-from  rest_framework import serializers
+from rest_framework import serializers
 from .models import *
-
 
 
 # isLiked = serializers.SerializerMethodField()
@@ -23,7 +22,9 @@ class UserEditSerilaizer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name','birth_date','mobile','bio','about','country_code','gender','passion',)
+        fields = ('id', 'name', 'birth_date', 'mobile', 'bio',
+                  'about', 'country_code', 'gender', 'passion',)
+
 
 class UserMediaEditSerializer(ModelSerializer):
 
@@ -33,12 +34,14 @@ class UserMediaEditSerializer(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('id','user','like_count' ,'view_count', 'media','share_count','caption')
+        fields = ('id', 'user', 'like_count', 'view_count',
+                  'media', 'share_count', 'caption')
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
         response['user'] = UserEditSerilaizer(instance.user).data
         return response
+
 
 class MediaPostSerializers(ModelSerializer):
 
@@ -48,7 +51,9 @@ class MediaPostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('user','like_count' ,'view_count', 'media','share_count','caption')
+        fields = ('id', 'user', 'like_count', 'view_count',
+                  'media', 'share_count', 'caption')
+
 
 class GetMediaPostSerializers(ModelSerializer):
 
@@ -58,8 +63,8 @@ class GetMediaPostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = '__all__'
-
+        fields = ('user', 'like_count', 'media',
+                  'id', 'caption',)
 
 
 class GetMediaV2PostSerializers(ModelSerializer):
@@ -76,7 +81,9 @@ class GetMediaV2PostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('id','user','isLiked','like_count' , 'media','caption')
+        fields = ('id', 'user', 'isLiked', 'like_count', 'media', 'caption')
+
+
 class MediaViewSerializers(ModelSerializer):
     class Meta:
         model = MediaView
@@ -92,4 +99,17 @@ class MediaLikeSerializers(ModelSerializer):
 class MediaShareSerializers(ModelSerializer):
     class Meta:
         model = MediaShare
+        fields = "__all__"
+
+
+class GetUserVideoSerialize(ModelSerializer):
+    class Meta:
+        model = MediaVideo
+        fields = "__all__"
+
+
+#
+class MediaPostReportSerialize(ModelSerializer):
+    class Meta:
+        model = MediaPostReport
         fields = "__all__"

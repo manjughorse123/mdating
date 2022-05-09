@@ -7,9 +7,8 @@ from django_toggle_switch_widget.widgets import DjangoToggleSwitchWidget
 from django.contrib import messages
 
 
-
 class TestModelForm(forms.ModelForm):
-    is_register_user_verified  = forms.CheckboxInput()
+    is_register_user_verified = forms.CheckboxInput()
 #     class Meta:
 #         model = User
 #         fields = "__all__"
@@ -17,6 +16,7 @@ class TestModelForm(forms.ModelForm):
 #             "is_govt_id_verified": DjangoToggleSwitchWidget(klass="django-toggle-switch-success",)
 
 #         }
+
 
 class WidgetForm(forms.ModelForm):
     extra_field = forms.CharField(required=False)
@@ -50,13 +50,13 @@ class WidgetForm(forms.ModelForm):
 
 
 class UserAdmin(admin.ModelAdmin):
-#     class Media:
-#         js = ('app/formset_handlers.js',)
-#         css = (
-#             'css/main.css',)
+    #     class Media:
+    #         js = ('app/formset_handlers.js',)
+    #         css = (
+    #             'css/main.css',)
 
     form = TestModelForm
-    list_display = ('email', 'mobile', 'name', 'id','create_at','location')
+    list_display = ('email', 'mobile', 'name', 'id', 'create_at', 'location')
     list_display_links = ('email', 'name')
     list_filter = ('email', 'mobile', 'name', 'create_at')
 #     list_per_page = 10
@@ -91,11 +91,11 @@ admin.site.register(User, UserAdmin)
 
 class GenderAdmin(admin.ModelAdmin):
     readonly_fields = ('photo_icon',)
-    list_display = ('gender', 'photo_icon','icon_color','id')
+    list_display = ('gender', 'photo_icon', 'icon_color', 'id')
     list_filter = ('gender', 'id')
 
-    def photo_icon (self,obj):
-        return  format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+    def photo_icon(self, obj):
+        return format_html(f'<img src= "{obj.icon}" style = height:100px;width:100px/>')
 
 
 admin.site.register(Gender, GenderAdmin)
@@ -103,29 +103,42 @@ admin.site.register(Gender, GenderAdmin)
 
 class PassionAdmin(admin.ModelAdmin):
     readonly_fields = ('photo_icon',)
-    list_display = ('passion', 'photo_icon','icon_color','id')
+    list_display = ('passion', 'photo_icon', 'icon_color', 'id')
     list_filter = ('passion', 'id')
-    def photo_icon (self,obj):
-        return  format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
+    def photo_icon(self, obj):
+        return format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
 
 admin.site.register(Passion, PassionAdmin)
 
+
 class MaritalStatusAdmin(admin.ModelAdmin):
     readonly_fields = ('photo_icon',)
-    list_display = ('status','icon_color','photo_icon', 'id')
+    list_display = ('status', 'icon_color', 'photo_icon', 'id')
     list_filter = ('status', 'id')
-    def photo_icon (self,obj):
-        return  format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
+    def photo_icon(self, obj):
+        return format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
+
 admin.site.register(MaritalStatus, MaritalStatusAdmin)
+
 
 class IdealMatchAdmin(admin.ModelAdmin):
     readonly_fields = ('photo_icon',)
-    list_display = ('idealmatch','icon_color','photo_icon', 'id')
+    list_display = ('idealmatch', 'icon_color', 'photo_icon', 'id')
     list_filter = ('idealmatch', 'id')
-    def photo_icon (self,obj):
-        return  format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
+    def photo_icon(self, obj):
+        return format_html(f'<img src= "/media/{obj.icon}" style = height:100px;width:100px/>')
+
+
 admin.site.register(IdealMatch, IdealMatchAdmin)
+
 
 class HeightAdmin(admin.ModelAdmin):
     list_display = ('height', 'id')
+
+
 admin.site.register(Heigth, HeightAdmin)

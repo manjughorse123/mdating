@@ -1,27 +1,31 @@
 from django.shortcuts import render
-from rest_framework.generics import *
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
-from .serializers import FAQSerializer
+
 from rest_framework.views import *
-from rest_framework.permissions import  *
-from friend.models import *
+from rest_framework.permissions import *
 from rest_framework.viewsets import *
+from rest_framework.generics import *
+
 from account.models import *
 from account.serializers import *
-
+from DatingApp.baseurl import base_url
+from .serializers import FAQSerializer
+from friend.models import *
 # Create your views here.
+
+
 class FAQView(GenericAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = FAQSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "Get Faq  Api",
-    
 
-        tags = ['Master data']
+        operation_summary="Get Faq  Api",
+
+
+        tags=['Master data']
     )
-
     def get(self, request):
         faq = FAQ.objects.all()
         serializer = FAQSerializer(faq, many=True)
@@ -40,12 +44,8 @@ class FAQView(GenericAPIView):
     #                         status=status.HTTP_400_BAD_REQUEST)
 
 
-
-
-
-
 class GetMasterData(GenericAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = GenderSerializer
 
     @swagger_auto_schema(
@@ -63,9 +63,9 @@ class GetMasterData(GenericAPIView):
         ideal_serializer = IdealMatchSerializer(ideal_m, many=True)
         marital_serializer = MaritalStatusSerializer(maritalstatus, many=True)
         tall_serializer = HeightSerializer(heigth, many=True)
-        return Response({"success": True, "message": " Master Data Deatil!", "status": 200,"base_url":"http://18.224.254.170",
-                         "data": {'gender':gen_serializer.data,
-                                  'passion':pan_serializer.data,
+        return Response({"success": True, "message": " Master Data Deatil!", "status": 200, "base_url": base_url,
+                         "data": {'gender': gen_serializer.data,
+                                  'passion': pan_serializer.data,
                                   'idealmatch': ideal_serializer.data,
                                   'marital_status': marital_serializer.data,
                                   'tall': tall_serializer.data
@@ -75,7 +75,7 @@ class GetMasterData(GenericAPIView):
 
 
 class FAQViewV2(GenericAPIView):
-    # permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = FAQSerializer
 
     @swagger_auto_schema(
@@ -103,7 +103,7 @@ class FAQViewV2(GenericAPIView):
 
 
 class GetMasterDataV2(GenericAPIView):
-    # permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = GenderSerializer
 
     @swagger_auto_schema(
@@ -122,7 +122,7 @@ class GetMasterDataV2(GenericAPIView):
         marital_serializer = MaritalStatusSerializer(maritalstatus, many=True)
         tall_serializer = HeightSerializer(heigth, many=True)
         return Response(
-            {"success": True, "message": " Master Data Deatil!", "status": 200, "base_url": "http://18.224.254.170",
+            {"success": True, "message": " Master Data Deatil!", "status": 200, "base_url": base_url,
              "data": {'gender': gen_serializer.data,
                       'passion': pan_serializer.data,
                       'idealmatch': ideal_serializer.data,

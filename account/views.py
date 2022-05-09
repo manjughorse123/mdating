@@ -1,30 +1,40 @@
 # import jwt
+import random
 import http.client
+from django.http import HttpResponse
+
+from django.contrib.auth import logout
+
 from operator import add
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
-from rest_framework import viewsets
+from phonenumbers import country_code_for_region
+
 from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
 from post.serializers import *
 from usermedia.serializers import *
-from .models import *
-from .serializers import *
+
+from account.models import *
+from account.serializers import *
 from friend.models import *
 from friend.serializers import *
 from account.utils import generate_access_token, generate_refresh_token
-
+from DatingApp.baseurl import base_url
+from usermedia.models import *
 
 
 def send_otp(mobile, otp):
     conn = http.client.HTTPSConnection("api.msg91.com")
     authkey = settings.AUTH_KEY
     headers = {'content-type': "application/json"}
-    url = "http://control.msg91.com/api/sendotp.php?otp=" + otp + "&message=" + "Your otp is " + otp + "&mobile=" + mobile + "&authkey=" + authkey + "&country=91"
+    url = "http://control.msg91.com/api/sendotp.php?otp=" + otp + "&message=" + \
+        "Your otp is " + otp + "&mobile=" + mobile + \
+        "&authkey=" + authkey + "&country=91"
     conn.request("GET", url, headers=headers)
     res = conn.getresponse()
     data = res.read()
@@ -36,75 +46,79 @@ class Login(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
 
-
     @swagger_auto_schema(
-      
-        operation_summary = "User Login Api",
-        request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
-            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='Add Country Code'),
-        }),
 
-        tags = ['Account']
+        operation_summary="User Login Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='Add Country Code'),
+            }),
+
+        tags=['Account']
     )
-   
     def post(self, request, *args, **kwargs):
 
         try:
             mobile = request.data['mobile']
             country_code = request.data['country_code']
-            # otp = request.POST.get("otp")
-            user = User.objects.filter(mobile=mobile, country_code=country_code).first()
+
+            user = User.objects.filter(
+                mobile=mobile, country_code=country_code).first()
+            # user = User.objects.filter(
+            #     mobile=mobile, country_code=country_code, otp=otp).first()
             if user is None:
                 return Response(
-                    {"message": "mobile no. not registered", "success": False, 'is_register': False,"status" : 404},
+                    {"message": "mobile no. not registered", "success": False,
+                        'is_register': False, "status": 404},
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
             otp = 1234
             user.otp = otp
             user.save()
-            return Response({"message": "User Login Successfully!", "status": 200 ,"success": True, 'is_register': True, "user": {
+            return Response({"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
                 'id': user.id,
                 'email': user.email,
                 'mobile': user.mobile,
                 'country_code': user.country_code,
+                'otp': user.otp,
                 'name': user.name,
                 'is_verified': user.is_verified}},
-                            status=status.HTTP_200_OK)
+                status=status.HTTP_200_OK)
             # else :
             #     return Response({'success': False, "status": 404, 'message': 'Field Required'},
             #                 status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(e)
-            return Response({'success': False, "status" : 404 ,'message': 'internal server error'},
+            return Response({'success': False, "status": 404, 'message': 'Data Not Found'},
                             status=status.HTTP_404_NOT_FOUND)
 
 
 class Registration(CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "User Regitration Api",
+
+        operation_summary="User Registration Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
-            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
-            'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
-            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
-            'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description=' date of birth must be in YYYY-MM-DD format.'),
-            
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
+                'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description=' date of birth must be in YYYY-MM-DD format.'),
 
-        }),
-        
 
-        tags = ['Account']
+            }),
+
+
+        tags=['Account']
     )
     def post(self, request):
 
@@ -119,54 +133,57 @@ class Registration(CreateAPIView):
 
             if check_mobile:
                 return Response(
-                    {"message": "Mobile Number Already Exists!", 'status' : 400,'success': False, 'is_register': False, "mobile": mobile},
+                    {"message": "Mobile Number Already Exists!", 'status': 400,
+                        'success': False, 'is_register': False, "mobile": mobile},
                     status=status.HTTP_400_BAD_REQUEST)
             if check_email:
                 return Response(
-                    {"message": "email Already Exists", 'success': False, 'status' : 400,'is_register': False, "email": email},
+                    {"message": "email Already Exists", 'success': False,
+                        'status': 400, 'is_register': False, "email": email},
                     status=status.HTTP_400_BAD_REQUEST)
 
             # otp = str(random.randint(999, 9999))
             otp = str(1234)
+
+            # print("otp", otp)
             user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                         country_code=country_code)
             # print(type(user))
             user.save()
-            return Response({"message": "Your Registrations is successfully","status" : 201, "success": True, 'is_register': True,
+            return Response({"message": "Your Registrations is successfully", "status": 201, "success": True, 'is_register': True,
                              "user": {
                                  'id': user.id,
                                  'email': user.email,
                                  'mobile': user.mobile,
                                  'country_code': user.country_code,
                                  'name': user.name,
+                                 'otp': user.otp,
                                  'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
         except Exception as e:
             print(e)
-            return Response({'success': False,  'status' :400 ,  'message': 'User Not Register','is_register': False},
+            return Response({'success': False,  'status': 400,  'message': 'User Not Register', 'is_register': False},
                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserCreateView(GenericAPIView):
-    serializer_class =  RegisterSerializer
+    serializer_class = RegisterSerializer
     """
     Creates the user.
     """
     @swagger_auto_schema(
-      
-        operation_summary = "User Otp Verify Api",
+
+        operation_summary="User Otp Verify Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+            }),
 
-        tags = ['Account']
+        tags=['Account']
     )
-
-
     def post(self, request, format='json'):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
@@ -189,31 +206,31 @@ class UserCreateView(GenericAPIView):
             if user:
                 return Response({'data': data,
                                  "status": 201,
-                                 "msg": msg},status =status.HTTP_201_CREATED)
+                                 "msg": msg}, status=status.HTTP_201_CREATED)
             else:
-                return Response({"data": serializer.errors,"status": 400 }, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"data": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"data": serializer.errors,"status": 400}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"data": serializer.errors, "status": 400}, status=status.HTTP_400_BAD_REQUEST)
 
 
 # from rest_framework_jwt.settings import api_settings
 class OTPVerifyV2(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "User Otp Verify Api",
+
+        operation_summary="User Otp Verify Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            'otp': openapi.Schema(type=openapi.TYPE_STRING, description='otp'),
-            'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country_code'),
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='otp'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country_code'),
+            }),
 
-        tags = ['Account']
+        tags=['Account']
     )
-
     def post(self, request):
 
         try:
@@ -223,80 +240,67 @@ class OTPVerifyV2(GenericAPIView):
             mobile = int(mobile)
             otp = int(otp)
 
-            user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
+            user_obj = User.objects.get(
+                mobile=mobile, otp=otp, country_code=country_code)
             # print( user_obj.id)
             # user_obj =user_obj.id
             user_obj_otp = int(user_obj.otp)
 
             if user_obj_otp == otp:
 
-                user_obj.is_phone_verified = True
+                user_obj.is_verified = True
 
+                # user_obj.save()
+                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
+                        user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
+                    # is_complete_profile = True
+                    user_obj.is_complete_profile = True
 
-                user_obj.save()
-                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall  and user_obj.is_location and
-                    user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status  and user_obj.is_media) == True:
-                    is_complete_profile = True
-                else :
-                    is_complete_profile = False
+                    user_obj.save()
+
+                else:
+                    # is_complete_profile = False
+                    user_obj.is_complete_profile = False
+                    user_obj.save()
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200,'is_register': True ,"user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True, "user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
                         'country_code': user_obj.country_code,
                         'name': user_obj.name,
-                        "is_complete_profile": is_complete_profile,
+                        "is_complete_profile": user_obj.is_complete_profile,
                         'is_verified': user_obj.is_verified, }
 
                      },
                     status=status.HTTP_200_OK)
-            return Response({'success': "success", 'message': 'Wrong OTP', "status": 404,"data": serializers.data},
+            return Response({'success': "success", 'message': 'Wrong OTP', "status": 404, "data": serializers.data},
                             status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(e)
         return Response(
-            {'success': False, 'message': ' Mobile Number Not Registered','status': 404, 'is_register': False},
+            {'success': False, 'message': ' Mobile Number Not Registered',
+                'status': 404, 'is_register': False},
             status=status.HTTP_404_NOT_FOUND)
 
 
 class UserData(GenericAPIView):
-    permission_classes = [AllowAny,]
-    serializer_class = (UserSerializer )
-
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserProfileSerializer
 
     def get_object(self, id):
         try:
             return User.objects.get(id=id)
         except User.DoesNotExist:
             raise Http404
-        
-    def get_serializer_context(self):
 
-        user = self.request.user
-        """
-        Extra context provided to the serializer class.
-        """
-        return {
-            'request': self.request,
-            'format': self.format_kwarg,
-            'view': self
-        }
     @swagger_auto_schema(
-
-            operation_summary="User Detail Profile Time Line Api",
-            # request_body=openapi.Schema(
-            # type=openapi.TYPE_OBJECT,
-            # properties={
-            #     'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            #     'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
-            # }),
-
-            tags=['Account']
-        )
-    def get(self, request, user_id ,format=None):
+        operation_summary="User Detail Profile Time Line Api",
+        tags=['Account']
+    )
+    def get(self, request, user_id, format=None):
 
         # user_id = request.user.id
         user = User.objects.get(id=user_id)
@@ -304,34 +308,35 @@ class UserData(GenericAPIView):
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
         followaccept = FollowRequest.objects.filter(follow_id=user_id)
-        friendrequest = FriendRequest.objects.filter(receiver_id=user_id)
+        friendrequest = FriendRequest.objects.filter(user_id=user_id)
         friendaccept = FriendList.objects.filter(user_id=user_id)
 
-        userserializer = UserSerializer(user)
-        postsrializer = PostUploadSerializers(post ,many=True)
-        followserializer = FollowRequestFollowingSerializer(follow, many=True)
-        followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
+        userserializer = UserProfileSerializer(user)
+        postserializer = PostUploadSerializers(post, many=True)
+        follow_serializer = FollowRequestFollowingSerializer(follow, many=True)
+        follow_accept_serializer = FollowRequestFollowerV2Serializer(
+            followaccept, many=True)
         mediaserializer = GetMediaPostSerializers(media, many=True)
-        friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
-        friendaccserializer = FriendListUserSerializer(friendaccept, many=True)
+        friend_req_serializer = FriendRequestSerializer(
+            friendrequest, many=True)
+        friend_acc_serializer = FriendListUserSerializer(
+            friendaccept, many=True)
 
-        return Response({
+        return Response({"base_url": base_url,
                         "user": userserializer.data,
-                         "PostCount": len(postsrializer.data),
-                         "post": postsrializer.data,
-                         "friendaccept":friendaccserializer.data ,######
-                         "friendrequest":friendreqserializer.data,
+                         "PostCount": len(postserializer.data),
+                         "post": postserializer.data,
+                         "friendaccept": friend_acc_serializer.data,
+                         "friendrequest": friend_req_serializer.data,
                          "MediaCount": len(mediaserializer.data),
                          "media": mediaserializer.data,
-                         "Following": len(followserializer.data),
-                         "Follower": len(followacceptserializer.data),
-                            "success": True,
-                            "message": "User  Profile TimeLine!",
-                            "status": 200,
+                         "Following": len(follow_serializer.data),
+                         "Follower": len(follow_accept_serializer.data),
+                         "success": True,
+                         "message": "User  Profile TimeLine!",
+                         "status": 200,
                          },
                         status=status.HTTP_200_OK)
-
-
 
 
 class UserDataV2(GenericAPIView):
@@ -376,27 +381,32 @@ class UserDataV2(GenericAPIView):
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
         followaccept = FollowRequest.objects.filter(follow_id=user_id)
-        friendrequest = FriendRequest.objects.filter(receiver_id=user_id)
+        friendrequest = FriendRequest.objects.filter(user_id=user_id)
         friendaccept = FriendList.objects.filter(user_id=user_id)
 
         userserializer = UserSerializer(user)
-        postsrializer = PostUploadV2Serializers(post, context={'request': request}, many=True)
-        followserializer = FollowRequestFollowingSerializer(follow, many=True)
-        followacceptserializer = FollowRequestFollowerV2Serializer(followaccept, many=True)
-        mediaserializer = GetMediaV2PostSerializers(media, context={'request': request}, many=True)
-        friendreqserializer = FriendRequestSerializer(friendrequest, many=True)
-        friendaccserializer = FriendListUserSerializer(friendaccept, many=True)
+        postserializer = PostUploadV2Serializers(
+            post, context={'request': request}, many=True)
+        follow_serializer = FollowRequestFollowingSerializer(follow, many=True)
+        follow_accept_serializer = FollowRequestFollowerV2Serializer(
+            followaccept, many=True)
+        mediaserializer = GetMediaV2PostSerializers(
+            media, context={'request': request}, many=True)
+        friend_req_serializer = FriendRequestSerializer(
+            friendrequest, many=True)
+        friend_acc_serializer = FriendListUserSerializer(
+            friendaccept, many=True)
 
         return Response({
             "user": userserializer.data,
-            "PostCount": len(postsrializer.data),
-            "post": postsrializer.data,
-            "friendaccept": friendaccserializer.data,  ######
-            "friendrequest": friendreqserializer.data,
+            "PostCount": len(postserializer.data),
+            "post": postserializer.data,
+            "friendaccept": friend_acc_serializer.data,
+            "friendrequest": friend_req_serializer.data,
             "MediaCount": len(mediaserializer.data),
             "media": mediaserializer.data,
-            "Following": len(followserializer.data),
-            "Follower": len(followacceptserializer.data),
+            "Following": len(follow_serializer.data),
+            "Follower": len(follow_accept_serializer.data),
             "success": True,
             "message": "User  Profile TimeLine!",
             "status": 200,
@@ -408,19 +418,19 @@ class UserUpdate(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "User Update Api",
+
+        operation_summary="User Update Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-            'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+            }),
 
-        tags = ['Account']
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -432,57 +442,55 @@ class UserUpdate(GenericAPIView):
         if serializer.is_valid():
             question = serializer.save()
 
-            return Response({"message" : "User Data is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User Data is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class GetUserDetail(GenericAPIView):
 
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, ]
     """
     Retrieve, update or delete  a media instance.
     """
     serializer_class = UserDetailSerializer
-   
+
     def get_object(self, user_id):
         try:
             return User.objects.get(id=user_id)
         except User.DoesNotExist:
             raise Http404
-    @swagger_auto_schema(
-      
-        operation_summary = " Get User Detail",
-        
 
-        tags = ['Account']
+    @swagger_auto_schema(
+
+        operation_summary=" Get User Detail",
+
+
+        tags=['Account']
     )
     def get(self, request, user_id, format=None):
 
         adduserdetail = self.get_object(user_id)
         serializer = UserDetailSerializer(adduserdetail)
-        return Response({"success": True, "status" : 200 ,"data": serializer.data}, status=status.HTTP_200_OK)
-
+        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
 
 class UserUpdateIdealMatch(GenericAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "User Add Ideal Match Api",
+
+        operation_summary="User Add Ideal Match Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-            
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
 
-        tags = ['Account']
+            }),
+
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -492,36 +500,36 @@ class UserUpdateIdealMatch(GenericAPIView):
         question.save(update_fields=["is_idealmatch"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User Ideal Match field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User Ideal Match field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserUpdateProfile(GenericAPIView):
-    permission_classes = [AllowAny,]
+    permission_classes = [AllowAny, ]
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "User Update Api",
+
+        operation_summary="User Update Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
-            'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-            'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-            'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
-            'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
-            'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
-            'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
-            'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
-            
-            
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+                'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
+                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
+                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
 
-        tags = ['Account']
+
+            }),
+
+        tags=['Account']
     )
-
-    def put(self, request, user_id,*args, **kwargs):
+    def put(self, request, user_id, *args, **kwargs):
         # user_id = request.user.id
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
@@ -538,7 +546,7 @@ class UserUpdateProfile(GenericAPIView):
         if 'idealmatch' in request.data:
             user_data.is_idealmatch = True
             user_data.save(update_fields=["is_idealmatch"])
-        
+
         if 'interest_in' in request.data:
             user_data.is_interest_in = True
             user_data.save(update_fields=["is_interest_in"])
@@ -546,22 +554,19 @@ class UserUpdateProfile(GenericAPIView):
         if 'location' in request.data:
             user_data.is_location = True
             user_data.save(update_fields=["is_location"])
-        
+
         if 'tall' in request.data:
             user_data.is_tall = True
             user_data.save(update_fields=["is_tall"])
-        
+
         if 'marital_status' in request.data:
             user_data.is_marital_status = True
             user_data.save(update_fields=["is_marital_status"])
 
         if serializer.is_valid():
             user_data = serializer.save()
-            return Response({"message" : "User Profile is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(user_data).data})
+            return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 
 
 class UserUpdateProfileV2(GenericAPIView):
@@ -593,6 +598,7 @@ class UserUpdateProfileV2(GenericAPIView):
         # user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserSerializer(user_data, data=request.data)
+        print("request.data", request.data)
 
         if 'gender' in request.data:
             user_data.is_gender = True
@@ -628,23 +634,24 @@ class UserUpdateProfileV2(GenericAPIView):
                              "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
+
 class UserUpdateGender(GenericAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "Add User Gender Api",
+
+        operation_summary="Add User Gender Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-           
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
 
-        tags = ['Account']
+            }),
+
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -654,29 +661,27 @@ class UserUpdateGender(GenericAPIView):
         question.save(update_fields=["is_gender"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User Gender field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User Gender field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
 
 
 class UserUpdateInterest(GenericAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "Add User Interest Api",
+
+        operation_summary="Add User Interest Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'interest_is': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Intrest In'),
-           
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'interest_is': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Intrest In'),
 
-        tags = ['Account']
+            }),
+
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -686,26 +691,27 @@ class UserUpdateInterest(GenericAPIView):
         question.save(update_fields=["is_interest_in"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User InrestIn field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User IntrestIn field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
 
 class UserUpdateHight(GenericAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "Add User Height Api",
+
+        operation_summary="Add User Height Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Height'),
-           
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Height'),
 
-        tags = ['Account']
+            }),
+
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -715,37 +721,7 @@ class UserUpdateHight(GenericAPIView):
         question.save(update_fields=["is_tall"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message" : "User Tall field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class UserUpdateLoction(GenericAPIView):
-    permission_classes = (AllowAny,)
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
-    @swagger_auto_schema(
-      
-        operation_description="POST description override using decorator",
-        operation_summary = "Add User Location Api",
-        request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Loction'),
-           
-        }),
-
-        tags = ['Account']
-    )
-    def put(self, request, *args, **kwargs):
-
-        user_id = self.kwargs.get('user_id')
-        question = get_object_or_404(User, id=user_id)
-        serializer = UserSerializer(question, data=request.data)
-        question.is_location = True
-        question.save(update_fields=["is_location"])
-        if serializer.is_valid():
-            question = serializer.save()
-            return Response({"message" : "User location field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User Tall field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -753,19 +729,19 @@ class UserUpdateMaritalStatus(GenericAPIView):
     permission_classes = (AllowAny,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
+
     @swagger_auto_schema(
-      
-        operation_summary = "Add User Marital Status Api",
+
+        operation_summary="Add User Marital Status Api",
         request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        properties={
-            'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Marital Status'),
-           
-        }),
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Marital Status'),
 
-        tags = ['Account']
+            }),
+
+        tags=['Account']
     )
-
     def put(self, request, *args, **kwargs):
 
         user_id = self.kwargs.get('user_id')
@@ -776,39 +752,37 @@ class UserUpdateMaritalStatus(GenericAPIView):
         if serializer.is_valid():
             question = serializer.save()
 
-            return Response({"message" : "User Marital Status field is Successfully Updated!", "status":200,"success":True , "data":UserSerializer(question).data})
+            return Response({"message": "User Marital Status field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
 
 
 class UserDelete(GenericAPIView):
     permission_classes = (IsAuthenticated,)
     queryset = User.objects.all()
     serializer_class = UserSerializer
-   
+
     def get_object(self, user_id):
         try:
             return User.objects.get(id=user_id)
         except User.DoesNotExist:
             raise Http404
+
     @swagger_auto_schema(
         operation_description="User delete by Id",
 
-        operation_summary = "Delete User  Api",
-       
-        tags = ['Account']
+        operation_summary="Delete User  Api",
+
+        tags=['Account']
     )
-
-
     def delete(self, request, user_id, format=None):
 
         userdel = self.get_object(user_id)
         userdel.delete()
-        return Response({'status':204,'message':'User Successfully Deleted!' ,'success':True},status=status.HTTP_204_NO_CONTENT)
+        return Response({'status': 204, 'message': 'User Successfully Deleted!', 'success': True}, status=status.HTTP_204_NO_CONTENT)
 
 
 class OTPVerify(GenericAPIView):
-    permission_classes= [AllowAny]
+    permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
     @swagger_auto_schema(
@@ -833,45 +807,50 @@ class OTPVerify(GenericAPIView):
             mobile = int(mobile)
             otp = int(otp)
 
-            user_obj = User.objects.get(mobile=mobile, otp=otp, country_code=country_code)
+            user_obj = User.objects.get(
+                mobile=mobile, otp=otp, country_code=country_code)
             # print( user_obj.id)
             # user_obj =user_obj.id
-            user_obj_otp  = int(user_obj.otp)
+            user_obj_otp = int(user_obj.otp)
             if user_obj_otp == otp:
 
-                user_obj.is_phone_verified = True
+                user_obj.is_verified = True
                 access_token = generate_access_token(user_obj)
                 refresh_token = generate_refresh_token(user_obj)
 
-                # response.set_cookie(key='refreshtoken', value=refresh_token, httponly=True)
-                # print(access_token)
-                user_obj.save()
-                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
-                    user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
-                    is_complete_profile = True
+                # response.set_cookie(self, key='refreshtoken',
+                #                     value=refresh_token, httponly=True)
+                # print(refresh_token)
+                user_obj.auth_tokens = access_token
+                # user_obj.save()
+                if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and
+                        user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status) == True:
+                    user_obj.is_complete_profile = True
+                    user_obj.save()
                 else:
-                    is_complete_profile = False
+                    user_obj.is_complete_profile = False
+                    user_obj.save()
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True,"token":access_token
-                      ,"user": {
+                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True, "token": access_token, "user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
                         'country_code': user_obj.country_code,
                         'name': user_obj.name,
-                        "is_complete_profile": is_complete_profile,
+                        "is_complete_profile": user_obj.is_complete_profile,
                         'is_verified': user_obj.is_verified, }
 
                      },
                     status=status.HTTP_200_OK)
-            return Response({'success': "success", 'message': 'Wrong OTP', "status": 403, "data": serializers.data},
-                            status=status.HTTP_403_FORBIDDEN)
+            return Response({'success': "success", 'message': 'Wrong OTP', "status": 404, "data": serializers.data},
+                            status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(e)
         return Response(
-            {'success': False, 'message': ' Mobile Number Not Registered', 'status': 404, 'is_register': False},
+            {'success': False, 'message': ' Wrong OTP',
+                'status': 404, 'is_register': False},
             status=status.HTTP_404_NOT_FOUND)
 
 
@@ -890,14 +869,20 @@ class GetUserDetailV2(GenericAPIView):
     def get(self, request,  format=None):
 
         req = request.user
+        if (req.is_gender and req.is_passion and req.is_tall and
+                req.is_interest_in and req.is_idealmatch and req.is_marital_status) == True:
+            req.is_complete_profile = True
+            req.save()
+        else:
+            req.is_complete_profile = False
+            req.save()
 
         serializer = UserDetailSerializer(req)
-        return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
 
-from django.contrib.auth import logout
 class LogoutApiView(APIView):
-    permission_class = (IsAuthenticated,)
+    permission_class = [IsAuthenticated, ]
 
     @swagger_auto_schema(
 
@@ -907,26 +892,29 @@ class LogoutApiView(APIView):
     )
     def get(self, request, format=None):
         # simply delete the token to force a login
-        # print(request.user.auth_token.delete())
-        logout(request)
-        return Response({'message': "Successfully LogOut",'status':200 ,'success': True},status=status.HTTP_200_OK)
+        user = User.objects.get(id=request.user.id)
 
+        user.auth_tokens = ''
+        user.save()
+        # print(user.auth_tokens.delete())
+        logout(request)
+        return Response({'message': "Successfully LogOut", 'status': 200, 'success': True}, status=status.HTTP_200_OK)
 
 
 class UserVerifiedAPI(GenericAPIView):
 
     """
-    Retrieve, Checklist Api.
+    User Verification Api.
     """
-    permission_classes = (IsAuthenticated,)
-    serializer_class = UserVerifiedSerilaizer
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserVerifiedSerializer
     # permission_classes = [IsAuthenticated,]
 
-    def get_object(self, user_id):
-        try:
-            return User.objects.get(id=user_id)
-        except User.DoesNotExist:
-            raise Http404
+    # def get_object(self, user_id):
+    #     try:
+    #         return User.objects.get(id=user_id)
+    #     except User.DoesNotExist:
+    #         raise Http404
 
     @swagger_auto_schema(
 
@@ -934,17 +922,15 @@ class UserVerifiedAPI(GenericAPIView):
 
         tags=['Account']
     )
-    def get(self, request,  user_id,format=None):
+    def get(self, request, format=None):
 
-        adduserdetail = self.get_object(user_id)
-        # req = request.user
+        # adduserdetail = self.get_object(user_id)
+
+        req = User.objects.get(id=request.user.id)
         # print (req)
-        serializer = UserVerifiedSerilaizer(adduserdetail)
-        return Response({"success": True, "status": 200, "data": serializer.data }, status=status.HTTP_200_OK)
+        serializer = UserVerifiedSerializer(req)
+        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
-
-from usermedia.models import *
-from usermedia.serializers import *
 
 class UserProfileMediaEditAPI(GenericAPIView):
     permission_classes = (IsAuthenticated,)
@@ -960,45 +946,86 @@ class UserProfileMediaEditAPI(GenericAPIView):
         user_edit_data = MediaPost.objects.filter(user_id=request.user.id)
 
         serializer = UserSerializer(user_data,)
-        user_edit = UserMediaEditSerializer(user_edit_data , many=True)
+        user_edit = UserMediaEditSerializer(user_edit_data, many=True)
 
         return Response({"message": "Get Data For User Edit", "status": 200, "success": True,
-                             "data": serializer.data,'media' : user_edit.data}, status= status.HTTP_200_OK)
+                         "data": serializer.data, 'media': user_edit.data}, status=status.HTTP_200_OK)
 
 
-    # @swagger_auto_schema(
-    # 
-    #     operation_summary="User Update Api",
-    #     request_body=openapi.Schema(
-    #         type=openapi.TYPE_OBJECT,
-    #         properties={
-    #             'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
-    #             'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-    #             'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-    #             'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
-    #             'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
-    #             'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
-    #             'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
-    #             'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
-    # 
-    #         }),
-    # 
-    #     tags=['Account']
-    # )
-    # 
-    # 
-    # def put(self, request, *args, **kwargs):
-    # 
-    #     user_id = request.user.id
-    #     # user_id = self.kwargs.get('user_id')
-    #     user_data = get_object_or_404(User, id=user_id)
-    #     user_edit_data = MediaPost.objects.filter(user_id=user_id).select_related("user")
-    #     # serializer = UserSerializer(user_edit_data, data=request.data)
-    #     serializer = UserMediaEditSerializer(user_edit_data, data=request.data)
-    # 
-    #     if serializer.is_valid():
-    #         user_edit_data = serializer.save()
-    # 
-    #         return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True,
-    #                          "data": UserSerializer(user_edit_data).data})
-    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class UserVerifyDocumentApi(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserVerifyDocSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="User Update Api",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+
+                'selfie': openapi.Schema(type=openapi.TYPE_STRING, description='Add User selfie'),
+                'govt_id': openapi.Schema(type=openapi.TYPE_STRING, description='Add User govt_id'),
+
+            }),
+
+        tags=['Account']
+    )
+    def put(self, request, *args, **kwargs):
+        user_id = request.user.id
+        # user_id = self.kwargs.get('user_id')
+        user_data = get_object_or_404(User, id=user_id)
+        serializer = UserVerifyDocSerializer(user_data, data=request.data)
+
+        if serializer.is_valid():
+            user_data = serializer.save()
+            return Response({"message": "User Document successfully added!", "status": 200, "success": True,
+                             "doc_data": serializer.data, "data": UserSerializer(user_data).data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ResendOtpApiView(GenericAPIView):
+    permission_classes = [AllowAny, ]
+    # queryset = User.objects.all()
+    serializer_class = UserResendOtpSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Resend Otp Api",
+        tags=['Account']
+    )
+    def post(self, request, *args, **kwargs):
+        print(request.data)
+        get_mobile = request.data['mobile']
+        get_country = request.data['country_code']
+
+        # if User.objects.filter(id=get_user).exists() and not User.objects.get(username=get_user).is_active:
+        if User.objects.filter(mobile=get_mobile).exists():
+            get_user = User.objects.filter(
+                mobile=get_mobile, country_code=get_country)
+
+            user = User.objects.get(mobile=get_mobile)
+            user_otp = random.randint(1000, 9999)
+            print("new_otp", user_otp)
+
+            user.otp = user_otp
+            user.save(update_fields=["otp"])
+            # User.objects.update(otp=user_otp)
+            mess = f"Hello, {user.name}, \nYour OTP is {user_otp}\n Thanks!"
+            print(mess)
+            # send_mail(
+            #     "Welcome to Solve Litigation - Verify your Email",  # subject
+            #     mess,  # message
+            #     settings.EMAIL_HOST_USER,  # sender
+            #     [user.email],  # receiver
+            #     fail_silently=False
+            # )
+            return Response({"message": " Successfully Resend Otp", "status": 200, "success": True,
+                            "data": {
+                                "otp": user.otp,
+                                "user": user.name,
+                                "mobile": user.mobile
+                            }
+            }, status=status.HTTP_200_OK)
+
+        return Response({"message": " No Resend otp", "status": 200, "success": True,
+                         }, status=status.HTTP_200_OK)

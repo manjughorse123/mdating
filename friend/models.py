@@ -4,35 +4,49 @@ from django.utils import timezone
 from account.models import *
 
 
+# married = models.CharField(max_length=1, choices=MAYBECHOICE)
+
+
+MAYBECHOICE = (
+    (0, 'all'),
+    (1, 'friend'),
+    (2, 'onlyme'),
+)
+
+
 class FriendList(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="user")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
-    friends = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="friends")
+    friends = models.ForeignKey(
+        User, blank=True, on_delete=models.CASCADE, related_name="friends")
     is_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
+    # show_friend = models.CharField(
+    #     max_length=1, choices=MAYBECHOICE, default=0)
 
     def __str__(self):
         return self.user.name
 
     def add_friend(self, account):
         """
-		Add a new friend.
-		"""
+                Add a new friend.
+                """
         if not account in self.friends.all():
             self.friends.add(account)
             self.save()
 
     def remove_friend(self, account):
         """
-		Remove a friend.
-		"""
+                Remove a friend.
+                """
         if account in self.friends.all():
             self.friends.remove(account)
 
     def unfriend(self, removee):
         """
-		Initiate the action of unfriending someone.
-		"""
+                Initiate the action of unfriending someone.
+                """
         remover_friends_list = self  # person terminating the friendship
 
         # Remove friend from remover friend list
@@ -44,8 +58,8 @@ class FriendList(models.Model):
 
     def is_mutual_friend(self, friend):
         """
-		Is this a friend?
-		"""
+                Is this a friend?
+                """
         if friend in self.friends.all():
             return True
         return False
@@ -53,28 +67,33 @@ class FriendList(models.Model):
 
 class FriendRequest(models.Model):
     """
-	A friend request consists of two main parts:
-		1. SENDER
-			- Person sending/initiating the friend request
-		2. RECIVER
-			- Person receiving the friend friend
-	"""
+        A friend request consists of two main parts:
+                1. friend
+                        - Person sending/initiating the friend request
+                2. RECIVER
+                        - Person receiving the friend friend
+        """
 
-    sender = models.ForeignKey(User, on_delete=models.CASCADE, related_name="sender")
-    receiver = models.ForeignKey(User, on_delete=models.CASCADE, related_name="receiver", )
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="friend_req")
+    friend = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="user_req", )
 
-    friendrequestsent  = models.BooleanField(blank=False, null=False, default=False)
+    friendrequestsent = models.BooleanField(
+        blank=False, null=False, default=False)
 
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.sender.name
+        return self.friend.name
 
 
 class FollowRequest(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="parent_user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
-    follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user")
+    follow = models.ForeignKey(
+        User, blank=True, on_delete=models.CASCADE, related_name="Follow_user")
     is_follow = models.BooleanField(blank=False, null=False, default=False)
 
     create_at = models.DateTimeField(auto_now_add=True)
@@ -84,9 +103,11 @@ class FollowRequest(models.Model):
 
 
 class FollowAccept(models.Model):
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="parent_user_accept")
+    user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="parent_user_accept")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
-    follow = models.ForeignKey(User, blank=True, on_delete=models.CASCADE, related_name="Follow_user_accept")
+    follow = models.ForeignKey(
+        User, blank=True, on_delete=models.CASCADE, related_name="Follow_user_accept")
     is_follow_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 

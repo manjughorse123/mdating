@@ -1,50 +1,33 @@
 
+from requests import request
 from rest_framework_gis.serializers import GeoFeatureModelSerializer
 from rest_framework import serializers
 from account.models import *
+from account.serializers import *
+from friend.models import FriendRequest
 from .models import *
+from usermedia.models import *
+from usermedia.serializers import *
+from friend.models import *
 
-#
-class UserPassionMatchSerializer(serializers.ModelSerializer):
+
+class genderSerializer(serializers.ModelSerializer):
     class Meta:
-        model = UserPassion
+        model = Gender
         fields = '__all__'
 
 
-class UserPassionMatchSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserPassion
-        fields = '__all__'
-
-
-class UserfilterSerializer(serializers.ModelSerializer):
+class UserfilterSerializerss(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'location', 'gender', 'birth_date', 'email')
+        fields = ('id', 'gender', 'birth_date', 'city',
+                  'passion', 'idealmatch', 'name', 'image')
 
-
-class UserToUserLikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserToUserLike
-        fields = '__all__'
-
-
-class UserToUserUnLikeSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserToUserUnLike
-        fields = '__all__'
-
-
-class UserFriendSerilaizer(serializers.ModelSerializer):
-    class Meta:
-        model = User
-        fields = ('id','name','image')
 
 class UserMatchProfileSerializer(serializers.ModelSerializer):
     class Meta:
         model = UserMatchProfile
         fields = '__all__'
-
 
 
 class GetUserMatchProfileSerializer(serializers.ModelSerializer):
@@ -54,15 +37,124 @@ class GetUserMatchProfileSerializer(serializers.ModelSerializer):
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
-        response['user'] = UserFriendSerilaizer(instance.user).data
-        response['like_profile_user'] = UserFriendSerilaizer(instance.like_profile_user).data
+        response['user'] = UserFriendSerializer(instance.user).data
+        response['like_profile_user'] = UserFriendSerializer(
+            instance.like_profile_user).data
 
         return response
 
-class UserFilterSerializer(GeoFeatureModelSerializer):
 
+class UserFilterSerializer(GeoFeatureModelSerializer):
+    media = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    is_friend_req = serializers.SerializerMethodField()
+    is_friend_acc = serializers.SerializerMethodField()
+
+    def get_age(self, obj):
+        age = User.calculate_age(obj.birth_date)
+
+        return age
+
+    def get_media(self, obj):
+
+        # user = self.context['request'].user
+        medias_data = MediaPost.objects.filter(user=obj.id)
+        media_data = GetMediaPostSerializers(medias_data, many=True)
+
+        return media_data.data
+
+    def get_is_friend_req(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendRequest.objects.filter(user=user, friend=obj.id)
+        if friend_data:
+            return True
+        else:
+            return False
+
+    def get_is_friend_acc(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendList.objects.filter(user=user, friends=obj.id)
+        if friend_data:
+            return True
+        else:
+            return False
 
     class Meta:
         model = User
         geo_field = "location"
-        fields = ('id', 'gender', 'birth_date', 'location','passion','idealmatch','name','image')
+        fields = ('id',
+                  'gender',
+                  'birth_date',
+                  'location',
+                  'passion',
+                  'idealmatch',
+                  'name',
+                  'image',
+                  'address',
+                  'city',
+                  'marital_status',
+                  'interest_in',
+                  'media',
+                  'age',
+                  'is_friend_req',
+                  'is_friend_acc',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['gender'] = genderSerializer(instance.gender).data
+        response['interest_in'] = genderSerializer(instance.interest_in).data
+        return response
+
+
+# UserSeachFilterSerializer
+class UserSeachFilterSerializer(serializers.ModelSerializer):
+
+    is_friend_req = serializers.SerializerMethodField()
+    is_friend_acc = serializers.SerializerMethodField()
+    is_friend_get = serializers.SerializerMethodField()
+
+    def get_is_friend_req(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendRequest.objects.filter(user=user, friend=obj.id)
+        if friend_data:
+            return True
+        else:
+            return False
+
+    def get_is_friend_acc(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendList.objects.filter(user=user, friends=obj.id)
+
+        if friend_data:
+            return True
+        else:
+            return False
+
+    def get_is_friend_get(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendRequest.objects.filter(
+            user=obj.id, friend=user)
+        if friend_data:
+            return True
+        else:
+            return False
+
+    class Meta:
+        model = User
+
+        fields = ('id',
+                  'gender',
+                  'birth_date',
+                  'city',
+                  'passion',
+                  'idealmatch',
+                  'name',
+                  'image',
+                  'is_friend_req',
+                  'is_friend_acc',
+                  'is_friend_get',)

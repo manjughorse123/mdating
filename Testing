@@ -180,7 +180,7 @@ class PostUserReactSerializerView(APIView):
         return Response({"success": "True", "data": serializer.data}, status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
-        import pdb;pdb.set_trace()
+
         serializer = PostUserReactSerializer(data=request.data)
 
         if serializer.is_valid():

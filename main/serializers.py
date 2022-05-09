@@ -39,16 +39,9 @@ class FollowAcceptSerializer(ModelSerializer):
         fields = "__all__"
 
 
-class UserIdealMatchSerializer(ModelSerializer):
-    class Meta:
-        model = UserIdealMatch
-        fields = ("user", 'idealmatch', 'create_at')
 
 
-class UserPassionSerializer(ModelSerializer):
-    class Meta:
-        model = UserPassion
-        fields = ("user", 'passion', 'create_at')
+
 
 
 class UserMatchProfileFilterSerializer(GeoFeatureModelSerializer):
