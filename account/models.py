@@ -151,6 +151,13 @@ class Heigth(models.Model):
 #     def written_by(self):
 #         return ",".join([str(p) for p in self.passion_in.all()])
 
+MAYBECHOICE = (
+    (0, 'all'),
+    (1, 'friend'),
+    (2, 'onlyme'),
+)
+
+
 class User(AbstractBaseUser):
     id = models.UUIDField(max_length=100, primary_key=True,
                           default=uuid.uuid4, editable=False)
@@ -205,6 +212,9 @@ class User(AbstractBaseUser):
     country = models.CharField(max_length=8, blank=True, null=True)
     auth_tokens = models.TextField(blank=True, null=True)
     is_complete_profile = models.BooleanField(default=False)
+
+    show_profile = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
     # objects = LocationManager()
     # objects = UserManager()
     USERNAME_FIELD = 'mobile'

@@ -538,8 +538,12 @@ class UserImagesV2API(GenericAPIView):
         # follow_serializer = ass
         else:
             # pass
-            posts_lists = PostUpload.objects.all().order_by(
-                '-create_at').distinct()
+            # posts_lists = User.objects.filter(Q(gender=user[0].gender) |
+            #                                   Q(passion__in=user[0].passion.all())
+            #                                   and Q(is_complete_profile=True)
+            #                                   ).exclude(id=request.user.id).distinct()
+            posts_lists = PostUpload.objects.filter(is_private=0).order_by(
+                '-create_at').exclude(id=request.user.id).distinct()
             follow_serializer = PostUploadV2Serializers(
                 posts_lists, context={'request': request}, many=True)
 

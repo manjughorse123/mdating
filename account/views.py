@@ -1029,3 +1029,67 @@ class ResendOtpApiView(GenericAPIView):
 
         return Response({"message": " No Resend otp", "status": 200, "success": True,
                          }, status=status.HTTP_200_OK)
+
+
+class SettingPrivacyApi(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    queryset = User.objects.all()
+    serializer_class = UserSerializer
+
+    @swagger_auto_schema(
+        operation_summary="setting privacy update",
+        tags=['Account']
+    )
+    def put(self, request, *args, **kwargs):
+
+        user_data = get_object_or_404(User, id=request.user.id)
+
+        serializer = UserSerializer(user_data, data=request.data)
+        print("request.data", request.data)
+
+        if 'show_profile' in request.data:
+            user_data.show_profile = request.data["show_profile"]
+            user_data.save(update_fields=["show_profile"])
+            
+        if 'show_public_post' in request.data:
+            user_public_post = PostUpload.objects.filter(
+                user=request.user.id, is_private=0)
+            for i in range(len(user_public_post)):
+
+                # user_public_post[i]
+                user_public_post[i].show_public_post = request.data["show_public_post"]
+                user_public_post[i].save(update_fields=["show_public_post"])
+
+        if 'show_private_post' in request.data:
+            user_private_post = PostUpload.objects.filter(
+                user=request.user.id, is_private=1)
+            for i in range(len(user_private_post)):
+                user_private_post[i].show_private_post = request.data["show_private_post"]
+                user_private_post[i].save(update_fields=["show_private_post"])
+
+        if 'show_media_video' in request.data:
+            user_media_video = MediaVideo.objects.filter(
+                user=request.user.id)
+            for i in range(len(user_media_video)):
+
+                user_media_video[i].show_media_video = request.data["show_media_video"]
+                user_media_video[i].save(update_fields=["show_media_video"])
+
+        if 'show_media_photo' in request.data:
+            user_media_photo = MediaPost.objects.filter(
+                user=request.user.id)
+            for i in range(len(user_media_photo)):
+                user_media_photo[i].show_media_photo = request.data["show_media_photo"]
+                user_media_photo[i].save(update_fields=["show_media_photo"])
+
+        if 'show_friend' in request.data:
+            user_friend = FriendList.objects.filter(user=request.user.id)
+            for i in range(len(user_friend)):
+                user_friend[i].show_friend = request.data["show_friend"]
+                user_friend[i].save(update_fields=["show_friend"])
+
+        # if serializer.is_valid():
+        #     user_data = serializer.save()
+        return Response({"message": "User setting privacy updated", "status": 200, "success": True,
+                         "data": UserSerializer(user_data).data})
+        # return Response({"message": "No data Found", }, status=status.HTTP_400_BAD_REQUEST)

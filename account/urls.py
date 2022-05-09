@@ -32,5 +32,7 @@ urlpatterns = [
     path('resend-otp/', ResendOtpApiView.as_view(),
          name='resend_otp'),  # resend api
     path('logout/', LogoutApiView.as_view(), name="logout"),
+    path('setting/privacy/', SettingPrivacyApi.as_view(), name='setting-privacy'),
+    
 
 ]

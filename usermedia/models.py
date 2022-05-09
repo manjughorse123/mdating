@@ -2,6 +2,12 @@ from django.db import models
 from account.models import *
 # Create your models here.
 
+MAYBECHOICE = (
+    (0, 'all'),
+    (1, 'friend'),
+    (2, 'onlyme'),
+)
+
 
 class MediaPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -15,6 +21,9 @@ class MediaPost(models.Model):
     media_report = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
+    show_media_photo = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
+
     def __str__(self):
         return str(self.media)
 
@@ -27,6 +36,9 @@ class MediaVideo(models.Model):
     like_count = models.PositiveIntegerField(default=0, blank=True, null=True)
     # is_media = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
+
+    show_media_video = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
 
     def __str__(self):
         return str(self.user.name)

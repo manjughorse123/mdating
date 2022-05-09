@@ -5,6 +5,12 @@ from django.db.models.signals import pre_save
 
 from account.models import *
 
+MAYBECHOICE = (
+    (0, 'all'),
+    (1, 'friend'),
+    (2, 'onlyme'),
+)
+
 
 class PostUpload(models.Model):
     user = models.ForeignKey(
@@ -25,6 +31,10 @@ class PostUpload(models.Model):
     is_private = models.PositiveIntegerField(
         default=0, blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
+    show_public_post = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
+    show_private_post = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
 
     def __str__(self):
         return str(self.id)+','+str(self.post)

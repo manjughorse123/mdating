@@ -22,8 +22,8 @@ class FriendList(models.Model):
         User, blank=True, on_delete=models.CASCADE, related_name="friends")
     is_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
-    # show_friend = models.CharField(
-    #     max_length=1, choices=MAYBECHOICE, default=0)
+    show_friend = models.IntegerField(
+        choices=MAYBECHOICE, default=0)
 
     def __str__(self):
         return self.user.name
