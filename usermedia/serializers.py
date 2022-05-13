@@ -22,8 +22,16 @@ class UserEditSerilaizer(ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'name', 'birth_date', 'mobile', 'bio',
-                  'about', 'country_code', 'gender', 'passion',)
+        fields = (
+        'id', 
+        'name', 
+        'birth_date', 
+        'mobile', 
+        'bio',
+        'about', 
+        'country_code', 
+        'gender', 
+        'passion',)
 
 
 class UserMediaEditSerializer(ModelSerializer):
@@ -34,8 +42,14 @@ class UserMediaEditSerializer(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('id', 'user', 'like_count', 'view_count',
-                  'media', 'share_count', 'caption')
+        fields = (
+            'id', 
+            'user', 
+            'like_count', 
+            'view_count',
+            'media', 
+            'share_count', 
+            'caption')
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -51,8 +65,13 @@ class MediaPostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('id', 'user', 'like_count', 'view_count',
-                  'media', 'share_count', 'caption')
+        fields = (  'id', 
+                    'user', 
+                    'like_count', 
+                    'view_count',
+                    'media', 
+                    'share_count', 
+                    'caption')
 
 
 class GetMediaPostSerializers(ModelSerializer):
@@ -63,8 +82,13 @@ class GetMediaPostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = ('user', 'like_count', 'media',
-                  'id', 'caption',)
+        fields = ('user',
+                  'like_count',
+                  'media',
+                  'id',
+                  'caption',
+                  'show_media_photo'
+                  )
 
 
 class GetMediaV2PostSerializers(ModelSerializer):

@@ -2,6 +2,9 @@
 from rest_framework import serializers
 
 from account.models import *
+from friend.models import *
+from post.models import *
+from usermedia.models import MediaPost, MediaVideo
 
 
 class PassionSerializer(serializers.ModelSerializer):
@@ -54,8 +57,26 @@ class UserProfileSerializer(serializers.ModelSerializer):
     class Meta(object):
 
         model = User
-        fields = ('name', 'id', 'gender', 'passion', 'country_code', 'mobile', 'birth_date', 'image', 'bio', 'about',
-                  'interest_in', 'tall', 'marital_status', 'idealmatch', 'email', 'user_passion', 'user_idealmatch', 'city', 'location',)
+        fields = ('name',
+                  'id',
+                  'gender',
+                  'passion',
+                  'country_code',
+                  'mobile',
+                  'birth_date',
+                  'image',
+                  'bio',
+                  'about',
+                  'interest_in',
+                  'tall',
+                  'marital_status',
+                  'idealmatch',
+                  'email',
+                  'user_passion',
+                  'user_idealmatch',
+                  'city',
+                  'location',
+                  'show_profile')
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -211,10 +232,77 @@ class UserVerifyDocSerializer(serializers.ModelSerializer):
 
 
 class UserResendOtpSerializer(serializers.ModelSerializer):
-    govt_id = serializers.CharField(max_length=200)
-    selfie = serializers.CharField(max_length=200)
+    # govt_id = serializers.CharField(max_length=200)
+    # selfie = serializers.CharField(max_length=200)
 
     class Meta:
 
         model = User
-        fields = ('id', 'govt_id', 'selfie')
+        fields = ('id',
+                  'mobile',
+                  'country_code')
+
+
+class UserSettingSerializer(serializers.ModelSerializer):
+
+    show_friend = serializers.SerializerMethodField()
+    show_public_post = serializers.SerializerMethodField()
+    show_private_post = serializers.SerializerMethodField()
+    show_media_photo = serializers.SerializerMethodField()
+    show_media_video = serializers.SerializerMethodField()
+
+    def get_show_friend(self, obj):
+
+        friend_data = FriendList.objects.filter(user=obj.id)
+        if len(friend_data) > 0:
+            for i in range(len(friend_data)):
+                data = friend_data[i].show_friend
+            return data
+        return 0
+
+    def get_show_public_post(self, obj):
+        public_data = PostUpload.objects.filter(user=obj.id, is_private=0)
+        if len(public_data) > 0:
+            for i in range(len(public_data)):
+                data = public_data[i].show_public_post
+            return data
+        return 0
+
+    def get_show_private_post(self, obj):
+        public_data = PostUpload.objects.filter(user=obj.id, is_private=1)
+        if len(public_data) > 0:
+            for i in range(len(public_data)):
+                data = public_data[i].show_public_post
+            return data
+        return 0
+
+    def get_show_media_photo(self, obj):
+        media_photo = MediaPost.objects.filter(user=obj.id)
+        if len(media_photo) > 0:
+            for i in range(len(media_photo)):
+                data = media_photo[i].show_media_photo
+            return data
+        return 0
+
+    def get_show_media_video(self, obj):
+        media_video = MediaVideo.objects.filter(user=obj.id)
+
+        if len(media_video) > 0:
+            for i in range(len(media_video)):
+                data = media_video[i].show_media_video
+            return data
+        return 0
+
+    class Meta(object):
+        model = User
+        fields = ('id',
+                  'name',
+                  'mobile',
+                  'gender',
+                  'passion',
+                  'show_profile',
+                  'show_friend',
+                  'show_public_post',
+                  'show_private_post',
+                  'show_media_photo',
+                  'show_media_video',)

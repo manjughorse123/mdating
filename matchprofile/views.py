@@ -322,7 +322,10 @@ class UserSearchFilterApiView(ListAPIView):
     def get(self, request,  format=None):
         page_size = 10
         user_id = request.user.id
-        user_info = User.objects.filter(id=user_id)
+        # user_info = User.objects.filter(id=user_id)
+        user_info = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id= %s", [user_id])
+        # print("dffweasfewffgwefwe", people[0].name, people[0].age)
         user_passion = []
 
         today = date.today()
@@ -338,23 +341,14 @@ class UserSearchFilterApiView(ListAPIView):
         max_date = date(current.year - int(max_age),
                         current.month, current.day)
 
-        # ass = User.objects.filter(birth_date__range=(
-        # min_date, max_date)).order_by("birth_date")
-        # print("ass", ass)
         # people = User.objects.raw(
-        #     'SELECT id,age(birth_date) AS age FROM account_user')
+        #     "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user")
+        # print("people", people[0].id)
+        # for p in people:
 
-        # DATEDIFF(day, birth_date, GETDATE())
-
-        people = User.objects.raw(
-            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user")
-
-        for p in people:
-
-            print(" is ", p.id, p.age)
+        #     print(" is ", p.id, p.age)
 
         new_data = User.objects.filter(
-
             Q(gender=user_info[0].gender) |
             Q(city=user_info[0].city) |
             Q(location=user_info[0].location) |
@@ -364,6 +358,9 @@ class UserSearchFilterApiView(ListAPIView):
             Q(create_at__range=(last_week, today))
             and Q(is_complete_profile=True)
         ).exclude(id=user_info[0].id).distinct()
+        # new_data = User.objects.filter(birth_date__range=(
+        #     user_info[0].birth_date.year - 10, user_info[0].birth_date.year + 10)).exclude(id=user_info[0].id).distinct()
+        # print(new_data)
         dat = User.objects.all()
         paginator = PageNumberPagination()
         paginator.page_size = page_size

@@ -150,38 +150,38 @@ class MediaUploadApi(GenericAPIView):
         # user=request.user.id
 
         # caption = request.data['caption'],
-        media = request.data.get('media'),
-        if 'caption' in request.data:
-            user = request.user.id
-            obj = User.objects.filter(id=user)
-            obj.update(is_media=True)
-            string = request.data['media']
-            new_caption = request.data['caption']
-            name = string.split(',')
-
-            for i in range(len(name)):
-
-                media_data = MediaPost.objects.create(
-                    user=request.user, media=name[i], caption=new_caption)
-
-            return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
-
-        else:
-            if media is not None:
+        if "media" in request.data:
+            media = request.data.get('media'),
+            if 'caption' in request.data:
                 user = request.user.id
                 obj = User.objects.filter(id=user)
                 obj.update(is_media=True)
                 string = request.data['media']
+                new_caption = request.data['caption']
                 name = string.split(',')
 
                 for i in range(len(name)):
 
                     media_data = MediaPost.objects.create(
-                        user=request.user, media=name[i])
+                        user=request.user, media=name[i], caption=new_caption)
 
                 return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
 
-        return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                if media is not None:
+                    user = request.user.id
+                    obj = User.objects.filter(id=user)
+                    obj.update(is_media=True)
+                    string = request.data['media']
+                    name = string.split(',')
+
+                    for i in range(len(name)):
+                        media_data = MediaPost.objects.create(
+                            user=request.user, media=name[i])
+
+                    return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"status": 400, "message": "No Media Found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaUploadV2Api(GenericAPIView):
@@ -233,11 +233,11 @@ class MediaUploadV2Api(GenericAPIView):
             name = string.split(',')
 
             for i in range(len(name)):
-                aa = MediaPost.objects.create(
+                media_image = MediaPost.objects.create(
                     user=request.user, media=name[i], caption=caption)
             return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"},
                             status=status.HTTP_201_CREATED)
-        return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
+        return Response({"status": 400, "message": "no data found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaReactionApi(GenericAPIView):
@@ -326,7 +326,7 @@ class MediaReactionApi(GenericAPIView):
             # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
             # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
 
-        return Response({"message": "Bad Request", "status": 400, "success": "error"},
+        return Response({"message": "No Data", "status": 400, "success": "error"},
                         status=status.HTTP_400_BAD_REQUEST)
 
 

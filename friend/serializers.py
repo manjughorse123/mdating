@@ -62,7 +62,12 @@ class FriendListUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendList
-        fields = ('user', 'friends', 'is_accepted', 'id',)
+        fields = ('user', 
+        'friends', 
+        'is_accepted', 
+        'id', 
+        'show_friend',
+        )
 
 
 class FriendListSerializer(serializers.ModelSerializer):
@@ -403,7 +408,7 @@ class FriendRequestAcceptSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendList
-        fields = ('friends', 'id', 'user', 'is_mutual',)
+        fields = ('friends', 'id', 'user', 'is_mutual', 'show_friend',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)

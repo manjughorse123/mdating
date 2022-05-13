@@ -36,7 +36,7 @@ class AddFriendRequestSendView(GenericAPIView):
     )
     def post(self, request, format='json'):
         serializer = FriendRequestSerializer(data=request.data)
-
+        print(request.data)
         flag = request.data['flag']
         flag = str(flag)
         if serializer.is_valid():
@@ -75,7 +75,7 @@ class AddFriendRequestAcceptView(GenericAPIView):
 
     def post(self, request, format='json'):
         serializer = FriendListSerializer(data=request.data)
-
+        print(request.data)
         if serializer.is_valid():
 
             to_user = serializer.validated_data['user']
@@ -174,9 +174,9 @@ class GetFriendRequestListViewV2(GenericAPIView):
 
         for friend_list_id in range(len(list_suggested)):
 
-            if FriendRequest.objects.filter(user_id__in=list_suggested):
+            if FriendRequest.objects.filter(friend_id__in=list_suggested):
                 friend_value = FriendRequest.objects.filter(
-                    friend_id__in=list_suggested)
+                    friend_id__in=list_suggested, user_id=user_id)
                 if not friend_value:
                     list_suggested
                 else:
@@ -185,18 +185,17 @@ class GetFriendRequestListViewV2(GenericAPIView):
                         list_suggested.remove(
                             friend_value[frnd_lst_id].friend_id)
 
-        # for friend_list_id in range(len(list_suggested)):
+        for friend_list_id in range(len(list_suggested)):
 
-        #     if FriendRequest.objects.filter(user_id__in=list_suggested):
-        #         friend_value = FriendRequest.objects.filter(
-        #             user_id__in=list_suggested)
-        #         if not friend_value:
-        #             list_suggested
-        #         else:
-        #             for frnd_lst_id in range(len(friend_value)):
-
-        #                 list_suggested.remove(
-        #                     friend_value[frnd_lst_id].user_id)
+            if FriendRequest.objects.filter(user_id__in=list_suggested):
+                friend_value = FriendRequest.objects.filter(
+                    user_id__in=list_suggested, friend_id=user_id)
+                if not friend_value:
+                    list_suggested
+                else:
+                    for frnd_lst_id in range(len(friend_value)):
+                        list_suggested.remove(
+                            friend_value[frnd_lst_id].user_id)
 
         for friend_req_id in range(len(list_suggested)):
 
@@ -207,7 +206,6 @@ class GetFriendRequestListViewV2(GenericAPIView):
                     list_suggested
                 else:
                     for frnd_lst_id in range(len(friend_value)):
-
                         list_suggested.remove(
                             friend_value[frnd_lst_id].friends_id)
 
@@ -356,18 +354,38 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
                         user=user, friends=friends, is_accepted=True)
                     obj_friend = FriendList.objects.create(
                         user=friends, friends=user, is_accepted=True)
-                    obj = FriendRequest.objects.filter(friend=user)
+                    # obj = FriendRequest.objects.filter(
+                    #     friend=user, user=friends)
+                    if FriendRequest.objects.filter(
+                            friend=user, user=friends):
+                        obj = FriendRequest.objects.filter(
+                            friend=user, user=friends)
+                        print("if:", obj)
+                    else:
+                        obj = FriendRequest.objects.filter(
+                            friend=friends, user=user)
+                        print("ELSE :", obj)
                     obj = obj[0].id
                     objs = FriendRequest.objects.filter(id=obj)
                     objs.delete()
 
             if flag == '2':  # delete  request
-                obj = FriendRequest.objects.filter(friend=friends)
-                obj = obj[0].id
-                objs = FriendRequest.objects.filter(id=obj)
-                objs.delete()
-                return Response({"success": True, "message": "Friend Request Deleted !", "status": 200}, status=status.HTTP_200_OK)
-
+                if FriendRequest.objects.filter(
+                        friend=user, user=friends):
+                    obj = FriendRequest.objects.filter(
+                        friend=user, user=friends)
+                    print("if :", obj)
+                else:
+                    obj = FriendRequest.objects.filter(
+                        friend=friends, user=user)
+                    print("else :", obj)
+                if obj:
+                    obj = obj[0].id
+                    objs = FriendRequest.objects.filter(id=obj)
+                    objs.delete()
+                    return Response({"success": True, "message": "Friend Request Deleted !", "status": 200}, status=status.HTTP_200_OK)
+                else:
+                    return Response({"success": True, "message": "No Data", "status": 200}, status=status.HTTP_200_OK)
             if flag == '3':  # unfriend user
                 if FriendList.objects.filter(friends=friends):
                     obj = FriendList.objects.filter(friends=friends, user=user)
@@ -420,8 +438,9 @@ class GetFriendRequestAcceptView(GenericAPIView):
 
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(Q(
-            passion__in=user_data[0].passion.all()) |
+        user_data = User.objects.filter(
+            Q(city=user_data[0].city) |
+            Q(passion__in=user_data[0].passion.all()) |
             Q(create_at__range=(last_week, today)) and
             Q(is_complete_profile=True)
         ).exclude(id=user_id).distinct()
@@ -659,7 +678,7 @@ class FollowRequestAcceptView(GenericAPIView):
 
             return Response({"success": True, "message": "Send Follow Request!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
-            return Response({"success": "error", "message": "Follow Request Already", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": "error", "message": "NO data Found", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetFollowerV3View(GenericAPIView):
@@ -767,7 +786,8 @@ class GetFollowerFollowingView(GenericAPIView):
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(
-
+            Q(city=user_data[0].city) |
+            Q(gender=user_data[0].gender) |
             Q(passion__in=user_data[0].passion.all()) and
             Q(is_complete_profile=True)).exclude(id=user_id).distinct()
         list_suggested = []
@@ -1000,41 +1020,48 @@ class SendFollowRequestView(GenericAPIView):
         tags=['Follow']
     )
     def post(self, request, format='json'):
-        print("request data", request.data)
         users = str(request.user.id)
         user = User.objects.get(id=users)
-        flag = request.data['flag']
-        flag = str(flag)
-        serializer = SendFollowRequestSerializer(data=request.data)
-        if serializer.is_valid():
-            follow = serializer.validated_data['follow']
-            users = str(request.user.id)
-            user = User.objects.get(id=users)
-            if flag == '1':
-                if FollowRequest.objects.filter(follow=follow):
-                    return Response({"success": True, "message": "  Already follow ", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
-                else:
-                    obj = FollowRequest.objects.create(
-                        user=user, follow=follow)
-                    return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-            if flag == '2':
-                if FollowRequest.objects.filter(follow=follow):
-                    obj_follow_data = FollowRequest.objects.filter(
-                        follow=user, user=follow)
-                    obj_follow_datas = obj_follow_data[0]
-                    obj_follow_datas.is_follow = False
-                    obj_follow_datas.save(update_fields=["is_follow"])
+        if "flag" in request.data:
+            flag = request.data['flag']
+            flag = str(flag)
+            serializer = SendFollowRequestSerializer(data=request.data)
+            if serializer.is_valid():
+                follow = serializer.validated_data['follow']
+                # users = str(request.user.id)
+                # user = User.objects.get(id=users)
+                if flag == '1':  # accept follow
+                    if FollowRequest.objects.filter(follow=follow, user=user):
+                        return Response({"success": True, "message": "  Already follow ", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
+                    else:
+                        obj = FollowRequest.objects.create(
+                            user=user, follow=follow)
+                        return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-                    obj = FollowRequest.objects.filter(follow=follow)
-                    obj = obj[0].id
-                    objs = FollowRequest.objects.filter(id=obj)
-                    objs.delete()
-                    return Response({"success": True, "message": "Cancel follow Request !", "status": 200}, status=status.HTTP_200_OK)
-                else:
-                    return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
+                if flag == '2':  # cancel follow request
+                    if FollowRequest.objects.filter(follow=follow, user=user):
+
+                        #     obj_follow_data = FollowRequest.objects.filter(
+                        #         follow=user, user=follow)
+                        # else:
+                        obj_follow_data = FollowRequest.objects.filter(
+                            follow=follow, user=user)
+                        obj_follow_datas = obj_follow_data[0]
+                        obj_follow_datas.is_follow = False
+                        obj_follow_datas.save(update_fields=["is_follow"])
+
+                        obj = FollowRequest.objects.filter(follow=follow)
+                        obj = obj[0].id
+                        objs = FollowRequest.objects.filter(id=obj)
+                        objs.delete()
+                        return Response({"success": True, "message": "Cancel follow Request !", "status": 200}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": True, "message": "No data", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            return Response({"success": True, "message": "Follow  Was Already Sent!", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": True, "message": "Flag Not Found !", "status": 200}, status=status.HTTP_200_OK)
 
 
 class FollowBackApiView(GenericAPIView):
@@ -1055,45 +1082,52 @@ class FollowBackApiView(GenericAPIView):
         tags=['Follow']
     )
     def post(self, request, format='json'):
+
         users = str(request.user.id)
         user = User.objects.get(id=users)
-        flag = request.data['flag']
-        flag = str(flag)
-        serializer = FollowBackSerializer(data=request.data)
-        if serializer.is_valid():
-            follow = serializer.validated_data['follow']
-            is_follow = serializer.validated_data['is_follow']
-            users = str(request.user.id)
-            user = User.objects.get(id=users)
-            if flag == '1':  # follow
-                if FollowRequest.objects.filter(follow=follow):
-                    return Response({"success": True, "message": "Already foollow Back!", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
-                else:
-                    obj = FollowRequest.objects.create(
-                        user=user, follow=follow, is_follow=is_follow)
-                    objs = FollowRequest.objects.filter(
-                        user=follow, follow=user)
+        if "flag" in request.data:
+            flag = request.data['flag']
+            flag = str(flag)
+            serializer = FollowBackSerializer(data=request.data)
+            if serializer.is_valid():
+                follow = serializer.validated_data['follow']
+                is_follow = serializer.validated_data['is_follow']
 
-                    fetch_obj_data = objs[0]
-                    fetch_obj_data.is_follow = True
-                    fetch_obj_data.save(update_fields=["is_follow"])
+                if flag == '1':  # follow
+                    if FollowRequest.objects.filter(follow=follow, user=user):
+                        return Response({"success": True, "message": "Already follow Back!", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
+                    else:
+                        obj = FollowRequest.objects.create(
+                            user=user, follow=follow, is_follow=is_follow)
+                        objs = FollowRequest.objects.filter(
+                            user=follow, follow=user)
 
-                    return Response({"success": True, "message": "Follow Back added!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+                        fetch_obj_data = objs[0]
+                        fetch_obj_data.is_follow = True
+                        fetch_obj_data.save(update_fields=["is_follow"])
 
-            if flag == '2':  # delete follow
-                if FollowRequest.objects.filter(follow=follow, is_follow=is_follow):
-                    objs = FollowRequest.objects.filter(follow=follow)
-                    fetch_obj_data = objs[0]
-                    fetch_obj_data.is_follow = False
-                    fetch_obj_data.save(update_fields=["is_follow"])
+                        return Response({"success": True, "message": "Follow Back added!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
-                    # objs = FollowRequest.objects.filter(id=obj)
-                    # objs.delete()
-                    return Response({"success": True, "message": "Cancel Follow Back !", "status": 200}, status=status.HTTP_200_OK)
-                else:
-                    return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
+                if flag == '2':  # remove follow back
+                    if FollowRequest.objects.filter(follow=follow, user=user):
+                        obj = FollowRequest.objects.filter(
+                            follow=follow, user=user)
+                        objs = FollowRequest.objects.filter(
+                            user=follow, follow=user)
+                        fetch_obj_data = objs[0]
+                        fetch_obj_data.is_follow = False
+                        fetch_obj_data.save(update_fields=["is_follow"])
+
+                        ob_set_data = FollowRequest.objects.filter(
+                            id=obj[0].id)
+                        ob_set_data.delete()
+                        return Response({"success": True, "message": "Cancel Follow Back !", "status": 200}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
+            else:
+                return Response({"success": True, "message": "Try Again", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
         else:
-            return Response({"success": True, "message": "Follow  Was Already Sent!", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
+            return Response({"success": True, "message": "Flag Not Found", "status": 200, }, status=status.HTTP_200_OK)
 
 
 class GetFollowBackApiView(GenericAPIView):
@@ -1111,7 +1145,7 @@ class GetFollowBackApiView(GenericAPIView):
     def get(self, request, format=None):
         user_id = request.user.id
 
-        user_data = User.objects.filter(id=user_id)
+        # user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(
             Q(passion__in=user_data[0].passion.all())
             and Q(is_complete_profile=True)
@@ -1127,17 +1161,14 @@ class GetFollowBackApiView(GenericAPIView):
             if FollowRequest.objects.filter(follow_id__in=list_suggested):
                 follow_value = FollowRequest.objects.filter(user_id=user_id,
                                                             follow_id__in=list_suggested)
-
                 if not follow_value:
                     list_suggested
                 else:
                     for flw_lst_id in range(len(follow_value)):
-
                         list_suggested.remove(
                             follow_value[flw_lst_id].follow_id)
 
         for follow_req_id in range(len(list_suggested)):
-
             if FollowRequest.objects.filter(follow_id__in=list_suggested):
                 follow_value = FollowRequest.objects.filter(follow_id=user_id,
                                                             user_id__in=list_suggested)
@@ -1145,7 +1176,6 @@ class GetFollowBackApiView(GenericAPIView):
                     list_suggested
                 else:
                     for flw_lst_id in range(len(follow_value)):
-
                         list_suggested.remove(
                             follow_value[flw_lst_id].user_id)
 
@@ -1185,17 +1215,18 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
             raise Http404
 
     @ swagger_auto_schema(
-
         operation_summary="Get Friend Request Accept Api",
-
         tags=['Friend']
     )
     def get(self, request, user_id, format=None):
 
-        user_req_id = request.user.id
+        # user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(
-            passion__in=user_data[0].passion.all()).exclude(id=user_id).distinct()
+        user_data = User.objects.filter(Q(passion__in=user_data[0].passion.all()) |
+                                        Q(gender=user_data[0].gender) |
+                                        Q(city=user_data[0].city) |
+                                        Q(marital_status=user_data[0].marital_status)
+                                        ).exclude(id=user_id).distinct()
 
         list_suggested = []
         for user_list_id in range(len(user_data)):
@@ -1206,12 +1237,10 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
 
             if FriendRequest.objects.filter(friend_id__in=list_suggested):
                 friend_value = FriendRequest.objects.filter(user_id=user_id,
-                                                            friend_id=list_suggested[friend_list_id])
-
+                                                            friend_id__in=list_suggested)
                 if not friend_value:
                     list_suggested
                 else:
-
                     list_suggested.remove(
                         friend_value[0].friend_id)
 
@@ -1233,7 +1262,6 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
             'request': user_id}, many=True)
 
-        # user_id = request.user.id
         friend_req_list = FriendList.objects.filter(
             user_id=user_id).order_by('-create_at')
         # suggested = User.objects.all().exclude(id=user_id)[:5]
@@ -1323,13 +1351,13 @@ class TestingSuggestedFollowApiView(GenericAPIView):
         tags=['Follow']
     )
     def get(self, request, format=None):
+
+        # try:
         user_id = request.user.id
-        ####
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(
             passion__in=user_data[0].passion.all()).exclude(id=user_id).distinct()
         list_suggested = []
-
         for user_list_id in range(len(user_data)):
             fetch_data = user_data[user_list_id].id
             list_suggested.append(fetch_data)
@@ -1339,7 +1367,6 @@ class TestingSuggestedFollowApiView(GenericAPIView):
             if FollowRequest.objects.filter(follow_id__in=list_suggested):
                 follow_value = FollowRequest.objects.filter(user_id=user_id,
                                                             follow_id__in=list_suggested)
-
                 if not follow_value:
                     list_suggested
                 else:
@@ -1365,8 +1392,9 @@ class TestingSuggestedFollowApiView(GenericAPIView):
         user_suggest_follow = User.objects.filter(
             id__in=list_suggested).exclude(id=request.user.id)
 
-        user_data = UserSuggestionSerializer(user_suggest_follow, many=True)
-        ####
+        user_data = UserSuggestionSerializer(user_suggest_follow, context={
+                                             'request': user_id}, many=True)
+
         follower_info = FollowRequest.objects.filter(
             user_id=user_id, is_follow=True)
         serializer = GetFollowBackSerializer(follower_info, many=True)
@@ -1374,7 +1402,6 @@ class TestingSuggestedFollowApiView(GenericAPIView):
                          "message": " User Follow Back",
                          "data": serializer.data,
                          "status": 200,
-
                          "data_count": len(serializer.data),
                          "follow_suggested": user_data.data},
                         status=status.HTTP_200_OK)

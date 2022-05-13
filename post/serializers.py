@@ -21,30 +21,20 @@ class PostUploadCreateSerializers(ModelSerializer):
     #     return response
 
 
-PostUploadCreateSerializers
-
-
-class PostUploadCreateSerializers(ModelSerializer):
-    # is_liked = serializers.BooleanField(read_only=True)
-
-    class Meta:
-        model = PostUpload
-        fields = '__all__'
-
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['user'] = UserFriendSerializer(instance.user).data
-
-    #     return response
-
-
 class PostUploadSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
     # isLiked = serializers.SerializerMethodField()
     # isViewed = serializers.SerializerMethodField()
     class Meta:
         model = PostUpload
-        fields = ('post', 'id', 'message', 'title', 'user', 'is_private')
+        fields = ('post',
+                  'id',
+                  'message',
+                  'title',
+                  'user',
+                  'is_private',
+                  'show_private_post',
+                  'show_public_post')
 
 
 class PostUploadV2Serializers(ModelSerializer):
@@ -69,12 +59,9 @@ class PostUploadV2Serializers(ModelSerializer):
 
         user = self.context['request'].user
         friend_data = FriendList.objects.filter(user=user, friends=obj.user)
-
         if friend_data:
-
             return True
         else:
-
             return False
 
     def get_is_friend_get(self, obj):
@@ -88,22 +75,34 @@ class PostUploadV2Serializers(ModelSerializer):
             return False
 
     def get_is_user(self, obj):
-
         user = self.context['request'].user.id
         user_data = User.objects.get(
             id=user)
         user_datas = User.objects.get(
             id=obj.user.id)
         if user_data == user_datas:
-
             return True
         else:
             return False
 
     class Meta:
         model = PostUpload
-        fields = ('id', 'user', 'post', 'title', 'is_like_count', 'is_user', 'is_friend_get',
-                  'is_view_count', 'isLiked',  'message', 'post_report', 'is_friend_req', 'is_friend_acc', )
+        fields = ('id',
+                  'user',
+                  'post',
+                  'title',
+                  'message',
+                  'is_like_count',
+                  'is_user',
+                  'is_friend_get',
+                  'is_view_count',
+                  'isLiked',
+                  'post_report',
+                  'is_friend_req',
+                  'is_friend_acc',
+                  'show_public_post',
+                  'show_private_post',
+                  'is_private')
 
     def get_isLiked(self, obj):
 
@@ -128,7 +127,10 @@ class PostUploadV2Serializers(ModelSerializer):
 class UserFriendSerializer(ModelSerializer):
     class Meta:
         model = User
-        fields = ('id', 'name', 'image', 'email')
+        fields = ('id',
+                  'name',
+                  'image',
+                  'email')
 
 
 class UserPostUpdateSerilaizer(ModelSerializer):

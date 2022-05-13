@@ -10,8 +10,7 @@ from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from django.conf import settings
-from phonenumbers import country_code_for_region
-
+from DatingApp.baseurl import base_url
 from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
@@ -19,12 +18,11 @@ from rest_framework.views import *
 from post.serializers import *
 from usermedia.serializers import *
 
-from account.models import *
+from account.models import User
 from account.serializers import *
-from friend.models import *
+from friend.models import FriendList, FriendRequest
 from friend.serializers import *
 from account.utils import generate_access_token, generate_refresh_token
-from DatingApp.baseurl import base_url
 from usermedia.models import *
 
 
@@ -62,6 +60,7 @@ class Login(GenericAPIView):
     def post(self, request, *args, **kwargs):
 
         try:
+            # if
             mobile = request.data['mobile']
             country_code = request.data['country_code']
 
@@ -75,6 +74,7 @@ class Login(GenericAPIView):
                         'is_register': False, "status": 404},
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
+            # if user.is_active == True:
             otp = 1234
             user.otp = otp
             user.save()
@@ -87,9 +87,10 @@ class Login(GenericAPIView):
                 'name': user.name,
                 'is_verified': user.is_verified}},
                 status=status.HTTP_200_OK)
-            # else :
-            #     return Response({'success': False, "status": 404, 'message': 'Field Required'},
-            #                 status=status.HTTP_404_NOT_FOUND)
+            # else:
+            #     return Response({'success': False, "status": 200, 'message': 'user is inactive',
+            #                      "data": user.active_reseaon},
+            #                     status=status.HTTP_200_OK)
 
         except Exception as e:
             print(e)
@@ -113,7 +114,6 @@ class Registration(CreateAPIView):
                 'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
                 'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
                 'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description=' date of birth must be in YYYY-MM-DD format.'),
-
 
             }),
 
@@ -994,7 +994,6 @@ class ResendOtpApiView(GenericAPIView):
         tags=['Account']
     )
     def post(self, request, *args, **kwargs):
-        print(request.data)
         get_mobile = request.data['mobile']
         get_country = request.data['country_code']
 
@@ -1005,7 +1004,6 @@ class ResendOtpApiView(GenericAPIView):
 
             user = User.objects.get(mobile=get_mobile)
             user_otp = random.randint(1000, 9999)
-            print("new_otp", user_otp)
 
             user.otp = user_otp
             user.save(update_fields=["otp"])
@@ -1033,8 +1031,8 @@ class ResendOtpApiView(GenericAPIView):
 
 class SettingPrivacyApi(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
+    # queryset = User.objects.all()
+    serializer_class = UserSettingSerializer
 
     @swagger_auto_schema(
         operation_summary="setting privacy update",
@@ -1044,13 +1042,13 @@ class SettingPrivacyApi(GenericAPIView):
 
         user_data = get_object_or_404(User, id=request.user.id)
 
-        serializer = UserSerializer(user_data, data=request.data)
+        serializer = UserSettingSerializer(user_data, data=request.data)
         print("request.data", request.data)
 
         if 'show_profile' in request.data:
             user_data.show_profile = request.data["show_profile"]
             user_data.save(update_fields=["show_profile"])
-            
+
         if 'show_public_post' in request.data:
             user_public_post = PostUpload.objects.filter(
                 user=request.user.id, is_private=0)
@@ -1091,5 +1089,5 @@ class SettingPrivacyApi(GenericAPIView):
         # if serializer.is_valid():
         #     user_data = serializer.save()
         return Response({"message": "User setting privacy updated", "status": 200, "success": True,
-                         "data": UserSerializer(user_data).data})
+                         "data": UserSettingSerializer(user_data).data})
         # return Response({"message": "No data Found", }, status=status.HTTP_400_BAD_REQUEST)

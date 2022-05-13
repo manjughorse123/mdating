@@ -512,6 +512,7 @@ class UserImagesV2API(GenericAPIView):
     )
     def get(self, request, *args, **kwargs):
         user_id = request.user.id
+        user_data = User.objects.filter(id=user_id)
         user = PostUpload.objects.filter(user_id=user_id)
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids = FollowRequest.objects.filter(user_id=user_id)
@@ -538,11 +539,19 @@ class UserImagesV2API(GenericAPIView):
         # follow_serializer = ass
         else:
             # pass
-            # posts_lists = User.objects.filter(Q(gender=user[0].gender) |
-            #                                   Q(passion__in=user[0].passion.all())
-            #                                   and Q(is_complete_profile=True)
-            #                                   ).exclude(id=request.user.id).distinct()
-            posts_lists = PostUpload.objects.filter(is_private=0).order_by(
+            user_post_lists = User.objects.filter(Q(gender=user_data[0].gender) |
+                                                  Q(passion__in=user_data[0].passion.all(
+                                                  ))
+                                                  and Q(is_complete_profile=True)
+                                                  ).exclude(id=request.user.id).distinct()
+
+            user_id_list = []
+            for i in range(len(user_post_lists)):
+                user_posts_lists = user_post_lists[i].id
+                user_id_list.append(user_posts_lists)
+            # print("user_post_lists", user_post_lists)
+
+            posts_lists = PostUpload.objects.filter(Q(user_id__in=user_id_list, is_private=0)).order_by(
                 '-create_at').exclude(id=request.user.id).distinct()
             follow_serializer = PostUploadV2Serializers(
                 posts_lists, context={'request': request}, many=True)
@@ -598,7 +607,7 @@ class PostMultipleImageApi(GenericAPIView):
             name = string.split(',')
 
             for i in range(len(name)):
-                aa = PostImage.objects.create(
+                post_image = PostImage.objects.create(
                     user=request.user, media=name[i], caption=caption)
             return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
         return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
@@ -630,8 +639,6 @@ class UserAllPostApi(GenericAPIView):
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
 
-
-#
 
 class PostReportsApiView(GenericAPIView):
     serializer_class = PostReportsSerializers

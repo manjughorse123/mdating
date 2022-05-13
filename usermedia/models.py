@@ -22,7 +22,7 @@ class MediaPost(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     show_media_photo = models.IntegerField(
-        choices=MAYBECHOICE, default=0)
+        choices=MAYBECHOICE, default=2)
 
     def __str__(self):
         return str(self.media)
@@ -38,7 +38,7 @@ class MediaVideo(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     show_media_video = models.IntegerField(
-        choices=MAYBECHOICE, default=0)
+        choices=MAYBECHOICE, default=2)
 
     def __str__(self):
         return str(self.user.name)

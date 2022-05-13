@@ -34,7 +34,7 @@ class PostUpload(models.Model):
     show_public_post = models.IntegerField(
         choices=MAYBECHOICE, default=0)
     show_private_post = models.IntegerField(
-        choices=MAYBECHOICE, default=0)
+        choices=MAYBECHOICE, default=2)
 
     def __str__(self):
         return str(self.id)+','+str(self.post)

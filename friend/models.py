@@ -23,7 +23,7 @@ class FriendList(models.Model):
     is_accepted = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     show_friend = models.IntegerField(
-        choices=MAYBECHOICE, default=0)
+        choices=MAYBECHOICE, default=2)
 
     def __str__(self):
         return self.user.name

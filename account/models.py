@@ -1,17 +1,15 @@
-from django.contrib.auth.models import UserManager
 import uuid
 from datetime import datetime
-
-from django.db.models.base import Model
 from colorfield.fields import ColorField
-from django.db.models.deletion import CASCADE
+from django.db.models.base import Model
 from ckeditor.fields import RichTextField
 from django.contrib.auth.base_user import AbstractBaseUser
-
+from django.contrib.auth.models import UserManager
 from django.db import models
+from django.db.models.deletion import CASCADE
 from django.db.models.expressions import RawSQL
-from rest_framework.authtoken.models import Token
 from django.contrib.gis.db.models import *
+from rest_framework.authtoken.models import Token
 
 
 class Passion(models.Model):
@@ -212,9 +210,9 @@ class User(AbstractBaseUser):
     country = models.CharField(max_length=8, blank=True, null=True)
     auth_tokens = models.TextField(blank=True, null=True)
     is_complete_profile = models.BooleanField(default=False)
-
+    active_reseaon = models.TextField(blank=True, null=True)
     show_profile = models.IntegerField(
-        choices=MAYBECHOICE, default=0)
+        choices=MAYBECHOICE, default=2)
     # objects = LocationManager()
     # objects = UserManager()
     USERNAME_FIELD = 'mobile'
