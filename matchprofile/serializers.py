@@ -114,6 +114,10 @@ class UserSeachFilterSerializer(serializers.ModelSerializer):
     is_friend_req = serializers.SerializerMethodField()
     is_friend_acc = serializers.SerializerMethodField()
     is_friend_get = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+
+    def get_age(self, obj):
+        return True
 
     def get_is_friend_req(self, obj):
 
@@ -157,4 +161,5 @@ class UserSeachFilterSerializer(serializers.ModelSerializer):
                   'image',
                   'is_friend_req',
                   'is_friend_acc',
-                  'is_friend_get',)
+                  'is_friend_get',
+                  'age')

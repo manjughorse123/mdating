@@ -17,8 +17,14 @@ class UserFriendSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('name', 'id', 'image', 'country',
-                  'birth_date', 'address', 'city', 'age',)
+        fields = ('name',
+                  'id',
+                  'image',
+                  'country',
+                  'birth_date',
+                  'address',
+                  'city',
+                  'age',)
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):
@@ -43,7 +49,10 @@ class FriendRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendRequest
-        fields = ('friend', 'friendrequestsent', 'id')
+        fields = (
+            'friend',
+            'friendrequestsent',
+            'id')
 
 
 class GetFriendRequestSerializer(serializers.ModelSerializer):
@@ -62,12 +71,12 @@ class FriendListUserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendList
-        fields = ('user', 
-        'friends', 
-        'is_accepted', 
-        'id', 
-        'show_friend',
-        )
+        fields = ('user',
+                  'friends',
+                  'is_accepted',
+                  'id',
+                  'show_friend',
+                  )
 
 
 class FriendListSerializer(serializers.ModelSerializer):
@@ -114,7 +123,11 @@ class FriendListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendList
-        fields = ('friends', 'is_accepted', 'is_mutual', 'id',)
+        fields = (
+            'friends',
+            'is_accepted',
+            'is_mutual',
+            'id',)
 
 
 class FollowSerializer(serializers.ModelSerializer):
@@ -185,7 +198,9 @@ class FollowRequestSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FollowRequest
-        fields = ('follow', 'id',)
+        fields = (
+            'follow',
+            'id',)
 
 
 class FollowAcceptSerializer(serializers.ModelSerializer):
@@ -247,7 +262,12 @@ class FollowRequestFollowingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FollowRequest
-        fields = ('follow', 'user', 'is_follow', 'id', 'is_mutual',)
+        fields = (
+            'follow',
+            'user',
+            'is_follow',
+            'id',
+            'is_mutual',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -285,7 +305,12 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = FollowRequest
-        fields = ('user', 'follow', 'is_follow', 'id', 'is_mutual',)
+        fields = (
+            'user',
+            'follow',
+            'is_follow',
+            'id',
+            'is_mutual',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -320,7 +345,11 @@ class FriendRequestListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendRequest
-        fields = ('friend', 'user', 'is_mutual', 'id',)
+        fields = (
+            'friend',
+            'user',
+            'is_mutual',
+            'id',)
 
     # def to_representation(self, instance):
     #     response = super().to_representation(instance)
@@ -367,7 +396,12 @@ class SendRequestListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FriendRequest
-        fields = ('friend', 'user', 'is_mutual', 'media', 'id',)
+        fields = (
+            'friend',
+            'user',
+            'is_mutual',
+            'media',
+            'id',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -420,7 +454,7 @@ class FollowListFollowingSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FollowAccept
-        fields = ('follow',)
+        fields = ('follow', 'id',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -529,21 +563,17 @@ class GetFollowBackSerializer(serializers.ModelSerializer):
 
 class UserSuggestionSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
+    is_mutual = serializers.SerializerMethodField()
 
     def get_age(self, obj):
-        age = User.calculate_age(obj.birth_date)
-
-        return age
-
-    is_mutual = serializers.SerializerMethodField()
+        # age = User.calculate_age(obj.birth_date)
+        return obj.age
 
     def get_is_mutual(self, obj):
 
         requestuser = self.context['request']
         friend1 = FriendList.objects.filter(user_id=requestuser)
-
         friend2 = FriendList.objects.filter(user_id=obj)
-
         friend1_id_list = []
         friend2_id_list = []
 
@@ -556,12 +586,19 @@ class UserSuggestionSerializer(serializers.ModelSerializer):
             friend2_id_list.append(friend_id_data)
 
         abs = [x for x in friend1_id_list if x in friend2_id_list]
-
         if not abs:
             return 0
         return len(abs)
 
     class Meta:
         model = User
-        fields = ('name', 'id', 'image', 'country',
-                  'birth_date', 'address', 'city', 'age', 'is_mutual',)
+        fields = ('name',
+                  'id',
+                  'image',
+                  'country',
+                  'birth_date',
+                  'address',
+                  'city',
+                  'age',
+                  'is_mutual',
+                  'show_profile')

@@ -1,4 +1,5 @@
 
+from array import array
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -101,7 +102,8 @@ class GetFriendRequestListView(GenericAPIView):
         tags=['Friend']
     )
     def get(self, request, user_id, format=None):
-
+        import pdb
+        pdb.set_trace()
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(Q(
@@ -127,7 +129,10 @@ class GetFriendRequestListView(GenericAPIView):
         # friend_req_list = FriendRequest.objects.filter(user_id=user_id)
         friend_req_list = FriendRequest.objects.filter(
             friend_id=user_id).order_by('created_at')
-        user_suggest_friend = User.objects.filter(id__in=list_suggested)
+        # user_suggest_friend = User.objects.filter(id__in=list_suggested)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
         # user_data = UserFriendSerializer(user_suggest_friend, many=True)
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
@@ -157,7 +162,8 @@ class GetFriendRequestListViewV2(GenericAPIView):
         tags=['Friend']
     )
     def get(self, request, format=None):
-
+        # import pdb
+        # pdb.set_trace()
         user_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(Q(gender=user_data[0].gender) |
@@ -212,8 +218,10 @@ class GetFriendRequestListViewV2(GenericAPIView):
         # friend_req_list = FriendRequest.objects.filter(user_id=user_id)
         friend_req_list = FriendRequest.objects.filter(
             friend_id=user_id).order_by('-create_at')
-        user_suggest_friend = User.objects.filter(id__in=list_suggested)
-
+        # user_suggest_friend = User.objects.filter(id__in=list_suggested)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
         # user_data = UserFriendSerializer(user_suggest_friend, many=True)
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
                                              'request': user_id}, many=True)
@@ -281,16 +289,12 @@ class SendRequestByUser(GenericAPIView):
 
         # obj1 = tuple(list_suggested)
 
-        user_suggest_friend = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
-        people = User.objects.raw(
-            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id in('559b0914-d0cf-463d-928a-da1a5ac937dc', '9880f94f-6f3a-49ef-9797-2cc3ae99a740', 'b701492d-b683-4c69-a086-9284bccb88b4', 'e6414b5b-cab7-401e-9bcf-4719c14fef58')")
+        # user_suggest_friend = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
-        for p in people:
-
-            print(" is ", p.id, p.age)
-            # ass = p.id
-            user_datas = UserFriendSerializer(people, many=True)
         # user_data = UserFriendSerializer(user_suggest_friend, many=True)
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
                                              'request': user_id}, many=True)
@@ -299,7 +303,7 @@ class SendRequestByUser(GenericAPIView):
         serializer = SendRequestListSerializer(friend_req_list, many=True)
 
         return Response({"success": True, "status": 200, "message": "Detail", "data": serializer.data,
-                         'data_count': len(serializer.data), 'suggest_friend_data': user_data.data, 'suggest_friend_datas': user_datas.data
+                         'data_count': len(serializer.data), 'suggest_friend_data': user_data.data,
                          },
                         status=status.HTTP_200_OK)
 
@@ -485,8 +489,11 @@ class GetFriendRequestAcceptView(GenericAPIView):
             }
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_friend = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
+        # user_suggest_friend = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
         # user_data = UserFriendSerializer(user_suggest_friend, context={
         #                                  'request': request}, many=True)
@@ -499,7 +506,8 @@ class GetFriendRequestAcceptView(GenericAPIView):
         # suggested = User.objects.all().exclude(id=user_id)[:5]
 
         serializer = FriendRequestAcceptSerializer(friend_req_list, many=True)
-        # suggesteds = UserFriendSerializer(suggested, many=True)
+        # suggesteds = UserFriendSerializer(
+        # , many=True)
         return Response({"success": True, "status": 200, "message": "User Friend List!", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
@@ -567,8 +575,11 @@ class GetFriendRequestAcceptViewV2(GenericAPIView):
                             friend_value[frnd_lst_id].friends_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_friend = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
+        # user_suggest_friend = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
         # user_data = UserFriendSerializer(user_suggest_friend, many=True)
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
@@ -742,8 +753,11 @@ class GetFollowerV3View(GenericAPIView):
                             follow_value[flw_lst_id].user_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_follow = User.objects.filter(
-            id__in=list_suggested).exclude(id=user_id)
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=user_id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
         # user_data = UserFriendSerializer(user_suggest_follow, many=True)
         user_data = UserSuggestionSerializer(user_suggest_follow, context={
@@ -824,9 +838,11 @@ class GetFollowerFollowingView(GenericAPIView):
                             follow_value[flw_lst_id].user_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_follow = User.objects.filter(
-            id__in=list_suggested).exclude(id=user_id)
-
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=user_id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
         # user_data = UserFriendSerializer(user_suggest_follow, many=True)
         user_data = UserSuggestionSerializer(user_suggest_follow, context={
             'request': user_id}, many=True)
@@ -850,21 +866,6 @@ class GetFollowerV2View(GenericAPIView):
     Retrieve,  Get Follower instance API .
 
     """
-
-    # def get_object(self, user_id):
-    #     try:
-    #         return FollowRequest.objects.filter(follow_id=user_id)
-    #     except FollowRequest.DoesNotExist:
-    #         raise Http404    # def get_object(self, user_id):
-    #     try:
-    #         return FollowRequest.objects.filter(follow_id=user_id)
-    #     except FollowRequest.DoesNotExist:
-    #         raise Http404    # def get_object(self, user_id):
-    #     try:
-    #         return FollowRequest.objects.filter(follow_id=user_id)
-    #     except FollowRequest.DoesNotExist:
-    #         raise Http404
-
     @swagger_auto_schema(
 
         operation_summary="Get Follower Api",
@@ -875,11 +876,10 @@ class GetFollowerV2View(GenericAPIView):
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(
-
-            Q(passion__in=user_data[0].passion.all())
-            and Q(is_complete_profile=True)
-        ).exclude(
-            id=user_id).distinct()
+            Q(city=user_data[0].city) |
+            Q(gender=user_data[0].gender) |
+            Q(passion__in=user_data[0].passion.all()) and
+            Q(is_complete_profile=True)).exclude(id=user_id).distinct()
         list_suggested = []
 
         for user_list_id in range(len(user_data)):
@@ -914,9 +914,11 @@ class GetFollowerV2View(GenericAPIView):
                             follow_value[flw_lst_id].user_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_follow = User.objects.filter(
-            id__in=list_suggested).exclude(id=user_id)
-
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=user_id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
         user_data = UserSuggestionSerializer(user_suggest_follow, context={
             'request': user_id}, many=True)
         # user_data = UserFriendSerializer(user_suggest_follow, many=True)
@@ -928,8 +930,7 @@ class GetFollowerV2View(GenericAPIView):
                         "message": " User follower Detail",
                          "data": serializer.data,
                          "status": 200,
-
-                         'data_count': len(serializer.data),
+                         "data_count": len(serializer.data),
                          "follow_suggestion": user_data.data
 
                          }, status=status.HTTP_200_OK)
@@ -1145,11 +1146,15 @@ class GetFollowBackApiView(GenericAPIView):
     def get(self, request, format=None):
         user_id = request.user.id
 
-        # user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(
-            Q(passion__in=user_data[0].passion.all())
-            and Q(is_complete_profile=True)
-        ).exclude(id=user_id).distinct()
+        user_data = User.objects.filter(id=user_id)
+        user_data = User.objects.filter(Q(gender=user_data[0].gender) |
+                                        Q(city=user_data[0].city) |
+                                        Q(idealmatch__in=user_data[0].idealmatch.all()) |
+                                        Q(marital_status=user_data[0].marital_statuss) |
+                                        Q(passion__in=user_data[0].passion.all(
+                                        ))
+                                        and Q(is_complete_profile=True)
+                                        ).exclude(id=user_id).distinct()
         list_suggested = []
 
         for user_list_id in range(len(user_data)):
@@ -1180,9 +1185,11 @@ class GetFollowBackApiView(GenericAPIView):
                             follow_value[flw_lst_id].user_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_follow = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
-
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
         # user_data = UserFriendSerializer(user_suggest_follow, many=True)
         user_data = UserSuggestionSerializer(user_suggest_follow, context={
             'request': user_id}, many=True)
@@ -1221,12 +1228,13 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
     def get(self, request, user_id, format=None):
 
         # user_req_id = request.user.id
+
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(Q(passion__in=user_data[0].passion.all()) |
                                         Q(gender=user_data[0].gender) |
                                         Q(city=user_data[0].city) |
                                         Q(marital_status=user_data[0].marital_status)
-                                        ).exclude(id=user_id).distinct()
+                                        and Q(is_complete_profile=True)).exclude(id=user_id).distinct()
 
         list_suggested = []
         for user_list_id in range(len(user_data)):
@@ -1234,7 +1242,6 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
             list_suggested.append(fetch_data)
 
         for friend_list_id in range(len(list_suggested)):
-
             if FriendRequest.objects.filter(friend_id__in=list_suggested):
                 friend_value = FriendRequest.objects.filter(user_id=user_id,
                                                             friend_id__in=list_suggested)
@@ -1245,8 +1252,7 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
                         friend_value[0].friend_id)
 
         for friend_req_id in range(len(list_suggested)):
-
-            if FriendList.objects.filter(user_id__in=list_suggested):
+            if FriendList.objects.filter(friends_id__in=list_suggested):
                 friend_value = FriendList.objects.filter(user_id=user_id,
                                                          friends_id__in=list_suggested)
                 if not friend_value:
@@ -1256,9 +1262,11 @@ class GetFriendRequestAcceptViewTesting(GenericAPIView):
                         friend_value[0].friends_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_friend = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
-
+        # user_suggest_friend = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
             'request': user_id}, many=True)
 
@@ -1363,7 +1371,6 @@ class TestingSuggestedFollowApiView(GenericAPIView):
             list_suggested.append(fetch_data)
 
         for follow_list_id in range(len(list_suggested)):
-
             if FollowRequest.objects.filter(follow_id__in=list_suggested):
                 follow_value = FollowRequest.objects.filter(user_id=user_id,
                                                             follow_id__in=list_suggested)
@@ -1371,7 +1378,6 @@ class TestingSuggestedFollowApiView(GenericAPIView):
                     list_suggested
                 else:
                     for flw_lst_id in range(len(follow_value)):
-
                         list_suggested.remove(
                             follow_value[flw_lst_id].follow_id)
 
@@ -1384,13 +1390,15 @@ class TestingSuggestedFollowApiView(GenericAPIView):
                     list_suggested
                 else:
                     for flw_lst_id in range(len(follow_value)):
-
                         list_suggested.remove(
                             follow_value[flw_lst_id].user_id)
 
         # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        user_suggest_follow = User.objects.filter(
-            id__in=list_suggested).exclude(id=request.user.id)
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=request.user.id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
         user_data = UserSuggestionSerializer(user_suggest_follow, context={
                                              'request': user_id}, many=True)
@@ -1403,5 +1411,5 @@ class TestingSuggestedFollowApiView(GenericAPIView):
                          "data": serializer.data,
                          "status": 200,
                          "data_count": len(serializer.data),
-                         "follow_suggested": user_data.data},
+                         "follow_suggestion": user_data.data},
                         status=status.HTTP_200_OK)

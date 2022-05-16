@@ -4,8 +4,6 @@ from rest_framework import routers
 from .views import *
 
 urlpatterns = [
-    #     path('new-post/', NewPostUploadApi
-    #          .as_view(), name='postnew'),
     path('post/', PostUploadApi.as_view(), name='postapi'),
     re_path(r'^user/post/(?P<user_id>[0-9a-f-]+)$',
             UserAllPostApi.as_view(), name='postapi'),
@@ -15,18 +13,16 @@ urlpatterns = [
     path('post/reaction/', PostReactionApi.as_view(), name="postreactionapi"),
     re_path(r'^delete/post/(?P<post_id>[0-9a-f-]+)$',
             DeletePostApi.as_view(), name="deletepost"),
-
     re_path(r'^update/post/(?P<post_id>[0-9a-f-]+)$',
             UpdatePostApi.as_view(), name="deletepost"),
-
-    # path('post/<int:post_id>', GetPostUploadApi.as_view(), name="postapi"),
     re_path(r'^user/get-all-post/(?P<user_id>[0-9a-f-]+)$',
             UserImages.as_view(), name="userimages"),
-
     path('post/reports/', PostReportsApiView.as_view(), name='post_report'),
 
 
-
+    #     path('new-post/', NewPostUploadApi
+    #          .as_view(), name='postnew'),
+    # path('post/<int:post_id>', GetPostUploadApi.as_view(), name="postapi"),
     #     path('post-image/', PostMultipleImageApi.as_view(), name='postimages'),
     # re_path(r'^user/get-all-post/v2/(?P<user_id>[0-9a-f-]+)$', UserImagesV2.as_view(), name="userimages"),
 

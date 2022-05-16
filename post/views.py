@@ -105,7 +105,7 @@ class NewPostUploadApi(GenericAPIView):
         serializer = NewPostUploadSerializers(data=request.data)
         if serializer.is_valid():
 
-            ads = PostUpload.objects.create(
+            post_upload = PostUpload.objects.create(
                 user=request.user, post=request.data['post'], message=request.data['message'], title=request.data['title'])
 
             return Response({"message": True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
@@ -534,9 +534,9 @@ class UserImagesV2API(GenericAPIView):
             '-create_at').distinct()
         if len(posts_list) > 0:
 
-            follow_serializer = PostUploadV2Serializers(
+            user_posts = PostUploadV2Serializers(
                 posts_list, context={'request': request}, many=True)
-        # follow_serializer = ass
+        # user_posts = ass
         else:
             # pass
             user_post_lists = User.objects.filter(Q(gender=user_data[0].gender) |
@@ -553,11 +553,11 @@ class UserImagesV2API(GenericAPIView):
 
             posts_lists = PostUpload.objects.filter(Q(user_id__in=user_id_list, is_private=0)).order_by(
                 '-create_at').exclude(id=request.user.id).distinct()
-            follow_serializer = PostUploadV2Serializers(
+            user_posts = PostUploadV2Serializers(
                 posts_lists, context={'request': request}, many=True)
 
         return Response(
-            {"success": True, 'post': follow_serializer.data,
+            {"success": True, 'post': user_posts.data,
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
 
