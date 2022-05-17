@@ -179,7 +179,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'is_gender', 'is_passion', 'is_tall', 'is_location',
+        fields = ('id', 'name', 'is_gender', 'is_passion', 'is_tall', 'is_location',
                   'is_interest_in', 'is_idealmatch', 'is_marital_status', 'is_media', 'is_complete_profile',)
 
 

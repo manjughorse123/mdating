@@ -4,19 +4,19 @@ from rest_framework import routers
 from .views import *
 
 urlpatterns = [
-    path('post/', PostUploadApi.as_view(), name='postapi'),
+    path('post/', CreatePostApiView.as_view(), name='postapi'),
     re_path(r'^user/post/(?P<user_id>[0-9a-f-]+)$',
-            UserAllPostApi.as_view(), name='postapi'),
+            UserAllPostApiView.as_view(), name='postapi'),
     re_path(r'^user/posts/(?P<user_id>[0-9a-f-]+)/(?P<is_private_key>[0-9a-f-]+)$',
             UserAllPrivatePostApi.as_view(), name='postapi'),
-    path('user/get-all-post/', UserImagesV2API.as_view(), name="userimages"),
-    path('post/reaction/', PostReactionApi.as_view(), name="postreactionapi"),
+    path('user/get-all-post/', UserImagesApiView.as_view(), name="userimages"),
+    path('post/reaction/', PostReactionApiView.as_view(), name="postreactionapi"),
     re_path(r'^delete/post/(?P<post_id>[0-9a-f-]+)$',
-            DeletePostApi.as_view(), name="deletepost"),
+            DeletePostApiView.as_view(), name="deletepost"),
     re_path(r'^update/post/(?P<post_id>[0-9a-f-]+)$',
-            UpdatePostApi.as_view(), name="deletepost"),
+            UpdatePostApiView.as_view(), name="deletepost"),
     re_path(r'^user/get-all-post/(?P<user_id>[0-9a-f-]+)$',
-            UserImages.as_view(), name="userimages"),
+            UserImagesApiViewV2.as_view(), name="user_images_with_id"),
     path('post/reports/', PostReportsApiView.as_view(), name='post_report'),
 
 
@@ -35,6 +35,6 @@ urlpatterns = [
     # re_path(r'^get-post-detail/(?P<user_id>[0-9a-f-]+)$', GetPostViewdetailView.as_view(), name="get-detail-post"),
     # re_path(r'^post/reaction/(?P<id>[0-9a-f-]+)', PostReactionApi.as_view(), name="postreactionapi"),
     # re_path(r'^post/(?P<id>[0-9a-f-]+)', PostUploadApi.as_view(), name="postapi"),
-    
+
 
 ]

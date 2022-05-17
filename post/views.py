@@ -32,7 +32,7 @@ class GetPostUploadApi(GenericAPIView):
         return Response({"success": True, "status": 200, "message": "User Post by Post ID", "data": serializer.data}, status=status.HTTP_200_OK)
 
 
-class PostUploadApi(GenericAPIView):
+class CreatePostApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadCreateSerializers
 
@@ -112,7 +112,7 @@ class NewPostUploadApi(GenericAPIView):
         return Response({"message": False, "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserImages(GenericAPIView):
+class UserImagesApiViewV2(GenericAPIView):
     permission_classes = [AllowAny, ]
     serializer_class = PostUploadSerializers
 
@@ -159,7 +159,7 @@ class UserImages(GenericAPIView):
         return Response({"success": True, 'post': follow_serializer.data, "message": "User Post by User ", "status": 200}, status=status.HTTP_200_OK)
 
 
-class PostReactionApi(GenericAPIView):
+class PostReactionApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostViewSerializers
 
@@ -346,7 +346,7 @@ class AllPostAPI(GenericAPIView):
 #         post_view.delete()
 #         return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
 
-class DeletePostApi (GenericAPIView):
+class DeletePostApiView (GenericAPIView):
     permission_classes = [IsAuthenticated, ]
 
     def get_object(self, post_id):
@@ -375,7 +375,7 @@ class DeletePostApi (GenericAPIView):
         return Response(data=data)
 
 
-class UpdatePostApi(GenericAPIView):
+class UpdatePostApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadUpdateSerializers
 
@@ -489,7 +489,7 @@ class UserImagesV2(GenericAPIView):
 
 
 # Version 2 API
-class UserImagesV2API(GenericAPIView):
+class UserImagesApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadV2Serializers
 
@@ -613,7 +613,7 @@ class PostMultipleImageApi(GenericAPIView):
         return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserAllPostApi(GenericAPIView):
+class UserAllPostApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadV2Serializers
 
@@ -630,12 +630,12 @@ class UserAllPostApi(GenericAPIView):
         posts_list = PostUpload.objects.filter(user=user_id).order_by(
             '-create_at').distinct()
 
-        follow_serializer = PostUploadV2Serializers(
+        posts_data = PostUploadV2Serializers(
             posts_list, context={'request': request}, many=True)
-        # follow_serializer = ass
+        # posts_data = ass
 
         return Response(
-            {"success": True, 'post': follow_serializer.data,
+            {"success": True, 'post': posts_data.data,
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
 
@@ -704,7 +704,7 @@ class UserAllPrivatePostApi(GenericAPIView):
 
             return Response(
                 {"success": True, 'post': user_posts.data,
-                 "message": "User Private Post  ", "status": 200},
+                 "message": "User Private Post", "status": 200},
                 status=status.HTTP_200_OK)
         else:
             posts_list = PostUpload.objects.filter(user=user_id, is_private=0).order_by(

@@ -14,14 +14,13 @@ from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
 from rest_framework.views import *
-
+from account.utils import generate_access_token, generate_refresh_token
 from post.serializers import *
 from usermedia.serializers import *
 from account.models import User
 from account.serializers import *
 from friend.models import FriendList, FriendRequest
 from friend.serializers import *
-from account.utils import generate_access_token, generate_refresh_token
 from usermedia.models import *
 
 
@@ -39,7 +38,7 @@ def send_otp(mobile, otp):
     return None
 
 
-class Login(GenericAPIView):
+class LoginApiView(GenericAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserLoginSerializer
 
@@ -97,7 +96,7 @@ class Login(GenericAPIView):
                             status=status.HTTP_404_NOT_FOUND)
 
 
-class Registration(CreateAPIView):
+class RegistrationApiView(CreateAPIView):
     permission_classes = (AllowAny,)
     serializer_class = UserSerializer
 
@@ -166,7 +165,7 @@ class Registration(CreateAPIView):
                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserData(GenericAPIView):
+class UserDataApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = UserProfileSerializer
 
@@ -309,7 +308,7 @@ class UserUpdateIdealMatch(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class UserUpdateProfile(GenericAPIView):
+class UserUpdateProfileApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = User.objects.all()
     serializer_class = UserSerializer
@@ -374,7 +373,7 @@ class UserUpdateProfile(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class OTPVerify(GenericAPIView):
+class OTPVerifyApiView(GenericAPIView):
     permission_classes = [AllowAny]
     serializer_class = UserLoginSerializer
 
@@ -447,12 +446,12 @@ class OTPVerify(GenericAPIView):
             status=status.HTTP_404_NOT_FOUND)
 
 
-class GetUserDetailV2(GenericAPIView):
+class GetUserDetailApiView(GenericAPIView):
 
     """
     Retrieve, Checklist Api.
     """
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated, ]
     serializer_class = UserDetailSerializer
 
     @swagger_auto_schema(
@@ -494,7 +493,7 @@ class LogoutApiView(APIView):
         return Response({'message': "Successfully LogOut", 'status': 200, 'success': True}, status=status.HTTP_200_OK)
 
 
-class UserVerifiedAPI(GenericAPIView):
+class UserVerifiedApiView(GenericAPIView):
 
     """
     User Verification Api.
@@ -819,7 +818,7 @@ class UserUpdateMaritalStatus(GenericAPIView):
 
 
 class UserUpdateProfileV2(GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated, ]
     queryset = User.objects.all()
     serializer_class = UserSerializer
 

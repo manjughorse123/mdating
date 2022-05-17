@@ -23,15 +23,15 @@ class UserEditSerilaizer(ModelSerializer):
     class Meta:
         model = User
         fields = (
-        'id', 
-        'name', 
-        'birth_date', 
-        'mobile', 
-        'bio',
-        'about', 
-        'country_code', 
-        'gender', 
-        'passion',)
+            'id',
+            'name',
+            'birth_date',
+            'mobile',
+            'bio',
+            'about',
+            'country_code',
+            'gender',
+            'passion',)
 
 
 class UserMediaEditSerializer(ModelSerializer):
@@ -43,12 +43,12 @@ class UserMediaEditSerializer(ModelSerializer):
     class Meta:
         model = MediaPost
         fields = (
-            'id', 
-            'user', 
-            'like_count', 
+            'id',
+            'user',
+            'like_count',
             'view_count',
-            'media', 
-            'share_count', 
+            'media',
+            'share_count',
             'caption')
 
     def to_representation(self, instance):
@@ -65,13 +65,13 @@ class MediaPostSerializers(ModelSerializer):
 
     class Meta:
         model = MediaPost
-        fields = (  'id', 
-                    'user', 
-                    'like_count', 
-                    'view_count',
-                    'media', 
-                    'share_count', 
-                    'caption')
+        fields = ('id',
+
+                  'like_count',
+                  'view_count',
+                  'media',
+                  'share_count',
+                  'caption')
 
 
 class GetMediaPostSerializers(ModelSerializer):

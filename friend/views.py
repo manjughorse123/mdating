@@ -1,5 +1,6 @@
 
 from array import array
+from logging import exception
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
@@ -141,7 +142,7 @@ class GetFriendRequestListView(GenericAPIView):
         return Response({"success": True, "status": 200, "message": "Detail", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
-class GetFriendRequestListViewV2(GenericAPIView):
+class GetFriendRequestListApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendRequestListSerializer
     """
@@ -232,7 +233,7 @@ class GetFriendRequestListViewV2(GenericAPIView):
 
 
 # send req -by user
-class SendRequestByUser(GenericAPIView):
+class SendRequestByUserApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = SendRequestListSerializer
     """
@@ -419,7 +420,7 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
                              "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetFriendRequestAcceptView(GenericAPIView):
+class GetFriendRequestAcceptApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendRequestAcceptSerializer
     """
@@ -511,7 +512,7 @@ class GetFriendRequestAcceptView(GenericAPIView):
         return Response({"success": True, "status": 200, "message": "User Friend List!", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
-class GetFriendRequestAcceptViewV2(GenericAPIView):
+class GetFriendRequestAcceptApiViewV2(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendRequestAcceptSerializer
     """
@@ -618,20 +619,27 @@ class AddFollowRequestView(GenericAPIView):
         tags=['Follow']
     )
     def post(self, request, format='json'):
+        try:
 
-        serializer = FollowRequestSerializer(data=request.data)
+            serializer = FollowRequestSerializer(data=request.data)
 
-        if serializer.is_valid():
-            # serializer.save()
-            follow = serializer.validated_data['follow']
-            users = str(request.user.id)
-            user = User.objects.get(id=users)
-            obj = FollowRequest.objects.create(
-                user=user, follow=follow, is_follow=True)
+            if serializer.is_valid():
+                # serializer.save()
+                follow = serializer.validated_data['follow']
+                users = str(request.user.id)
+                user = User.objects.get(id=users)
+                obj = FollowRequest.objects.create(
+                    user=user, follow=follow, is_follow=True)
 
-            return Response({"success": True, "message": "Follow Request Send", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error",  "message": "Follow Request was Already Send", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": True, "message": "Follow Request Send", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": "error",  "message": "Follow Request was Already Send", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+        return Response(
+            {'success': False, 'message': 'Data Not Found!',
+                'status': 404},
+            status=status.HTTP_404_NOT_FOUND)
 
 
 class FollowRequestAcceptView(GenericAPIView):
@@ -692,7 +700,7 @@ class FollowRequestAcceptView(GenericAPIView):
             return Response({"success": "error", "message": "NO data Found", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetFollowerV3View(GenericAPIView):
+class GetFollowingApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FollowRequestFollowingSerializer
     """
@@ -797,69 +805,77 @@ class GetFollowerFollowingView(GenericAPIView):
         tags=['Follow']
     )
     def get(self, request,  user_id, format=None):
-        user_req_id = request.user.id
-        user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(
-            Q(city=user_data[0].city) |
-            Q(gender=user_data[0].gender) |
-            Q(passion__in=user_data[0].passion.all()) and
-            Q(is_complete_profile=True)).exclude(id=user_id).distinct()
-        list_suggested = []
+        try:
+            user_req_id = request.user.id
+            user_data = User.objects.filter(id=user_id)
+            user_data = User.objects.filter(
+                Q(city=user_data[0].city) |
+                Q(gender=user_data[0].gender) |
+                Q(idealmatch__in=user_data[0].idealmatch.all()) |
+                Q(passion__in=user_data[0].passion.all()) and
+                Q(is_complete_profile=True)).exclude(id=user_id).distinct()
+            list_suggested = []
 
-        for user_list_id in range(len(user_data)):
-            fetch_data = user_data[user_list_id].id
-            list_suggested.append(fetch_data)
+            for user_list_id in range(len(user_data)):
+                fetch_data = user_data[user_list_id].id
+                list_suggested.append(fetch_data)
 
-        for follow_list_id in range(len(list_suggested)):
+            for follow_list_id in range(len(list_suggested)):
 
-            if FollowRequest.objects.filter(follow_id__in=list_suggested):
-                follow_value = FollowRequest.objects.filter(user_id=user_id,
-                                                            follow_id__in=list_suggested)
+                if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                    follow_value = FollowRequest.objects.filter(user_id=user_id,
+                                                                follow_id__in=list_suggested)
 
-                if not follow_value:
-                    list_suggested
-                else:
-                    for flw_lst_id in range(len(follow_value)):
+                    if not follow_value:
+                        list_suggested
+                    else:
+                        for flw_lst_id in range(len(follow_value)):
+                            list_suggested.remove(
+                                follow_value[flw_lst_id].follow_id)
 
-                        list_suggested.remove(
-                            follow_value[flw_lst_id].follow_id)
+            for follow_req_id in range(len(list_suggested)):
 
-        for follow_req_id in range(len(list_suggested)):
+                if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                    follow_value = FollowRequest.objects.filter(follow_id=user_id,
+                                                                user_id__in=list_suggested)
+                    if not follow_value:
+                        list_suggested
+                    else:
+                        for flw_lst_id in range(len(follow_value)):
 
-            if FollowRequest.objects.filter(follow_id__in=list_suggested):
-                follow_value = FollowRequest.objects.filter(follow_id=user_id,
-                                                            user_id__in=list_suggested)
-                if not follow_value:
-                    list_suggested
-                else:
-                    for flw_lst_id in range(len(follow_value)):
+                            list_suggested.remove(
+                                follow_value[flw_lst_id].user_id)
 
-                        list_suggested.remove(
-                            follow_value[flw_lst_id].user_id)
+            # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
+            # user_suggest_follow = User.objects.filter(
+            #     id__in=list_suggested).exclude(id=user_id)
+            list_suggesteds = tuple(list_suggested)
+            user_suggest_follow = User.objects.raw(
+                "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
+            # user_data = UserFriendSerializer(user_suggest_follow, many=True)
+            user_data = UserSuggestionSerializer(user_suggest_follow, context={
+                'request': user_id}, many=True)
+            follower_info = FollowRequest.objects.filter(
+                user_id=user_id).order_by('-create_at')
+            serializer = FollowRequestFollowingSerializer(
+                follower_info, many=True)
+            return Response({"success": True,
+                            "message": " User following Detail",
+                             "data": serializer.data,
+                             "status": 200,
+                             'data_count': len(serializer.data),
+                             "follow_suggestion": user_data.data
+                             },
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+        return Response(
+            {'success': False, 'message': 'Not Data Found',
+                'status': 404, },
+            status=status.HTTP_404_NOT_FOUND)
 
-        # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        # user_suggest_follow = User.objects.filter(
-        #     id__in=list_suggested).exclude(id=user_id)
-        list_suggesteds = tuple(list_suggested)
-        user_suggest_follow = User.objects.raw(
-            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
-        # user_data = UserFriendSerializer(user_suggest_follow, many=True)
-        user_data = UserSuggestionSerializer(user_suggest_follow, context={
-            'request': user_id}, many=True)
-        follower_info = FollowRequest.objects.filter(
-            user_id=user_id).order_by('-create_at')
-        serializer = FollowRequestFollowingSerializer(follower_info, many=True)
-        return Response({"success": True,
-                        "message": " User following Detail",
-                         "data": serializer.data,
-                         "status": 200,
-                         'data_count': len(serializer.data),
-                         "follow_suggestion": user_data.data
-                         },
-                        status=status.HTTP_200_OK)
 
-
-class GetFollowerV2View(GenericAPIView):
+class GetFollowerApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FollowRequestFollowerV2Serializer
     """
@@ -887,16 +903,13 @@ class GetFollowerV2View(GenericAPIView):
             list_suggested.append(fetch_data)
 
         for follow_list_id in range(len(list_suggested)):
-
             if FollowRequest.objects.filter(follow_id__in=list_suggested):
                 follow_value = FollowRequest.objects.filter(user_id=user_id,
                                                             follow_id__in=list_suggested)
-
                 if not follow_value:
                     list_suggested
                 else:
                     for flw_lst_id in range(len(follow_value)):
-
                         list_suggested.remove(
                             follow_value[flw_lst_id].follow_id)
 
@@ -1150,7 +1163,7 @@ class GetFollowBackApiView(GenericAPIView):
         user_data = User.objects.filter(Q(gender=user_data[0].gender) |
                                         Q(city=user_data[0].city) |
                                         Q(idealmatch__in=user_data[0].idealmatch.all()) |
-                                        Q(marital_status=user_data[0].marital_statuss) |
+                                        Q(marital_status=user_data[0].marital_status) |
                                         Q(passion__in=user_data[0].passion.all(
                                         ))
                                         and Q(is_complete_profile=True)
@@ -1208,7 +1221,7 @@ class GetFollowBackApiView(GenericAPIView):
 # for testing suggested friend
 
 
-class GetFriendRequestAcceptViewTesting(GenericAPIView):
+class GetFriendRequestAcceptViewTesting(GenericAPIView):  # not use in app
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendRequestAcceptSerializer
     """
@@ -1360,56 +1373,62 @@ class TestingSuggestedFollowApiView(GenericAPIView):
     )
     def get(self, request, format=None):
 
-        # try:
-        user_id = request.user.id
-        user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(
-            passion__in=user_data[0].passion.all()).exclude(id=user_id).distinct()
-        list_suggested = []
-        for user_list_id in range(len(user_data)):
-            fetch_data = user_data[user_list_id].id
-            list_suggested.append(fetch_data)
+        try:
+            user_id = request.user.id
+            user_data = User.objects.filter(id=user_id)
+            user_data = User.objects.filter(
+                passion__in=user_data[0].passion.all()).exclude(id=user_id).distinct()
+            list_suggested = []
+            for user_list_id in range(len(user_data)):
+                fetch_data = user_data[user_list_id].id
+                list_suggested.append(fetch_data)
 
-        for follow_list_id in range(len(list_suggested)):
-            if FollowRequest.objects.filter(follow_id__in=list_suggested):
-                follow_value = FollowRequest.objects.filter(user_id=user_id,
-                                                            follow_id__in=list_suggested)
-                if not follow_value:
-                    list_suggested
-                else:
-                    for flw_lst_id in range(len(follow_value)):
-                        list_suggested.remove(
-                            follow_value[flw_lst_id].follow_id)
+            for follow_list_id in range(len(list_suggested)):
+                if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                    follow_value = FollowRequest.objects.filter(user_id=user_id,
+                                                                follow_id__in=list_suggested)
+                    if not follow_value:
+                        list_suggested
+                    else:
+                        for flw_lst_id in range(len(follow_value)):
+                            list_suggested.remove(
+                                follow_value[flw_lst_id].follow_id)
 
-        for follow_req_id in range(len(list_suggested)):
+            for follow_req_id in range(len(list_suggested)):
 
-            if FollowRequest.objects.filter(follow_id__in=list_suggested):
-                follow_value = FollowRequest.objects.filter(follow_id=user_id,
-                                                            user_id__in=list_suggested)
-                if not follow_value:
-                    list_suggested
-                else:
-                    for flw_lst_id in range(len(follow_value)):
-                        list_suggested.remove(
-                            follow_value[flw_lst_id].user_id)
+                if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                    follow_value = FollowRequest.objects.filter(follow_id=user_id,
+                                                                user_id__in=list_suggested)
+                    if not follow_value:
+                        list_suggested
+                    else:
+                        for flw_lst_id in range(len(follow_value)):
+                            list_suggested.remove(
+                                follow_value[flw_lst_id].user_id)
 
-        # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
-        # user_suggest_follow = User.objects.filter(
-        #     id__in=list_suggested).exclude(id=request.user.id)
-        list_suggesteds = tuple(list_suggested)
-        user_suggest_follow = User.objects.raw(
-            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
+            # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
+            # user_suggest_follow = User.objects.filter(
+            #     id__in=list_suggested).exclude(id=request.user.id)
+            list_suggesteds = tuple(list_suggested)
+            user_suggest_follow = User.objects.raw(
+                "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
 
-        user_data = UserSuggestionSerializer(user_suggest_follow, context={
-                                             'request': user_id}, many=True)
+            user_data = UserSuggestionSerializer(user_suggest_follow, context={
+                'request': user_id}, many=True)
 
-        follower_info = FollowRequest.objects.filter(
-            user_id=user_id, is_follow=True)
-        serializer = GetFollowBackSerializer(follower_info, many=True)
-        return Response({"success": True,
-                         "message": " User Follow Back",
-                         "data": serializer.data,
-                         "status": 200,
-                         "data_count": len(serializer.data),
-                         "follow_suggestion": user_data.data},
-                        status=status.HTTP_200_OK)
+            follower_info = FollowRequest.objects.filter(
+                user_id=user_id, is_follow=True)
+            serializer = GetFollowBackSerializer(follower_info, many=True)
+            return Response({"success": True,
+                            "message": " User Follow Back",
+                             "data": serializer.data,
+                             "status": 200,
+                             "data_count": len(serializer.data),
+                             "follow_suggestion": user_data.data},
+                            status=status.HTTP_200_OK)
+        except Exception as e:
+            print(e)
+            return Response(
+                {'success': False, 'message': 'no data',
+                 'status': 404, },
+                status=status.HTTP_404_NOT_FOUND)

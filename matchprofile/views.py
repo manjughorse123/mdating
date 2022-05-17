@@ -29,10 +29,14 @@ class UserFieldFilter(filters.FilterSet):
         fields = {'gender': ['exact'],
                   'birth_date': ['exact', 'range'],
                   'passion': ['exact'],
-                  'idealmatch': ['exact']}
+                  'idealmatch': ['exact'],
+                  'marital_status': ['exact'],
+                  'interest_in': ['exact'],
+                  'city': ['exact']
+                  }
 
 
-class UserFilterAPI(ListAPIView):
+class UserFilterApiView(ListAPIView):
     permission_classes = [IsAuthenticated, ]
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
@@ -65,9 +69,9 @@ class UserFilterAPI(ListAPIView):
                                        birth_date__lte=min_date)).order_by("create_at").exclude(id=user_info[0].id)
             #    | Q(create_at__range=(last_week, today)) and Q(is_complete_profile=True)
 
-        user_data = User.objects.filter(Q(birth_date__year__gte=(
+        user_data = User.objects.filter(Q(birth_date__year__lte=(
             user_info[0].birth_date.year - 10))
-            and Q(birth_date__year__lte=(
+            and Q(birth_date__year__gte=(
                 user_info[0].birth_date.year + 10)) |
             Q(gender=user_info[0].interest_in) |
             Q(interest_in=user_info[0].gender) |
@@ -85,14 +89,14 @@ class UserFilterAPI(ListAPIView):
 
     @swagger_auto_schema(
 
-        operation_summary="Get user Filter by Location,Passion,Gender ",
+        operation_summary="Get user Filter by Location,Passion,Gender,marital status ",
 
         tags=['User Filter']
 
     )
     def get(self, request, *args, **kwargs):
 
-        response = super(UserFilterAPI, self).get(request, *args, **kwargs)
+        response = super(UserFilterApiView, self).get(request, *args, **kwargs)
         # print("response", response.data['features'])
 
         response.data['status'] = 200
@@ -102,7 +106,7 @@ class UserFilterAPI(ListAPIView):
 
 
 class UserFilterAPIV2(ListAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny]
     queryset = User.objects.all()
     serializer_class = UserFilterSerializer
     distance_filter_field = 'location'
@@ -136,7 +140,7 @@ class UserFilterAPIV2(ListAPIView):
     )
     def get(self, request, *args, **kwargs):
 
-        response = super(UserFilterAPI, self).get(request, *args, **kwargs)
+        response = super(UserFilterApiView, self).get(request, *args, **kwargs)
         response.data['status'] = 200
         response.data['message'] = 'Filtered Data!'
         response.data['success'] = True
@@ -214,7 +218,7 @@ class MatchedUserProfileView(GenericAPIView):
 
 class MatchedUserProfileViewV2(GenericAPIView):
     serializer_class = GetUserMatchProfileSerializer
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated, ]
 
     # def get(self, request):
     #     userInterest = UserMatchProfile.objects.all()
@@ -267,7 +271,7 @@ class MatchedUserProfileViewV2(GenericAPIView):
                 obj = obj[0].id
                 objs = UserMatchProfile.objects.filter(id=obj)
                 objs.delete()
-                return Response({"success": True, "message": "User Dislike !", "status": 200}, status=status.HTTP_200_OK)
+                return Response({"success": True, "message": "User Dislike!", "status": 200}, status=status.HTTP_200_OK)
 
             # serializer.save()
 
@@ -332,12 +336,12 @@ class UserSearchFilterApiView(ListAPIView):
             "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id= %s", [user_id])
         # print("dffweasfewffgwefwe", people[0].name, people[0].age)
         user_passion = []
-        user_spe_data = User.objects.raw(
-            "SELECT *, date_part('year', age(birth_date))::int as age  FROM account_user where city= %s  or passion= %s or idealmatch= %s ",
-            [user_info[0].city,  user_info[0].passion, user_info[0].idealmatch])
+        # user_spe_data = User.objects.raw(
+        #     "SELECT *, date_part('year', age(birth_date))::int as age  FROM account_user where city= %s  or passion= %s or idealmatch= %s ",
+        #     [user_info[0].city,  user_info[0].passion, user_info[0].idealmatch])
 
-        for i in range(len(user_spe_data)):
-            print("user_spe_data", user_spe_data[i], user_spe_data[i].age)
+        # for i in range(len(user_spe_data)):
+        #     print("user_spe_data", user_spe_data[i], user_spe_data[i].age)
         today = date.today()
         last_week = today - timedelta(days=5)
 

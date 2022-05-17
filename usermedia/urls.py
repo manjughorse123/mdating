@@ -4,13 +4,14 @@ from usermedia.views import *
 
 urlpatterns = [
     re_path(r'^user/all/media/(?P<user_id>[0-9a-f-]+)$',
-            UserMediaAPI.as_view(), name="user_media"),
+            UserMediaApiView.as_view(), name="user_media"),
     re_path(r'^user/all/video/(?P<user_id>[0-9a-f-]+)$',
-            UserVideoAPI.as_view(), name="user_video"),
-    path('user/media/reaction/', MediaReactionApi.as_view(), name="media_reaction"),
-    path('upload/', MediaUploadApi.as_view(), name='media_upload'),
+            UserVideoApiView.as_view(), name="user_video"),
+    path('user/media/reaction/',
+         MediaReactionApiView.as_view(), name="media_reaction"),
+    path('upload/', MediaUploadApiView.as_view(), name='media_upload'),
     re_path(r'^delete/media/(?P<media_id>[0-9a-f-]+)$',
-            UserMediaDeleteApi.as_view(), name="media-delete"),
+            UserMediaDeleteApiView.as_view(), name="media-delete"),
     path('media/reports/', MediaReportsApiView.as_view(), name='media_report'),
 
 

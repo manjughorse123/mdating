@@ -35,13 +35,13 @@ class GetUserMatchProfileSerializer(serializers.ModelSerializer):
         model = UserMatchProfile
         fields = '__all__'
 
-    def to_representation(self, instance):
-        response = super().to_representation(instance)
-        response['user'] = UserFriendSerializer(instance.user).data
-        response['like_profile_user'] = UserFriendSerializer(
-            instance.like_profile_user).data
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['user'] = UserFriendSerializer(instance.user).data
+    #     response['like_profile_user'] = UserFriendSerializer(
+    #         instance.like_profile_user).data
 
-        return response
+    #     return response
 
 
 class UserFilterSerializer(GeoFeatureModelSerializer):
@@ -117,7 +117,9 @@ class UserSeachFilterSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
     def get_age(self, obj):
-        return True
+        age = User.calculate_age(obj.birth_date)
+
+        return age
 
     def get_is_friend_req(self, obj):
 

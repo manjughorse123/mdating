@@ -547,7 +547,12 @@ class GetFollowBackSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = FollowRequest
-        fields = ('id', 'is_follow', 'user', 'follow', 'is_mutual')
+        fields = (
+            'id',
+            'is_follow',
+            'user',
+            'follow',
+            'is_mutual')
 
     def to_representation(self, instance):
         response = super().to_representation(instance)

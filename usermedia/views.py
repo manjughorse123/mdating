@@ -12,7 +12,7 @@ from usermedia.serializers import *
 from account.models import User
 
 
-class UserMediaAPI(GenericAPIView):
+class UserMediaApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = GetMediaPostSerializers
 
@@ -42,7 +42,7 @@ class UserMediaAPI(GenericAPIView):
         return Response({"media": serializer.data, "status": 200, "success": True}, status=status.HTTP_200_OK)
 
 
-class UserVideoAPI(GenericAPIView):
+class UserVideoApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = GetUserVideoSerialize
 
@@ -111,7 +111,7 @@ class GetMediaUploadApi(GenericAPIView):
         return Response({"status": 200, "success": True, "post": serializer.data}, status=status.HTTP_200_OK)
 
 
-class MediaUploadApi(GenericAPIView):
+class MediaUploadApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = MediaPostSerializers
     # def get(self, request, *args, **kwargs):
@@ -240,7 +240,7 @@ class MediaUploadV2Api(GenericAPIView):
         return Response({"status": 400, "message": "no data found"}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class MediaReactionApi(GenericAPIView):
+class MediaReactionApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = MediaPostSerializers
 
@@ -270,64 +270,78 @@ class MediaReactionApi(GenericAPIView):
         tags=['User Media']
     )
     def post(self, request, format='json'):
-        data = {
-            'user': request.data['user'],
-            'media': request.data['media']
-        }
-        user = request.data['user']
-        media = request.data['media']
-        postdata = int(media)
-        flag = request.data['flag']
-        flagdata = int(flag)
-        obj = MediaPost.objects.filter(id=postdata)
-        serializerView = MediaViewSerializers(data=request.data)
-        serializerLike = MediaLikeSerializers(data=request.data)
-        serializerShare = MediaShareSerializers(data=request.data)
-        if serializerView.is_valid():
-            if flagdata == 1:
-                if MediaView.objects.filter(user=user, media=postdata).exists():
-                    return Response(
-                        {"message": "User Already Post Viewed",
-                            "success": "False", "data": serializerView.data},
-                        status=status.HTTP_201_CREATED)
+        try:
+            user = request.data['user']
+            media = request.data['media']
+            is_like = request.data['is_like']
+            postdata = int(media)
+            flag = request.data['flag']
+            flagdata = int(flag)
+            obj = MediaPost.objects.filter(id=postdata)
+            serializerView = MediaViewSerializers(data=request.data)
+            serializerLike = MediaLikeSerializers(data=request.data)
 
-                else:
-                    obj = obj[0]
-                    obj.view_count = obj.view_count + 1
-                    obj.save(update_fields=("view_count",))
-                    serializerView.save()
+            if serializerView.is_valid():
+                if flagdata == 1:
+                    if MediaView.objects.filter(user=user, media=postdata).exists():
+                        return Response(
+                            {"message": "User Already Post Viewed",
+                                "success": "False", "data": serializerView.data},
+                            status=status.HTTP_201_CREATED)
 
-                    return Response(
+                    else:
+                        obj = obj[0]
+                        obj.view_count = obj.view_count + 1
+                        obj.save(update_fields=("view_count",))
+                        serializerView.save()
 
-                        {"message": "User Post View Successfully", "status": 200,
-                            "success": "True", "data": serializerView.data},
-                        status=status.HTTP_201_CREATED)
-        if serializerLike.is_valid():
-            if flagdata == 2:
-                if MediaLike.objects.filter(user=user, media=postdata).exists():
-                    return Response(
-                        {"message": "User Already Post Liked",
-                            "success": "False", "data": serializerLike.data},
-                        status=status.HTTP_201_CREATED)
-                else:
-                    obj = obj[0]
-                    obj.like_count = obj.like_count + 1
-                    obj.save(update_fields=("like_count",))
-                    serializerLike.save()
+                        return Response(
 
-                    return Response(
-                        {"message": "User Post Like Successfully",
-                            "success": "True", "data": serializerLike.data},
-                        status=status.HTTP_201_CREATED)
+                            {"message": "User Post View Successfully", "status": 200,
+                                "success": "True", "data": serializerView.data},
+                            status=status.HTTP_201_CREATED)
+            if serializerLike.is_valid():
 
-        else:
-            return Response({"message": "Data Not Valid", "status": 400, "success": "error", "flag": False},
+                if flagdata == 2:
+                    if is_like == True:
+                        if MediaLike.objects.filter(user=user, media=postdata).exists():
+                            return Response(
+                                {"message": "User Already Post Liked",
+                                    "success": "False", "data": serializerLike.data},
+                                status=status.HTTP_201_CREATED)
+                        else:
+                            obj = obj[0]
+                            obj.like_count = obj.like_count + 1
+                            obj.save(update_fields=("like_count",))
+                            media_data = MediaLike.objects.create(
+                                user_id=user, media_id=postdata, is_like=is_like)
+                            # serializerLike.save()
+
+                            return Response(
+                                {"message": "User Post Like Successfully",
+                                    "success": "True", "data": serializerLike.data},
+                                status=status.HTTP_201_CREATED)
+                    else:
+                        obj = obj[0]
+                        obj.like_count = obj.like_count - 1
+                        obj.save(update_fields=("like_count",))
+                        obs = MediaLike.objects.filter(
+                            user_id=user, media_id=postdata)
+                        obs = obs[0]
+                        obs.delete()
+                        return Response(
+                            {"message": "User Post disLike Successfully", "status": 200,
+                                        "success": True, "user": [serializerLike.data]},
+                            status=status.HTTP_200_OK)
+            else:
+                return Response({"message": "Data Not Valid", "status": 400, "success": "error", "flag": False},
+                                status=status.HTTP_400_BAD_REQUEST)
+                # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
+                # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
+            return Response({"message": "No Data", "status": 400, "success": "error"},
                             status=status.HTTP_400_BAD_REQUEST)
-            # return Response({"success": "error", "data": serializerLike.errors}, status=status.HTTP_400_BAD_REQUEST)
-            # return Response({"success": "error", "data": serializerShare.errors}, status=status.HTTP_400_BAD_REQUEST)
-
-        return Response({"message": "No Data", "status": 400, "success": "error"},
-                        status=status.HTTP_400_BAD_REQUEST)
 
 
 class MediaViewAPI(GenericAPIView):
@@ -363,7 +377,7 @@ class MediaShareAPI(GenericAPIView):
         return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
 
 
-class UserMediaDeleteApi (GenericAPIView):
+class UserMediaDeleteApiView (GenericAPIView):
     permission_classes = (IsAuthenticated,)
 
     def get_object(self, media_id):

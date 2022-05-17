@@ -53,6 +53,7 @@ class MediaView(models.Model):
 class MediaLike(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     media = models.ForeignKey(MediaPost, on_delete=models.CASCADE)
+    is_like = models.BooleanField(blank=True, null=True, default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
 
