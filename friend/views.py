@@ -32,6 +32,8 @@ class AddFriendRequestSendView(GenericAPIView):
             properties={
                 'friend': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add Flag 1 for send Friend Request, 2 for Cancel Request'),
+
             }),
 
         tags=['Friend']
@@ -63,7 +65,7 @@ class AddFriendRequestSendView(GenericAPIView):
                 else:
                     return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
         else:
-            return Response({"success": True, "message": "Try again!", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({"success": True, "message": "Data Not Found", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class AddFriendRequestAcceptView(GenericAPIView):
@@ -139,7 +141,7 @@ class GetFriendRequestListView(GenericAPIView):
         user_data = UserSuggestionSerializer(user_suggest_friend, context={
                                              'request': user_req_id}, many=True)
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
-        return Response({"success": True, "status": 200, "message": "Detail", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
+        return Response({"success": True, "status": 200, "message": " Friend request Deatil", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
 class GetFriendRequestListApiView(GenericAPIView):
@@ -248,10 +250,11 @@ class SendRequestByUserApiView(GenericAPIView):
 
         user_id = request.user.id
         user_data = User.objects.filter(id=user_id)
-        user_data = User.objects.filter(Q(
+        user_data = User.objects.filter(Q(is_complete_profile=True) and Q(
             passion__in=user_data[0].passion.all()) |
-            Q(create_at__range=(last_week, today)) and
-            Q(is_complete_profile=True)
+            Q(create_at__range=(last_week, today))
+
+
         ).exclude(id=user_id).distinct()
         list_suggested = []
 
@@ -303,7 +306,7 @@ class SendRequestByUserApiView(GenericAPIView):
             user_id=user_id).order_by('-create_at')
         serializer = SendRequestListSerializer(friend_req_list, many=True)
 
-        return Response({"success": True, "status": 200, "message": "Detail", "data": serializer.data,
+        return Response({"success": True, "status": 200, "message": "Send Friend Request by User", "data": serializer.data,
                          'data_count': len(serializer.data), 'suggest_friend_data': user_data.data,
                          },
                         status=status.HTTP_200_OK)
@@ -333,91 +336,100 @@ class AddFriendRequestAcceptDeatilApiView(GenericAPIView):
             properties={
                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
                 'friend': openapi.Schema(type=openapi.TYPE_STRING, description='Add Friend Id'),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Flag 1 for Accept friend request,2 for Delete Friend Request and 3 for UnFriend user'),
             }),
 
         tags=['Friend']
     )
     def post(self, request, format='json'):
+        try:
+            flag = str(request.data['flag'])
+            serializer = FriendListSerializer(
+                data=request.data, context={'request': request})
+            print("Request data", request.data)
+            if serializer.is_valid():
 
-        flag = str(request.data['flag'])
-        serializer = FriendListSerializer(
-            data=request.data, context={'request': request})
+                users = str(request.user.id)
+                user = User.objects.get(id=users)
+                friends = serializer.validated_data['friends']
+                # friends = serializer.validated_data['user']
 
-        if serializer.is_valid():
+                if flag == '1':  # add friend
 
-            users = str(request.user.id)
-            user = User.objects.get(id=users)
-            friends = serializer.validated_data['friends']
+                    if FriendList.objects.filter(user=user, friends=friends, is_accepted=True):
+                        return Response({"success": "error", "status": 400, "message": "User Already friend"},
+                                        status=status.HTTP_400_BAD_REQUEST)
+                    else:
+                        new_friend = FriendList.objects.create(
+                            user=user, friends=friends, is_accepted=True)
+                        obj_friend = FriendList.objects.create(
+                            user=friends, friends=user, is_accepted=True)
+                        # obj = FriendRequest.objects.filter(
+                        #     friend=user, user=friends)
+                        if FriendRequest.objects.filter(
+                                friend=user, user=friends):
+                            obj = FriendRequest.objects.filter(
+                                friend=user, user=friends)
+                            print("if:", obj)
+                        else:
+                            obj = FriendRequest.objects.filter(
+                                friend=friends, user=user)
+                            print("ELSE :", obj)
+                        obj = obj[0].id
+                        objs = FriendRequest.objects.filter(id=obj)
+                        objs.delete()
 
-            if flag == '1':  # add friend
-
-                if FriendList.objects.filter(user=user, friends=friends, is_accepted=True):
-                    return Response({"success": "error", "status": 400, "message": "User Already friend"},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    new_friend = FriendList.objects.create(
-                        user=user, friends=friends, is_accepted=True)
-                    obj_friend = FriendList.objects.create(
-                        user=friends, friends=user, is_accepted=True)
-                    # obj = FriendRequest.objects.filter(
-                    #     friend=user, user=friends)
+                if flag == '2':  # delete  request
                     if FriendRequest.objects.filter(
                             friend=user, user=friends):
                         obj = FriendRequest.objects.filter(
                             friend=user, user=friends)
-                        print("if:", obj)
+                        print("if :", obj)
                     else:
                         obj = FriendRequest.objects.filter(
                             friend=friends, user=user)
-                        print("ELSE :", obj)
-                    obj = obj[0].id
-                    objs = FriendRequest.objects.filter(id=obj)
-                    objs.delete()
+                        print("else :", obj)
+                    if obj:
+                        obj = obj[0].id
+                        objs = FriendRequest.objects.filter(id=obj)
+                        objs.delete()
+                        return Response({"success": True, "message": "Friend Request Deleted !", "status": 200}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"success": True, "message": "No Data", "status": 200}, status=status.HTTP_200_OK)
+                if flag == '3':  # unfriend user
+                    if FriendList.objects.filter(friends=friends):
+                        obj = FriendList.objects.filter(
+                            friends=friends, user=user)
 
-            if flag == '2':  # delete  request
-                if FriendRequest.objects.filter(
-                        friend=user, user=friends):
-                    obj = FriendRequest.objects.filter(
-                        friend=user, user=friends)
-                    print("if :", obj)
-                else:
-                    obj = FriendRequest.objects.filter(
-                        friend=friends, user=user)
-                    print("else :", obj)
-                if obj:
-                    obj = obj[0].id
-                    objs = FriendRequest.objects.filter(id=obj)
-                    objs.delete()
-                    return Response({"success": True, "message": "Friend Request Deleted !", "status": 200}, status=status.HTTP_200_OK)
-                else:
-                    return Response({"success": True, "message": "No Data", "status": 200}, status=status.HTTP_200_OK)
-            if flag == '3':  # unfriend user
-                if FriendList.objects.filter(friends=friends):
-                    obj = FriendList.objects.filter(friends=friends, user=user)
+                        obj = obj[0].id
+                        objs = FriendList.objects.filter(id=obj)
+                        objs.delete()
+                        obj1 = FriendList.objects.filter(
+                            user=friends, friends=user)
 
-                    obj = obj[0].id
-                    objs = FriendList.objects.filter(id=obj)
-                    objs.delete()
-                    obj1 = FriendList.objects.filter(
-                        user=friends, friends=user)
+                        obj1 = obj1[0].id
+                        objs1 = FriendList.objects.filter(id=obj1)
+                        objs1.delete()
+                        return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
+                    else:
+                        return Response({"success": "error", "status": 400, "message": "No Data Found"},
+                                        status=status.HTTP_400_BAD_REQUEST)
 
-                    obj1 = obj1[0].id
-                    objs1 = FriendList.objects.filter(id=obj1)
-                    objs1.delete()
-                    return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
-                else:
-                    return Response({"success": "error", "status": 400, "message": "User Already Unfriend"},
-                                    status=status.HTTP_400_BAD_REQUEST)
+                # serializer.save()
 
-            # serializer.save()
-
+                return Response(
+                    {"success": True, "message": "Friend Request Accepted!",
+                        "status": 201, "data": serializer.data},
+                    status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": False, "message": " Field Not Found", "status": 400,
+                                "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+        except Exception as e:
+            print(e)
             return Response(
-                {"success": True, "message": "Friend Request Accepted!",
-                    "status": 201, "data": serializer.data},
-                status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": False, "message": " Try Again!", "status": 400,
-                             "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                {'success': False, 'message': 'Field Not Found',
+                    'status': 404, },
+                status=status.HTTP_404_NOT_FOUND)
 
 
 class GetFriendRequestAcceptApiView(GenericAPIView):
@@ -614,6 +626,7 @@ class AddFollowRequestView(GenericAPIView):
             properties={
                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
                 'follow': openapi.Schema(type=openapi.TYPE_STRING, description='Add Follow Id'),
+
             }),
 
         tags=['Follow']
@@ -950,7 +963,7 @@ class GetFollowerApiView(GenericAPIView):
 
 
 class GetFollowersView(GenericAPIView):
-    permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = FollowRequestFollowerV2Serializer
     """
     Retrieve, update or delete a Get Follower instance.
@@ -989,7 +1002,7 @@ class GetFollowersView(GenericAPIView):
 
 
 class GetFollowingView(GenericAPIView):  # temperly stop
-    permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     QuerySet = FollowAccept.objects.all()
     serializer_class = FollowListFollowingSerializer
     """
@@ -1038,6 +1051,7 @@ class SendFollowRequestView(GenericAPIView):
         user = User.objects.get(id=users)
 
         if "flag" in request.data:
+            print("request data", request.data)
             flag = request.data['flag']
             flag = str(flag)
             serializer = SendFollowRequestSerializer(data=request.data)
@@ -1073,7 +1087,7 @@ class SendFollowRequestView(GenericAPIView):
                     else:
                         return Response({"success": True, "message": "No Request !", "status": 200}, status=status.HTTP_200_OK)
             else:
-                return Response({"success": True, "message": "No data", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": True, "message": "No Data!", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
         else:
             return Response({"success": True, "message": "Flag Not Found !", "status": 200}, status=status.HTTP_200_OK)
 
@@ -1115,7 +1129,6 @@ class FollowBackApiView(GenericAPIView):
                             user=user, follow=follow, is_follow=is_follow)
                         objs = FollowRequest.objects.filter(
                             user=follow, follow=user)
-
                         fetch_obj_data = objs[0]
                         fetch_obj_data.is_follow = True
                         fetch_obj_data.save(update_fields=["is_follow"])

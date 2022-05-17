@@ -44,7 +44,7 @@ class CreatePostApiView(GenericAPIView):
             properties={
                 'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add Post Data'),
                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
-                'title': openapi.Schema(type=openapi.TYPE_STRING, description='Add Title'),
+                'title': openapi.Schema(type=openapi.TYPE_STRING, description='Add Suitable Title'),
                 'message': openapi.Schema(type=openapi.TYPE_STRING, description='Add Message'),
             }),
 
@@ -113,7 +113,7 @@ class NewPostUploadApi(GenericAPIView):
 
 
 class UserImagesApiViewV2(GenericAPIView):
-    permission_classes = [AllowAny, ]
+    permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadSerializers
 
     def get_serializer_context(self):
@@ -170,7 +170,7 @@ class PostReactionApiView(GenericAPIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add Post Data'),
-                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag  1 for view and 2 for like'),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag  1 for view, flag 2 for like if is_like True and flag 2 for Unlike if is_like False'),
 
             }),
 

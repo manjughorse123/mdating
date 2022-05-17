@@ -137,8 +137,8 @@ class MediaUploadApiView(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
-                'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add user'),
+                'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Image'),
+                'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id'),
                 'caption': openapi.Schema(type=openapi.TYPE_STRING, description='Add Caption'),
 
             }),
@@ -260,10 +260,10 @@ class MediaReactionApiView(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Data'),
+                'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Media Image'),
 
-                'user': openapi.Schema(type=openapi.TYPE_STRING, description='user id '),
-                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='add flag 1  for  view  , 2 for  like'),
+                'user': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Id '),
+                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for view Media,2 for like Media'),
 
             }),
 
@@ -378,7 +378,7 @@ class MediaShareAPI(GenericAPIView):
 
 
 class UserMediaDeleteApiView (GenericAPIView):
-    permission_classes = (IsAuthenticated,)
+    permission_classes = [IsAuthenticated, ]
 
     def get_object(self, media_id):
 
@@ -418,7 +418,7 @@ class MediaReportsApiView(GenericAPIView):
             type=openapi.TYPE_OBJECT,
             properties={
                 'media': openapi.Schema(type=openapi.TYPE_STRING, description='Add post Id'),
-                'report_text': openapi.Schema(type=openapi.TYPE_STRING, description='Add Report Text'),
+                'report_text': openapi.Schema(type=openapi.TYPE_STRING, description='Add Reports Text'),
             }),
 
         tags=['Post']

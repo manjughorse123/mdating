@@ -11,9 +11,9 @@ class UserFriendSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
 
     def get_age(self, obj):
-        age = User.calculate_age(obj.birth_date)
-
-        return age
+        age = User.objects.raw(
+            "SELECT id, date_part('year', age(%s))::int as age  FROM account_user where id= %s", [obj.birth_date, obj.id])
+        return age[0].age
 
     class Meta:
         model = User

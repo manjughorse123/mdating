@@ -49,11 +49,14 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
     age = serializers.SerializerMethodField()
     is_friend_req = serializers.SerializerMethodField()
     is_friend_acc = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
 
     def get_age(self, obj):
-        age = User.calculate_age(obj.birth_date)
+        # age = User.calculate_age(obj.birth_date)
+        age = User.objects.raw(
+            "SELECT id, date_part('year', age(%s))::int as age  FROM account_user where id= %s", [obj.birth_date, obj.id])
 
-        return age
+        return age[0].age
 
     def get_media(self, obj):
 
@@ -81,6 +84,15 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
         else:
             return False
 
+    def get_is_following(self, obj):
+
+        user = self.context['request'].user
+        is_following = FollowRequest.objects.filter(user=user, follow=obj.id)
+        if is_following:
+            return True
+        else:
+            return False
+
     class Meta:
         model = User
         geo_field = "location"
@@ -99,7 +111,9 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
                   'media',
                   'age',
                   'is_friend_req',
-                  'is_friend_acc',)
+                  'is_friend_acc',
+                  'is_following'
+                  )
 
     def to_representation(self, instance):
         response = super().to_representation(instance)

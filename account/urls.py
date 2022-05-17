@@ -19,7 +19,7 @@ urlpatterns = [
     path('resend-otp/', ResendOtpApiView.as_view(),
          name='resend_otp'),  # resend api
     path('logout/', LogoutApiView.as_view(), name="logout"),
-    path('setting/privacy/', SettingPrivacyApi.as_view(), name='setting-privacy'),
+    path('setting/privacy/', SettingPrivacyApiView.as_view(), name='setting-privacy'),
 
     # path('otp/verify/v2', OTPVerifyV2.as_view(), name='OTPVerify'),# OTPVerifyV2 for Jwt Token checking
     # re_path(r'^user/verified/(?P<user_id>[0-9a-f-]+)$', UserVerifiedAPI.as_view(), name='user-verification'),

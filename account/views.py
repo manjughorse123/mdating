@@ -48,7 +48,7 @@ class LoginApiView(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User Mobile Number'),
                 'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Enter Otp'),
                 'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='Add Country Code'),
             }),
@@ -106,12 +106,12 @@ class RegistrationApiView(CreateAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-                'name': openapi.Schema(type=openapi.TYPE_STRING, description='User name'),
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User Mobile Number'),
+                'name': openapi.Schema(type=openapi.TYPE_STRING, description='User Name'),
                 'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='User email'),
-                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country code'),
-                'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description=' date of birth must be in YYYY-MM-DD format.'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='User Email'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='User Country Code'),
+                'birth_date': openapi.Schema(type=openapi.TYPE_STRING, description='Date of Birth must be in YYYY-MM-DD format.'),
 
             }),
 
@@ -267,8 +267,6 @@ class GetUserDetail(GenericAPIView):
     @swagger_auto_schema(
 
         operation_summary=" Get User Detail",
-
-
         tags=['Account']
     )
     def get(self, request, user_id, format=None):
@@ -321,12 +319,12 @@ class UserUpdateProfileApiView(GenericAPIView):
             properties={
                 'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
                 'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
-                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
-                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
-                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User IdealMatch'),
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Marital Status'),
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Height'),
+                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Location'),
+                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Interest In'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Email'),
 
 
             }),
@@ -383,9 +381,9 @@ class OTPVerifyApiView(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User mobile no'),
-                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='otp'),
-                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='country_code'),
+                'mobile': openapi.Schema(type=openapi.TYPE_STRING, description='User Mobile No'),
+                'otp': openapi.Schema(type=openapi.TYPE_STRING, description='Add Otp'),
+                'country_code': openapi.Schema(type=openapi.TYPE_STRING, description='Add Country Code'),
             }),
 
         tags=['Account']
@@ -601,13 +599,23 @@ class ResendOtpApiView(GenericAPIView):
                          }, status=status.HTTP_200_OK)
 
 
-class SettingPrivacyApi(GenericAPIView):
+class SettingPrivacyApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     # queryset = User.objects.all()
     serializer_class = UserSettingSerializer
 
     @swagger_auto_schema(
-        operation_summary="setting privacy update",
+        operation_summary="Setting Privacy Update",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'show_profile': openapi.Schema(type=openapi.TYPE_STRING, description='update user profile by Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+                'show_friend': openapi.Schema(type=openapi.TYPE_STRING, description='update Friend by Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+                'show_public_post': openapi.Schema(type=openapi.TYPE_STRING, description='update Public post by Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+                'show_private_post': openapi.Schema(type=openapi.TYPE_STRING, description='update Private by Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+                'show_media_photo': openapi.Schema(type=openapi.TYPE_STRING, description='update Media Post Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+                'show_media_video': openapi.Schema(type=openapi.TYPE_STRING, description='update Media Video by Flag 0 for EveryOne, 1 for Friend and 2 for OnlyMe'),
+            }),
         tags=['Account']
     )
     def put(self, request, *args, **kwargs):
@@ -828,14 +836,14 @@ class UserUpdateProfileV2(GenericAPIView):
         request_body=openapi.Schema(
             type=openapi.TYPE_OBJECT,
             properties={
-                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion'),
+                'passion': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Passion List'),
                 'gender': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Gender'),
-                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Idealmatch'),
-                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User marital_status'),
-                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User tall'),
-                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User location'),
-                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User interest_in'),
-                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User email'),
+                'idealmatch': openapi.Schema(type=openapi.TYPE_STRING, description='Add User IdealMatch'),
+                'marital_status': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Marital Status'),
+                'tall': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Height'),
+                'location': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Location'),
+                'interest_in': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Interest In'),
+                'email': openapi.Schema(type=openapi.TYPE_STRING, description='Add User Email'),
 
             }),
 

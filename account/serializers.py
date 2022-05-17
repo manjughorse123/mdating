@@ -258,7 +258,7 @@ class UserSettingSerializer(serializers.ModelSerializer):
             for i in range(len(friend_data)):
                 data = friend_data[i].show_friend
             return data
-        return 0
+        return 2
 
     def get_show_public_post(self, obj):
         public_data = PostUpload.objects.filter(user=obj.id, is_private=0)
@@ -274,7 +274,7 @@ class UserSettingSerializer(serializers.ModelSerializer):
             for i in range(len(public_data)):
                 data = public_data[i].show_public_post
             return data
-        return 0
+        return 2
 
     def get_show_media_photo(self, obj):
         media_photo = MediaPost.objects.filter(user=obj.id)
@@ -282,7 +282,7 @@ class UserSettingSerializer(serializers.ModelSerializer):
             for i in range(len(media_photo)):
                 data = media_photo[i].show_media_photo
             return data
-        return 0
+        return 2
 
     def get_show_media_video(self, obj):
         media_video = MediaVideo.objects.filter(user=obj.id)
@@ -291,7 +291,7 @@ class UserSettingSerializer(serializers.ModelSerializer):
             for i in range(len(media_video)):
                 data = media_video[i].show_media_video
             return data
-        return 0
+        return 2
 
     class Meta(object):
         model = User

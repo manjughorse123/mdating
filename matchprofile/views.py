@@ -69,7 +69,7 @@ class UserFilterApiView(ListAPIView):
                                        birth_date__lte=min_date)).order_by("create_at").exclude(id=user_info[0].id)
             #    | Q(create_at__range=(last_week, today)) and Q(is_complete_profile=True)
 
-        user_data = User.objects.filter(Q(birth_date__year__lte=(
+        user_data = User.objects.filter(Q(is_complete_profile=True) and Q(birth_date__year__lte=(
             user_info[0].birth_date.year - 10))
             and Q(birth_date__year__gte=(
                 user_info[0].birth_date.year + 10)) |
@@ -82,7 +82,7 @@ class UserFilterApiView(ListAPIView):
             Q(marital_status=user_info[0].marital_status) |
             Q(create_at__range=(last_week, today))
             | Q(is_active=False)
-            and Q(is_complete_profile=True)
+
         ).exclude(id=user_info[0].id).distinct()
 
         return user_data
@@ -90,7 +90,6 @@ class UserFilterApiView(ListAPIView):
     @swagger_auto_schema(
 
         operation_summary="Get user Filter by Location,Passion,Gender,marital status ",
-
         tags=['User Filter']
 
     )
