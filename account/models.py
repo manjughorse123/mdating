@@ -154,6 +154,11 @@ MAYBECHOICE = (
     (1, 'friend'),
     (2, 'onlyme'),
 )
+USERVERIFYCHOICE = (
+    (0, 'panding'),
+    (1, 'inprogress'),
+    (2, 'verified'),
+)
 
 
 class User(AbstractBaseUser):
@@ -180,6 +185,8 @@ class User(AbstractBaseUser):
     is_gender = models.BooleanField(default=False)
 
     image = models.URLField(blank=True, null=True)
+    profile_image =models.ImageField(upload_to='profile_image/',blank=True, null=True)
+   
     is_tall = models.BooleanField(default=False)
     tall = models.ForeignKey(Heigth, on_delete=models.CASCADE, related_name='user_height',
                              blank=True, null=True)
@@ -200,8 +207,10 @@ class User(AbstractBaseUser):
     idealmatch = models.ManyToManyField(
         IdealMatch, blank=True, db_column='IdealMatch')
     is_idealmatch = models.BooleanField(default=False)
-    selfie = models.CharField(max_length=255, blank=True, null=True)
-    govt_id = models.CharField(max_length=255, blank=True, null=True)
+    selfie = models.TextField( blank=True, null=True)
+    selfie_url = models.ImageField(upload_to='selfie_image/',blank=True, null=True)
+    govt_id = models.TextField( blank=True, null=True)
+    govt_id_url =models.ImageField(upload_to='govt_id_image/',blank=True, null=True)
     is_govt_id_verified = models.BooleanField(default=False)
     is_register_user_verified = models.BooleanField(default=False)
     is_active = models.BooleanField(default=False)
@@ -213,6 +222,8 @@ class User(AbstractBaseUser):
     active_reseaon = models.TextField(blank=True, null=True)
     show_profile = models.IntegerField(
         choices=MAYBECHOICE, default=2)
+    user_verified_status = models.IntegerField(
+        choices=USERVERIFYCHOICE, default=0)    
     # objects = LocationManager()
     # objects = UserManager()
     USERNAME_FIELD = 'mobile'

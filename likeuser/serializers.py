@@ -30,7 +30,7 @@ from .models import *
 # class FollowSerializer(serializers.ModelSerializer):
 
 #         def validate(self, attrs):
-#          
+#
 #             if FriendRequest.objects.filter(is_active = True):
 #                 raise serializers.ValidationError(
 #                     {"friend request was  already send"})
@@ -99,28 +99,25 @@ from .models import *
 #             model = FollowAccept
 #             fields = "__all__"
 
-class UserLikeflagSerializer(serializers.ModelSerializer):
+# class UserLikeflagSerializer(serializers.ModelSerializer):
 
-    class Meta:
-        model = UserLike
-        fields = '__all__'
-
-
-class UserLikeSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = UserLike
-        fields = '__all__'
+#     class Meta:
+#         model = UserLike
+#         fields = '__all__'
 
 
+# class UserLikeSerializer(serializers.ModelSerializer):
+
+#     class Meta:
+#         model = UserLike
+#         fields = '__all__'
 
 
+# class MatchesprofileSerializer(serializers.ModelSerializer):
 
-class MatchesprofileSerializer(serializers.ModelSerializer):
-
-    """
-    Serializer for User UserPassion
-    """
-    class Meta:
-        model = Matchesprofile
-        fields = '__all__'
+#     """
+#     Serializer for User UserPassion
+#     """
+#     class Meta:
+#         model = Matchesprofile
+#         fields = '__all__'

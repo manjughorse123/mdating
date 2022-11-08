@@ -37,7 +37,10 @@ urlpatterns = [
     path('api/', include('likeuser.urls'),name='like-user'),
     path('api/', include('friend.urls'),name='friend'),
     path('api/', include('matchprofile.urls'),name='matchprofile'),
-    path('api/', include('masterdata.urls'),name='masterdata'),
+   
+    path('api/', include('chatbot.urls'),name='chat'),
+    path('api/', include('masterdata.urls'),name=',masterdata'),
+
 
 
     # path('', include('masterapp.urls')),

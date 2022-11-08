@@ -6,7 +6,7 @@ urlpatterns = [
     path('friend-request-send/',
          AddFriendRequestSendView.as_view(), name='send_request'),
     path('friend-request-accept-user/',
-         AddFriendRequestAcceptDeatilApiView.as_view(), name='accept_request'),
+         AddFriendRequestAcceptDetailApiView.as_view(), name='accept_request'),
     path('get-friend-req-list/', GetFriendRequestListApiView.as_view(),
          name="get_friend_req_list"),
     path('get-friend-req-accept-list/v2/', GetFriendRequestAcceptApiViewV2.as_view(),
@@ -16,8 +16,8 @@ urlpatterns = [
     path('send-req-by-user/', SendRequestByUserApiView.as_view(),
          name="send_req_by_user"),
 
-    path('send-follow-request/',
-         AddFollowRequestView.as_view(), name='follow_request'),
+#     path('send-follow-request/',
+#          AddFollowRequestView.as_view(), name='follow_request'),
     path('follow-send-accept/',
          FollowRequestAcceptView.as_view(), name='follow_accept'),
     re_path(r'^get-following/(?P<user_id>[0-9a-f-]+)$',
@@ -27,7 +27,8 @@ urlpatterns = [
 
     path('follow-request/', SendFollowRequestView.as_view(),
          name='send_follow_request'),
-    path('follow-back-accept/', FollowBackApiView.as_view(), name='follow_back'),
+#     path('follow-back-accept/', SendFollowRequestView.as_view(), name='follow_back'),
+    path('follow-back-accept/', FollowBackApiView.as_view(), name='follow_back'),#change for testing follow 7 oct 
     path('get-follow-back/', GetFollowBackApiView.as_view(), name='getfollowback'),
 
 

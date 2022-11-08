@@ -19,6 +19,7 @@ class PostUpload(models.Model):
                              null=True, default="title")
     message = models.TextField(default="messages", blank=True, null=True)
     post = models.TextField(blank=True, null=True)
+    user_post  = models.ImageField(upload_to='user_post_image/',blank=True, null=True)
     uploadvideo = models.TextField(blank=True, null=True)
     is_view_count = models.PositiveIntegerField(
         default=0, blank=True, null=True)
@@ -64,16 +65,16 @@ class PostLike(models.Model):
         return self.post.post
 
 
-class PostShare(models.Model):
-    user = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name="postshare")
-    post = models.ForeignKey(
-        PostUpload, on_delete=models.CASCADE, related_name="postshare")
-    is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
-    create_at = models.DateTimeField(auto_now_add=True)
+# class PostShare(models.Model):
+#     user = models.ForeignKey(
+#         User, on_delete=models.CASCADE, related_name="postshare")
+#     post = models.ForeignKey(
+#         PostUpload, on_delete=models.CASCADE, related_name="postshare")
+#     is_share = models.PositiveIntegerField(default=0, blank=True, null=True)
+#     create_at = models.DateTimeField(auto_now_add=True)
 
-    def __str__(self):
-        return self.post.post
+#     def __str__(self):
+#         return self.post.post
 
 
 class PostReport(models.Model):

@@ -77,7 +77,7 @@ class CreatePostApiView(GenericAPIView):
 
             serializer.save()
 
-            return Response({"message": True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
+            return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
         return Response({"message": False, "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -189,7 +189,7 @@ class PostReactionApiView(GenericAPIView):
             obj = PostUpload.objects.filter(id=postdata)
             serializerView = PostViewSerializers(data=request.data)
             serializerLike = PostLikeSerializers(data=request.data)
-            serializerShare = PostShareSerializers(data=request.data)
+            # serializerShare = PostShareSerializers(data=request.data)
             if serializerView.is_valid():
 
                 if flagdata == 1:
@@ -268,7 +268,7 @@ class PostReactionApiView(GenericAPIView):
                         status=status.HTTP_201_CREATED)
 
             else:
-                return Response({"success": "error", "user": [serializerLike.data]}, status=status.HTTP_400_BAD_REQUEST)
+                return Response({"success": False, "message": " Not Valid Input !!", "user": [serializerLike.data]}, status=status.HTTP_400_BAD_REQUEST)
 
         return Response({"message": " Not Valid Input !!", "success": False, "status": 200},
                         status=status.HTTP_200_OK)
@@ -542,7 +542,7 @@ class UserImagesApiView(GenericAPIView):
             user_post_lists = User.objects.filter(Q(gender=user_data[0].gender) |
                                                   Q(passion__in=user_data[0].passion.all(
                                                   ))
-                                                  and Q(is_complete_profile=True)
+                                                  & Q(is_complete_profile=True)
                                                   ).exclude(id=request.user.id).distinct()
 
             user_id_list = []

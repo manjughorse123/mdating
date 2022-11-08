@@ -28,7 +28,7 @@ SECRET_KEY = 'django-insecure-8(y+s39b-%2r0gi(tzp-m!a&wl21r#xgt#75mt#s_d)y38wqyo
 DEBUG = True
 
 ALLOWED_HOSTS = ['*', '0.0.0.0', '0.0.0.0:80']
-
+# ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -60,6 +60,7 @@ INSTALLED_APPS = [
     'likeuser',
     'colorfield',
     'masterdata',
+    'chatbot',
 
 ]
 
@@ -108,16 +109,31 @@ WSGI_APPLICATION = 'DatingApp.wsgi.application'
 #    }
 # }
 
+# DATABASES = {
+#     'default': {
+#        'ENGINE': 'django.db.backends.postgresql',
+#         'NAME': 'dating',
+#         'USER': 'datinguser',
+#         'PASSWORD': 'dating',
+#         'HOST': 'localhost',
+#         'PORT': '5432',
+#     }
+# }
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'dating',
-        'USER': 'datinguser',
-        'PASSWORD': 'dating',
+        'NAME': 'mydate',
+        'USER': 'django',
+        'PASSWORD': 'password',
         'HOST': 'localhost',
         'PORT': '5432',
     }
 }
+
+# GDAL_LIBRARY_PATH = "/opt/homebrew/Cellar/gdal/3.3.2_3/lib/libgdal.dylib" 
+# GEOS_LIBRARY_PATH = "/opt/homebrew/Cellar/geos/3.9.1/lib/libgeos_c.dylib"
+
 
 
 # DATABASES = {
@@ -249,6 +265,10 @@ SWAGGER_SETTINGS = {
     'DEFAULT_MODEL_DEPTH': -1
 }
 
+
+AUTHENTICATION_BACKENDS = (
+    ('django.contrib.auth.backends.ModelBackend'),
+)
 
 #   'DEFAULT_PARSER_CLASSES': (
 #           'rest_framework.parsers.FormParser',

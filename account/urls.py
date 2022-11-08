@@ -7,7 +7,7 @@ urlpatterns = [
     path('otp/verify/', OTPVerifyApiView.as_view(), name='otp_verify'),
     path('registration/', RegistrationApiView.as_view(), name='registration'),
     re_path(r'user/data/(?P<user_id>[0-9a-f-]+)$',
-            UserDataApiView.as_view(), name='UserData'),
+            UserDataApiView.as_view(), name='profile_timeline'),
     re_path(r'^user/update/profile/(?P<user_id>[0-9a-f-]+)$',
             UserUpdateProfileApiView.as_view(), name="userupdate"),
     path('user/update/profile/v2/',

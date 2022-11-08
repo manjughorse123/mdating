@@ -95,7 +95,7 @@ class FollowRequest(models.Model):
     follow = models.ForeignKey(
         User, blank=True, on_delete=models.CASCADE, related_name="Follow_user")
     is_follow = models.BooleanField(blank=False, null=False, default=False)
-
+    is_follow_accepted = models.BooleanField(blank=False, null=False, default=False)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

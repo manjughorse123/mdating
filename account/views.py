@@ -22,6 +22,7 @@ from account.serializers import *
 from friend.models import FriendList, FriendRequest
 from friend.serializers import *
 from usermedia.models import *
+from twilio.rest import Client
 
 
 def send_otp(mobile, otp):
@@ -73,8 +74,11 @@ class LoginApiView(GenericAPIView):
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
             # if user.is_active == True:
+
             otp = 1234
             user.otp = otp
+            
+
             user.save()
             return Response({"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
                 'id': user.id,
@@ -128,7 +132,7 @@ class RegistrationApiView(CreateAPIView):
             birth_date = request.data['birth_date']
             check_mobile = User.objects.filter(mobile=mobile).first()
             check_email = User.objects.filter(email=email).first()
-
+            print("request.data",request.data)
             if check_mobile:
                 return Response(
                     {"message": "Mobile Number Already Exists!", 'status': 400,
@@ -140,10 +144,20 @@ class RegistrationApiView(CreateAPIView):
                         'status': 400, 'is_register': False, "email": email},
                     status=status.HTTP_400_BAD_REQUEST)
 
-            # otp = str(random.randint(999, 9999))
-            otp = str(1234)
+            otp = str(random.randint(1000, 9999))
+            # otp = str(1234)
+            account_sid = 'ACbcfad7f1219fdaac963471693bafdf61'
+            auth_token = 'a7ed817c4cff17e72b7508c320ce0f66'
+            client = Client(account_sid, auth_token)
 
-            # print("otp", otp)
+            message = client.messages.create(
+                                        body=f'Hi, your test result is {otp} . Great job',
+                                        from_=+19035183066,
+                                        to=+919131897782
+                                    )
+
+            print("Otp from tiwillo",message.sid)
+            print("otp", otp)
             user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                         country_code=country_code)
             # print(type(user))
@@ -181,33 +195,36 @@ class UserDataApiView(GenericAPIView):
     )
     def get(self, request, user_id, format=None):
 
-        # user_id = request.user.id
+        register_user = request.user.id
+        # import pdb;pdb.set_trace()
         user = User.objects.get(id=user_id)
         post = PostUpload.objects.filter(user_id=user_id)
         media = MediaPost.objects.filter(user_id=user_id)
         follow = FollowRequest.objects.filter(user_id=user_id)
         followaccept = FollowRequest.objects.filter(follow_id=user_id)
-        friendrequest = FriendRequest.objects.filter(user_id=user_id)
-        friendaccept = FriendList.objects.filter(user_id=user_id)
+        # friendrequest = FriendRequest.objects.filter(user_id=user_id)
+        # friendaccept = FriendList.objects.filter(user_id=user_id)
+        userserializer = UserProfileSerializer(user, context={
+             'request': request,'request1': register_user})
 
-        userserializer = UserProfileSerializer(user)
         postserializer = PostUploadSerializers(post, many=True)
         follow_serializer = FollowRequestFollowingSerializer(follow, many=True)
         follow_accept_serializer = FollowRequestFollowerV2Serializer(
-            followaccept, many=True)
+            followaccept, context={
+            'request': request.user.id}, many=True)
         mediaserializer = GetMediaPostSerializers(media, many=True)
-        friend_req_serializer = FriendRequestSerializer(
-            friendrequest, many=True)
-        friend_acc_serializer = FriendListUserSerializer(
-            friendaccept, many=True)
+        # friend_req_serializer = FriendRequestSerializer(
+        #     friendrequest, many=True)
+        # friend_acc_serializer = FriendListUserSerializer(
+        #     friendaccept, many=True)
 
         return Response({"base_url": base_url,
                         "user": userserializer.data,
                          "PostCount": len(postserializer.data),
                          "post": postserializer.data,
-                         "friendaccept": friend_acc_serializer.data,
-                         "friendrequest": friend_req_serializer.data,
-                         "MediaCount": len(mediaserializer.data),
+                        #  "friendaccept": friend_acc_serializer.data,
+                        #  "friendrequest": friend_req_serializer.data,
+                        #  "MediaCount": len(mediaserializer.data),
                          "media": mediaserializer.data,
                          "Following": len(follow_serializer.data),
                          "Follower": len(follow_accept_serializer.data),
@@ -331,7 +348,7 @@ class UserUpdateProfileApiView(GenericAPIView):
 
         tags=['Account']
     )
-    def put(self, request, user_id, *args, **kwargs):
+    def patch(self, request, user_id, *args, **kwargs):
         # user_id = request.user.id
         user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
@@ -389,7 +406,6 @@ class OTPVerifyApiView(GenericAPIView):
         tags=['Account']
     )
     def post(self, request):
-
         try:
             mobile = request.data['mobile']
             otp = request.data['otp']
@@ -429,7 +445,8 @@ class OTPVerifyApiView(GenericAPIView):
                         'country_code': user_obj.country_code,
                         'name': user_obj.name,
                         "is_complete_profile": user_obj.is_complete_profile,
-                        'is_verified': user_obj.is_verified, }
+                        'is_verified': user_obj.is_verified,
+                        "is_register_user_verified":user_obj.is_register_user_verified, }
 
                      },
                     status=status.HTTP_200_OK)
@@ -459,8 +476,9 @@ class GetUserDetailApiView(GenericAPIView):
     def get(self, request,  format=None):
 
         req = request.user
+        req.is_media = True
         if (req.is_gender and req.is_passion and req.is_tall and
-                req.is_interest_in and req.is_idealmatch and req.is_marital_status) == True:
+                req.is_interest_in and req.is_idealmatch and req.is_marital_status and req.is_media) == True:
             req.is_complete_profile = True
             req.save()
         else:
@@ -517,11 +535,18 @@ class UserVerifiedApiView(GenericAPIView):
         # adduserdetail = self.get_object(user_id)
 
         req = User.objects.get(id=request.user.id)
-        # print (req)
-        serializer = UserVerifiedSerializer(req)
-        return Response({"success": True, "status": 200, "data": serializer.data}, status=status.HTTP_200_OK)
+        if req.user_verified_status == 2:
 
-
+            print (req.user_verified_status)
+            serializer = UserVerifiedSerializer(req)
+            return Response({"success": True, "status": 200, "message":"Account Verified Succefully","data": serializer.data}, status=status.HTTP_200_OK)
+        elif req.user_verified_status == 1:
+            serializer = UserVerifiedSerializer(req)
+            return Response({"success": True, "status": 200, "message":"wait for verification","data": serializer.data}, status=status.HTTP_200_OK)
+        else :
+            serializer = UserVerifiedSerializer(req)
+            return Response({"success": True, "status": 200, "message":"Please add you Document","data": serializer.data}, status=status.HTTP_200_OK)
+        
 class UserVerifyDocumentApi(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = UserVerifyDocSerializer
@@ -543,11 +568,15 @@ class UserVerifyDocumentApi(GenericAPIView):
     def put(self, request, *args, **kwargs):
         user_id = request.user.id
         # user_id = self.kwargs.get('user_id')
+        print("UserVerifyDocumentApi",request.data)
         user_data = get_object_or_404(User, id=user_id)
         serializer = UserVerifyDocSerializer(user_data, data=request.data)
-
+        
         if serializer.is_valid():
+            user_data.user_verified_status = 1
+            user_data.save(update_fields=["user_verified_status"])
             user_data = serializer.save()
+
             return Response({"message": "User Document successfully added!", "status": 200, "success": True,
                              "doc_data": serializer.data, "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -639,15 +668,19 @@ class SettingPrivacyApiView(GenericAPIView):
                 user_public_post[i].save(update_fields=["show_public_post"])
 
         if 'show_private_post' in request.data:
+            
             user_private_post = PostUpload.objects.filter(
                 user=request.user.id, is_private=1)
-            for i in range(len(user_private_post)):
+            
+            for i in range(len(user_private_post)):  
                 user_private_post[i].show_private_post = request.data["show_private_post"]
                 user_private_post[i].save(update_fields=["show_private_post"])
+    
 
         if 'show_media_video' in request.data:
             user_media_video = MediaVideo.objects.filter(
                 user=request.user.id)
+           
             for i in range(len(user_media_video)):
 
                 user_media_video[i].show_media_video = request.data["show_media_video"]
@@ -853,9 +886,14 @@ class UserUpdateProfileV2(GenericAPIView):
         user_id = request.user.id
         # user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
-        serializer = UserSerializer(user_data, data=request.data)
+        serializer = UserSerializer(user_data, data=request.data,partial=True)
         print("request.data", request.data)
-
+        # if 'user_media' in request.FILES.getlist('user_media')
+        # user = UserProfile.objects.get(id=user_id)
+        # profile_im = request.FILES["profile_image"]
+        
+        # user.profile_image= profile_im
+        # user.save()
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
@@ -875,7 +913,7 @@ class UserUpdateProfileV2(GenericAPIView):
         if 'location' in request.data:
             user_data.is_location = True
             user_data.save(update_fields=["is_location"])
-
+        # import pdb;pdb.set_trace()
         if 'tall' in request.data:
             user_data.is_tall = True
             user_data.save(update_fields=["is_tall"])
@@ -1064,8 +1102,11 @@ class OTPVerifyV2(GenericAPIView):
 
                 # user_obj.save()
                 if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
-                        user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
+                        user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status ) == True:
                     # is_complete_profile = True
+                    # if (user_obj.is_gender and user_obj.is_passion and user_obj.is_tall and user_obj.is_location and
+                    #     user_obj.is_interest_in and user_obj.is_idealmatch and user_obj.is_marital_status and user_obj.is_media) == True:
+                    # # is_complete_profile = True
                     user_obj.is_complete_profile = True
 
                     user_obj.save()

@@ -24,16 +24,16 @@ class UserfilterSerializerss(serializers.ModelSerializer):
                   'passion', 'idealmatch', 'name', 'image')
 
 
-class UserMatchProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserMatchProfile
-        fields = '__all__'
+# class UserMatchProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserMatchProfile
+#         fields = '__all__'
 
 
-class GetUserMatchProfileSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = UserMatchProfile
-        fields = '__all__'
+# class GetUserMatchProfileSerializer(serializers.ModelSerializer):
+#     class Meta:
+#         model = UserMatchProfile
+#         fields = '__all__'
 
     # def to_representation(self, instance):
     #     response = super().to_representation(instance)
@@ -50,6 +50,26 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
     is_friend_req = serializers.SerializerMethodField()
     is_friend_acc = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
+    is_follower = serializers.SerializerMethodField()
+    user_dislike_profile = serializers.SerializerMethodField()
+    user_like_profile = serializers.SerializerMethodField()
+
+    def get_user_like_profile(self, obj):
+
+        user = self.context['request'].user
+        friend_data = FriendRequest.objects.filter(user=user, friend=obj.id)
+        if friend_data:
+            return True
+        else:
+            return False
+    def get_user_dislike_profile(self, obj):
+        # age = User.calculate_age(obj.birth_date)
+        user = self.context['request'].user
+        friend_data = UserDisLikeProfile.objects.filter(user=user, profile_user=obj.id)
+        if friend_data:
+            return True
+        else:
+            return False
 
     def get_age(self, obj):
         # age = User.calculate_age(obj.birth_date)
@@ -93,6 +113,15 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
         else:
             return False
 
+    def get_is_follower(self, obj):
+
+        user = self.context['request'].user
+        is_following = FollowRequest.objects.filter(user=obj.id, follow=user)
+        if is_following:
+            return True
+        else:
+            return False
+
     class Meta:
         model = User
         geo_field = "location"
@@ -112,7 +141,10 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
                   'age',
                   'is_friend_req',
                   'is_friend_acc',
-                  'is_following'
+                  'is_following',
+                  'is_follower',
+                  'user_dislike_profile',
+                  'user_like_profile',
                   )
 
     def to_representation(self, instance):
@@ -179,3 +211,10 @@ class UserSeachFilterSerializer(serializers.ModelSerializer):
                   'is_friend_acc',
                   'is_friend_get',
                   'age')
+
+
+class UserDisLikeProfileSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = UserDisLikeProfile
+        fields = '__all__'

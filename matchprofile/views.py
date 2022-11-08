@@ -1,4 +1,7 @@
-
+import math
+from django.contrib.gis.measure import D 
+from django.contrib.gis.geos import Point
+from django.contrib.gis.db.models.functions import Distance
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from datetime import date, timedelta
@@ -14,7 +17,7 @@ from rest_framework import status
 from rest_framework.filters import OrderingFilter, SearchFilter
 from rest_framework_gis.filters import DistanceToPointFilter, DistanceToPointOrderingFilter
 from rest_framework.pagination import PageNumberPagination
-
+from django.contrib.gis.db.models import *
 from matchprofile.serializers import *
 from matchprofile.models import *
 from account.models import User
@@ -52,7 +55,13 @@ class UserFilterApiView(ListAPIView):
 
         today = date.today()
         last_week = today - timedelta(days=5)
-
+        longitude = self.request.GET['longitude']
+        latitude = self.request.GET['latitude']
+        if  int(self.request.GET['related_distance']) > 0:
+            related_distance = self.request.GET['related_distance']
+        else :
+            related_distance = 10000
+        user_location = Point(float(latitude), float(longitude), srid=4326)
         if 'min_age' in self.request.GET:
             min_age = self.request.GET['min_age']
             current = now().date()
@@ -64,27 +73,47 @@ class UserFilterApiView(ListAPIView):
             current = now().date()
             max_date = date(current.year - int(max_age),
                             current.month, current.day)
+            
+            pnt = User.objects.get(id=user_id)
+            def distance_to_decimal_degrees(distance):
+            
+                return distance.m / 111_319.5 
+            # manju = User.objects.filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=886525067676876.26776085)))).annotate(distance = Distance("location", user_location))
+            # print ("manju",manju)
+            
+            # for city in User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+            #                            birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=10000)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id):
+            #     print(city.name, city.distance)
+            # frindval = User.objects.all()
+            # valfrnd= []
+            # for i in range(len(frindval)):
+            #     print("manju",i)
+            #     manu = FriendList.objects.filter(user=user_info,friends=i)
+            #     valfrnd.append(manu)
 
-            return User.objects.filter(Q(is_complete_profile=True) and Q(birth_date__gte=max_date,
-                                       birth_date__lte=min_date)).order_by("create_at").exclude(id=user_info[0].id)
-            #    | Q(create_at__range=(last_week, today)) and Q(is_complete_profile=True)
-
-        user_data = User.objects.filter(Q(is_complete_profile=True) and Q(birth_date__year__lte=(
+            val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                                       birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
+            
+            # print(val)
+            # if len(val)
+            return val
+            # return User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                                    #    birth_date__lte=min_date)).order_by("create_at").exclude(id=user_info[0].id)
+        user_data = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__year__gte=(
             user_info[0].birth_date.year - 10))
-            and Q(birth_date__year__gte=(
-                user_info[0].birth_date.year + 10)) |
+            & Q(birth_date__year__lte=(
+                user_info[0].birth_date.year + 10)) &
             Q(gender=user_info[0].interest_in) |
-            Q(interest_in=user_info[0].gender) |
+            Q(interest_in=user_info[0].gender) &
             Q(city=user_info[0].city) |
             Q(location=user_info[0].location) |
             Q(passion__in=user_info[0].passion.all()) |
             Q(idealmatch__in=user_info[0].idealmatch.all()) |
             Q(marital_status=user_info[0].marital_status) |
             Q(create_at__range=(last_week, today))
-            | Q(is_active=False)
+            & Q(is_active=False)
 
-        ).exclude(id=user_info[0].id).distinct()
-
+        ).exclude(id=user_info[0].id).order_by("create_at").distinct()
         return user_data
 
     @swagger_auto_schema(
@@ -133,9 +162,7 @@ class UserFilterAPIV2(ListAPIView):
     @swagger_auto_schema(
 
         operation_summary="Get user Filter by Location,Passion,Gender ",
-
         tags=['User Filter']
-
     )
     def get(self, request, *args, **kwargs):
 
@@ -146,139 +173,139 @@ class UserFilterAPIV2(ListAPIView):
         return response
 
 
-class MatchedUserProfileView(GenericAPIView):
-    serializer_class = GetUserMatchProfileSerializer
-    permission_classes = [IsAuthenticated, ]
+# class MatchedUserProfileView(GenericAPIView):
+#     serializer_class = GetUserMatchProfileSerializer
+#     permission_classes = [IsAuthenticated, ]
 
-    def get(self, request):
-        userInterest = UserMatchProfile.objects.all()
-        serializer = GetUserMatchProfileSerializer(userInterest, many=True)
-        return Response(
-            {"success": True, "status": 200,
-                "message": "Match Profile Users All Data", "data": serializer.data},
-            status=status.HTTP_200_OK)
+#     def get(self, request):
+#         userInterest = UserMatchProfile.objects.all()
+#         serializer = GetUserMatchProfileSerializer(userInterest, many=True)
+#         return Response(
+#             {"success": True, "status": 200,
+#                 "message": "Match Profile Users All Data", "data": serializer.data},
+#             status=status.HTTP_200_OK)
 
-    @swagger_auto_schema(
+#     @swagger_auto_schema(
 
-        operation_summary="Get Match Profile Api",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
-                'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='User liked profile id '),
-                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for profile dislike '),
-            }),
+#         operation_summary="Get Match Profile Api",
+#         request_body=openapi.Schema(
+#             type=openapi.TYPE_OBJECT,
+#             properties={
+#                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+#                 'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='User liked profile id '),
+#                 'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for profile dislike '),
+#             }),
 
-        tags=['Match Profile']
-    )
-    def post(self, request, format='json'):
+#         tags=['Match Profile']
+#     )
+#     def post(self, request, format='json'):
 
-        serializer = UserMatchProfileSerializer(data=request.data)
+#         serializer = UserMatchProfileSerializer(data=request.data)
 
-        if serializer.is_valid():
-            user_field = serializer.validated_data['user']
-            like_profile_user = serializer.validated_data['like_profile_user']
-            if request.data['flag'] == '1':
-                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user):
-                    return Response({"success": "error", "status": 400, "message": "User Already like Profile "},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    obj = UserMatchProfile.objects.create(
-                        user=user_field, like_profile_user=like_profile_user, is_like=True)
+#         if serializer.is_valid():
+#             user_field = serializer.validated_data['user']
+#             like_profile_user = serializer.validated_data['like_profile_user']
+#             if request.data['flag'] == '1':
+#                 if UserMatchProfile.objects.filter(like_profile_user=like_profile_user):
+#                     return Response({"success": "error", "status": 400, "message": "User Already like Profile "},
+#                                     status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     obj = UserMatchProfile.objects.create(
+#                         user=user_field, like_profile_user=like_profile_user, is_like=True)
 
-            if request.data['flag'] == '2':
-                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user, is_like=False):
+#             if request.data['flag'] == '2':
+#                 if UserMatchProfile.objects.filter(like_profile_user=like_profile_user, is_like=False):
 
-                    return Response({"success": "error", "status": 400, "message": "User Already Dislike Profile "},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    obj = UserMatchProfile.objects.filter(user=user_field)
+#                     return Response({"success": "error", "status": 400, "message": "User Already Dislike Profile "},
+#                                     status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     obj = UserMatchProfile.objects.filter(user=user_field)
 
-                    obj.is_like = False
-                    # obj.save(update_fields=("is_like",))
-                    obj.update()
+#                     obj.is_like = False
+#                     # obj.save(update_fields=("is_like",))
+#                     obj.update()
 
-            if request.data['flag'] == '3':
-                obj = UserMatchProfile.objects.filter(
-                    like_profile_user=like_profile_user)
-                obj = obj[0].id
-                objs = UserMatchProfile.objects.filter(id=obj)
-                objs.delete()
-                return Response({"success": True, "message": "User Dislike !", "status": 200}, status=status.HTTP_200_OK)
+#             if request.data['flag'] == '3':
+#                 obj = UserMatchProfile.objects.filter(
+#                     like_profile_user=like_profile_user)
+#                 obj = obj[0].id
+#                 objs = UserMatchProfile.objects.filter(id=obj)
+#                 objs.delete()
+#                 return Response({"success": True, "message": "User Dislike !", "status": 200}, status=status.HTTP_200_OK)
 
-            # serializer.save()
+#             # serializer.save()
 
-            return Response({"success": True, "status": 201, "message": "Match Profile Data", "data": serializer.data},
-                            status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status": 400, "data": serializer.errors},
-                            status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"success": True, "status": 201, "message": "Match Profile Data", "data": serializer.data},
+#                             status=status.HTTP_201_CREATED)
+#         else:
+#             return Response({"success": "error", "status": 400, "data": serializer.errors},
+#                             status=status.HTTP_400_BAD_REQUEST)
 
 
-class MatchedUserProfileViewV2(GenericAPIView):
-    serializer_class = GetUserMatchProfileSerializer
-    permission_classes = [IsAuthenticated, ]
+# class MatchedUserProfileViewV2(GenericAPIView):
+#     serializer_class = GetUserMatchProfileSerializer
+#     permission_classes = [IsAuthenticated, ]
 
-    # def get(self, request):
-    #     userInterest = UserMatchProfile.objects.all()
-    #     serializer = GetUserMatchProfileSerializer(userInterest, many=True)
-    #     return Response(
-    #         {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
-    #         status=status.HTTP_200_OK)
-    @swagger_auto_schema(
+#     # def get(self, request):
+#     #     userInterest = UserMatchProfile.objects.all()
+#     #     serializer = GetUserMatchProfileSerializer(userInterest, many=True)
+#     #     return Response(
+#     #         {"success": True, "status": 200, "message": "Match Profile Users All Data", "data": serializer.data},
+#     #         status=status.HTTP_200_OK)
+#     @swagger_auto_schema(
 
-        operation_summary="Get Match Profile Api",
-        request_body=openapi.Schema(
-            type=openapi.TYPE_OBJECT,
-            properties={
-                'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
-                'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='User liked profile id '),
-                'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for profile dislike '),
-            }),
+#         operation_summary="Get Match Profile Api",
+#         request_body=openapi.Schema(
+#             type=openapi.TYPE_OBJECT,
+#             properties={
+#                 'user': openapi.Schema(type=openapi.TYPE_STRING, description='User Id'),
+#                 'like_profile_user': openapi.Schema(type=openapi.TYPE_STRING, description='User liked profile id '),
+#                 'flag': openapi.Schema(type=openapi.TYPE_STRING, description='Add flag 1 for like ,2 for unlike , 3 for profile dislike '),
+#             }),
 
-        tags=['Match Profile']
-    )
-    def post(self, request, format='json'):
+#         tags=['Match Profile']
+#     )
+#     def post(self, request, format='json'):
 
-        serializer = UserMatchProfileSerializer(data=request.data)
+#         serializer = UserMatchProfileSerializer(data=request.data)
 
-        if serializer.is_valid():
-            user_field = serializer.validated_data['user']
-            like_profile_user = serializer.validated_data['like_profile_user']
-            if request.data['flag'] == '1':
-                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user):
-                    return Response({"success": "error", "status": 400, "message": "User Already like Profile "},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    obj = UserMatchProfile.objects.create(
-                        user=user_field, like_profile_user=like_profile_user, is_like=True)
+#         if serializer.is_valid():
+#             user_field = serializer.validated_data['user']
+#             like_profile_user = serializer.validated_data['like_profile_user']
+#             if request.data['flag'] == '1':
+#                 if UserMatchProfile.objects.filter(like_profile_user=like_profile_user):
+#                     return Response({"success": "error", "status": 400, "message": "User Already like Profile "},
+#                                     status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     obj = UserMatchProfile.objects.create(
+#                         user=user_field, like_profile_user=like_profile_user, is_like=True)
 
-            if request.data['flag'] == '2':
-                if UserMatchProfile.objects.filter(like_profile_user=like_profile_user, is_like=False):
+#             if request.data['flag'] == '2':
+#                 if UserMatchProfile.objects.filter(like_profile_user=like_profile_user, is_like=False):
 
-                    return Response({"success": "error", "status": 400, "message": "User Already Dislike Profile "},
-                                    status=status.HTTP_400_BAD_REQUEST)
-                else:
-                    obj = UserMatchProfile.objects.filter(user=user_field)
-                    obj.is_like = False
-                    # obj.save(update_fields=("is_like",))
-                    obj.update()
+#                     return Response({"success": "error", "status": 400, "message": "User Already Dislike Profile "},
+#                                     status=status.HTTP_400_BAD_REQUEST)
+#                 else:
+#                     obj = UserMatchProfile.objects.filter(user=user_field)
+#                     obj.is_like = False
+#                     # obj.save(update_fields=("is_like",))
+#                     obj.update()
 
-            if request.data['flag'] == '3':
-                obj = UserMatchProfile.objects.filter(
-                    like_profile_user=like_profile_user)
-                obj = obj[0].id
-                objs = UserMatchProfile.objects.filter(id=obj)
-                objs.delete()
-                return Response({"success": True, "message": "User Dislike!", "status": 200}, status=status.HTTP_200_OK)
+#             if request.data['flag'] == '3':
+#                 obj = UserMatchProfile.objects.filter(
+#                     like_profile_user=like_profile_user)
+#                 obj = obj[0].id
+#                 objs = UserMatchProfile.objects.filter(id=obj)
+#                 objs.delete()
+#                 return Response({"success": True, "message": "User Dislike!", "status": 200}, status=status.HTTP_200_OK)
 
-            # serializer.save()
+#             # serializer.save()
 
-            return Response({"success": True, "status": 201, "message": "Match Profile Data", "data": serializer.data},
-                            status=status.HTTP_201_CREATED)
-        else:
-            return Response({"success": "error", "status": 400, "data": serializer.errors},
-                            status=status.HTTP_400_BAD_REQUEST)
+#             return Response({"success": True, "status": 201, "message": "Match Profile Data", "data": serializer.data},
+#                             status=status.HTTP_201_CREATED)
+#         else:
+#             return Response({"success": "error", "status": 400, "data": serializer.errors},
+#                             status=status.HTTP_400_BAD_REQUEST)
 
 
 class UserSearchFilterApiView(ListAPIView):
@@ -383,3 +410,33 @@ class UserSearchFilterApiView(ListAPIView):
 
         # return Response({"success": True, "status": 200, "message": "Match Profile Data", "data": serializer.data, "data_count": len(serializer.data)},
         # status = status.HTTP_200_OK)
+
+
+
+
+
+class UserDislikeApiView(GenericAPIView):
+    serializer_class = UserDisLikeProfileSerializer
+    permission_classes = [IsAuthenticated, ]
+
+    
+    def post(self, request, format='json'):
+        if UserDisLikeProfile.objects.filter(user=request.data['user'],profile_user=request.data['profile_user']):
+            return Response({"success": "true", "message": " Already Add !", "status": 200, "data": ""}, status=status.HTTP_200_OK)
+        serializer = UserDisLikeProfileSerializer(data=request.data)
+
+        print(request.data)
+        if serializer.is_valid():
+            
+            # profile_user = request.data['profile_user']
+
+            # to_user = serializer.validated_data['user']
+            # send_request = FriendRequest.objects.filter(friend=to_user)
+            # send_request.update(friendrequestsent=False)
+
+            serializer.save()
+
+            return Response({"success": True, "message": "user dislike!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "message": "user not found!", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
+

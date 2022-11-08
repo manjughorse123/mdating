@@ -34,8 +34,32 @@ class UserSerializer(serializers.ModelSerializer):
 
 
 class UserProfileSerializer(serializers.ModelSerializer):
+    
     user_passion = serializers.SerializerMethodField()
     user_idealmatch = serializers.SerializerMethodField()
+    is_friend = serializers.SerializerMethodField()
+    is_get_friend_request = serializers.SerializerMethodField()
+    is_send_friend_request = serializers.SerializerMethodField()
+    is_follower = serializers.SerializerMethodField()
+    is_following = serializers.SerializerMethodField()
+    is_user = serializers.SerializerMethodField()
+    # profile_image = serializers.SerializerMethodField()
+
+    # def get_profile_image(self, obj):
+    #     request = self.context.get('request')
+    #     return request.build_absolute_uri(obj.file.url)
+
+    def get_is_user(self, obj):
+       
+        user = self.context['request1']
+        user_data = User.objects.get(
+            id=user)
+        user_datas = User.objects.get(
+            id=obj.id)
+        if user_data == user_datas:
+            return True
+        else:
+            return False
 
     def get_user_passion(self, obj):
         if (obj.passion.count()) > 0:
@@ -54,10 +78,50 @@ class UserProfileSerializer(serializers.ModelSerializer):
         else:
             return "-"
 
-    class Meta(object):
+    def get_is_friend(self, obj):
+        user = self.context['request1']
+        friend_data = FriendList.objects.filter(
+            user=user, friends=obj.id)
+
+        data = True if friend_data else False
+        return data
+
+    def get_is_get_friend_request(self, obj):
+        user = self.context['request1']
+        friend_data = FriendRequest.objects.filter(
+            user=obj.id, friend=user)
+        data = True if friend_data else False
+        return data
+
+    def get_is_send_friend_request(self, obj):
+        user = self.context['request1']
+        friend_data = FriendRequest.objects.filter(
+            user=user, friend=obj.id)
+
+        data = True if friend_data else False
+        return data
+
+    def get_is_following(self, obj):
+        user = self.context['request1']
+        follower_info = FollowRequest.objects.filter(
+            follow_id=user, user_id=obj.id)
+
+        data = True if follower_info else False
+        return data
+
+    def get_is_follower(self, obj):
+        user = self.context['request1']
+        follower_info = FollowRequest.objects.filter(
+            follow_id=obj.id, user_id=user)
+
+        data = True if follower_info else False
+        return data
+
+    class Meta:
 
         model = User
         fields = ('name',
+            'profile_image',
                   'id',
                   'gender',
                   'passion',
@@ -76,7 +140,19 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   'user_idealmatch',
                   'city',
                   'location',
-                  'show_profile')
+                  'show_profile',
+                  "is_friend",
+                  'is_get_friend_request',
+                  'is_send_friend_request',
+                  "is_follower",
+                  'is_following',
+                  'is_user',
+                  
+                  'user_verified_status',
+                #   'profile_image',
+                )
+        
+
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -180,7 +256,7 @@ class UserDetailSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ('id', 'name', 'is_gender', 'is_passion', 'is_tall', 'is_location',
-                  'is_interest_in', 'is_idealmatch', 'is_marital_status', 'is_media', 'is_complete_profile',)
+                  'is_interest_in', 'is_idealmatch', 'is_marital_status', 'is_media', 'is_complete_profile','user_verified_status','is_register_user_verified',)
 
 
 class UserLoginSerializer(serializers.ModelSerializer):
@@ -190,7 +266,7 @@ class UserLoginSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('mobile', 'country_code', 'otp')
+        fields = ('mobile', 'country_code', 'otp',)
 
 
 class UserOtpSerializer(serializers.ModelSerializer):
@@ -218,17 +294,17 @@ class UserVerifiedSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = User
-        fields = ('id', 'name', 'is_register_user_verified')
+        fields = ('id', 'name', 'is_register_user_verified','user_verified_status','is_register_user_verified','active_reseaon',)
 
 
 class UserVerifyDocSerializer(serializers.ModelSerializer):
-    govt_id = serializers.CharField(max_length=200)
-    selfie = serializers.CharField(max_length=200)
+    # govt_id_image = serializers.CharField(max_length=200)
+    # selfie_image = serializers.CharField(max_length=200)
 
     class Meta:
 
         model = User
-        fields = ('id', 'govt_id', 'selfie')
+        fields = ('id', 'govt_id_url', 'selfie_url','user_verified_status','is_register_user_verified','active_reseaon',)
 
 
 class UserResendOtpSerializer(serializers.ModelSerializer):
@@ -270,9 +346,11 @@ class UserSettingSerializer(serializers.ModelSerializer):
 
     def get_show_private_post(self, obj):
         public_data = PostUpload.objects.filter(user=obj.id, is_private=1)
+       
         if len(public_data) > 0:
             for i in range(len(public_data)):
-                data = public_data[i].show_public_post
+                data = public_data[i].show_private_post
+               
             return data
         return 2
 
@@ -286,7 +364,7 @@ class UserSettingSerializer(serializers.ModelSerializer):
 
     def get_show_media_video(self, obj):
         media_video = MediaVideo.objects.filter(user=obj.id)
-
+        print("hgsqjhgjah ------>",media_video)
         if len(media_video) > 0:
             for i in range(len(media_video)):
                 data = media_video[i].show_media_video

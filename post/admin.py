@@ -29,12 +29,12 @@ class PostViewAdmin(admin.ModelAdmin):
 admin.site.register(PostView, PostViewAdmin)
 
 
-class PostShareAdmin(admin.ModelAdmin):
-    list_display = ('user', 'post_id', 'id', 'create_at')
-    list_filter = ('create_at',)
+# class PostShareAdmin(admin.ModelAdmin):
+#     list_display = ('user', 'post_id', 'id', 'create_at')
+#     list_filter = ('create_at',)
 
 
-admin.site.register(PostShare, PostShareAdmin)
+# admin.site.register(PostShare, PostShareAdmin)
 
 
 class NewPostUserAdmin(admin.ModelAdmin):
