@@ -657,7 +657,7 @@ class AddFollowRequestView(GenericAPIView):
     )
     def post(self, request, format='json'):
         try:
-            import pdb;pdb.set_trace()
+           
             serializer = FollowRequestSerializer(data=request.data)
 
             if serializer.is_valid():
@@ -765,7 +765,7 @@ class GetFollowingApiView(GenericAPIView):
         tags=['Follow']
     )
     def get(self, request, user_id, format=None):
-        # import pdb;pdb.set_trace()
+       
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
         user_data = User.objects.filter(
@@ -1229,7 +1229,7 @@ class FollowBackApiView(GenericAPIView):
                         return Response({"success": True, "message": "Follow Back added!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
                 if flag == '2':  # remove follow back
-                    # import pdb;pdb.set_trace()
+                    
                     if FollowRequest.objects.filter(follow=follow, user=user):
                         obj = FollowRequest.objects.filter(
                             follow=follow, user=user)

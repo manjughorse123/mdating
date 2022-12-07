@@ -245,4 +245,4 @@ class User(AbstractBaseUser):
     # age = property(calculate_age)
 
     def __str__(self):
-        return str(self.email)
+        return str(self.id)

@@ -51,3 +51,9 @@ class PostReportAdmin(admin.ModelAdmin):
 
 
 admin.site.register(PostReport, PostReportAdmin)
+class PostImageUploadAdmin(admin.ModelAdmin):
+    list_display = ('post_image', 'id', 'create_at')
+    list_filter = ('create_at',)
+
+admin.site.register(PostImageUpload, PostImageUploadAdmin)
+

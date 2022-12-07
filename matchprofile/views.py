@@ -9,7 +9,7 @@ from django.utils.timezone import now
 from django_filters.rest_framework import DjangoFilterBackend
 from django_filters import rest_framework as filters, IsoDateTimeFilter, DurationFilter, DateFromToRangeFilter, \
     MultipleChoiceFilter, TypedChoiceFilter, ModelChoiceFilter, RangeFilter, ModelMultipleChoiceFilter, CharFilter
-
+from DatingApp.baseurl import base_url
 from rest_framework.generics import *
 from rest_framework.response import Response
 from rest_framework.permissions import IsAuthenticated, AllowAny
@@ -130,6 +130,8 @@ class UserFilterApiView(ListAPIView):
         response.data['status'] = 200
         response.data['message'] = 'Filtered Data!'
         response.data['success'] = True
+        response.data['base_url'] = base_url
+
         return response
 
 

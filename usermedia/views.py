@@ -471,3 +471,26 @@ class MediaReportsApiView(GenericAPIView):
             return Response({"success": True, "message": "Post Reports ", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": False, "message": "NO Data!", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
+
+
+
+class UserUpdateMediaView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    # queryset = MediaPost.objects.all()
+    serializer_class = MediaPostSerializers
+
+
+    def put(self,request,*args,**kwargs):
+        user_id = request.user.id
+        media_id=self.kwargs.get('media_id')
+        
+        # user_id = self.kwargs.get('user_id')
+        userMedia = MediaPost.objects.filter(user_id=user_id,id=media_id).first()
+        serializer = MediaPostSerializers(userMedia, data=request.data, partial=True)
+        print("request.data", request.data)
+   
+        if serializer.is_valid():
+            user_data = serializer.save()
+            return Response({"message": "User Media is Successfully Updated!", "status": 200, "success": True,
+                             "data": "user_data"})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

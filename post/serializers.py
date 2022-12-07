@@ -45,7 +45,20 @@ class PostUploadV2Serializers(ModelSerializer):
     is_friend_acc = serializers.SerializerMethodField()
     is_friend_get = serializers.SerializerMethodField()
     is_user = serializers.SerializerMethodField()
-    
+    post_images = serializers.SerializerMethodField()
+
+    def get_post_images(self,obj):
+        setData = PostImageUpload.objects.filter(post_image=obj.id)
+       
+        datas = PostImageUploadSerilaizer(setData,many= True)
+        print(datas.data)
+        # return datas.data
+        if datas :
+
+            return datas.data
+        else :
+            return []
+
     def get_is_friend_req(self, obj):
 
         user = self.context['request'].user
@@ -103,7 +116,9 @@ class PostUploadV2Serializers(ModelSerializer):
                   'show_public_post',
                   'show_private_post',
                   'is_private',
-                  'create_at',)
+                  'create_at',
+                  'post_images',
+                )
 
     def get_isLiked(self, obj):
 
@@ -146,6 +161,10 @@ class NewPostUploadSerializers(ModelSerializer):
         model = PostUpload
         fields = ('post', 'message', 'title',)
 
+class PostImageUploadSerilaizer(ModelSerializer):
+    class Meta:
+        model = PostImageUpload
+        fields = "__all__"
 
 class PostViewSerializers(ModelSerializer):
     class Meta:

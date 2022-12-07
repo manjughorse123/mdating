@@ -281,7 +281,7 @@ class FollowRequestFollowingV2Serializer(serializers.ModelSerializer):
     is_user = serializers.SerializerMethodField()
 
     def get_is_user(self, obj):
-        # import pdb;pdb.set_trace()
+       
         user = self.context['request']
         print("manju---------------------------",user,obj.follow.id)
         if user == obj.follow.id:

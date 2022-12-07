@@ -57,7 +57,7 @@ class UserAdmin(admin.ModelAdmin):
 
     form = TestModelForm
     list_display = ('email', 'mobile', 'name', 'id', 'create_at', 'location')
-    list_display_links = ('email', 'name')
+    list_display_links = ('email', 'name','id')
     list_filter = ('email', 'mobile', 'name', 'create_at')
 #     list_per_page = 10
 #     list_editable = ['is_register_user_verified']

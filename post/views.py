@@ -11,7 +11,7 @@ from rest_framework.generics import *
 from rest_framework.viewsets import *
 from rest_framework.parsers import *
 from rest_framework.permissions import *
-
+from DatingApp.baseurl import base_url
 from post.models import *
 from post.serializers import *
 from friend.models import *
@@ -70,12 +70,22 @@ class CreatePostApiView(GenericAPIView):
         #     #     post_uploads = PostUpload.objects.create(user=request.user,post=name[i],message=message, title=title)
         #     # return Response({"success": True, "message": "User Post Added!","status": 201,"post": "post"}, status=status.HTTP_201_CREATED)
         # return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
-
+       
         serializer = PostUploadSerializers(
             data=request.data)
+        print("request.data----------------->",request.data)
         if serializer.is_valid():
 
+
             serializer.save()
+            val = PostUpload.objects.filter(title=request.data['title']).last()
+            name = request.FILES.getlist('post_image')
+            for i in range(len(name)):
+
+                # media_data = MediaPost.objects.create(
+                #     user=request.user, user_media=name[i], caption=new_caption)
+                PostImageUpload.objects.create(user_post_image=name[i],post_image=val)
+            # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
 
             return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
         return Response({"message": False, "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
@@ -558,7 +568,7 @@ class UserImagesApiView(GenericAPIView):
 
         return Response(
             {"success": True, 'post': user_posts.data,
-                "message": "User Post by User ", "status": 200},
+                "message": "User Post by User ", "status": 200,'base_url':base_url},
             status=status.HTTP_200_OK)
 
 

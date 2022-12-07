@@ -77,6 +77,20 @@ class PostLike(models.Model):
 #         return self.post.post
 
 
+
+
+class PostImageUpload(models.Model):
+    post_image = models.ForeignKey(
+        PostUpload, on_delete=models.CASCADE, related_name="userpostiamge")
+    user_post_image = models.ImageField(upload_to='user_post_image/',blank=True, null=True)
+    
+    create_at = models.DateTimeField(auto_now_add=True)
+    # update_at  = models.DateTimeField(now_add=True)
+
+    def __str__(self):
+        return str(self.id)
+
+
 class PostReport(models.Model):
 
     post = models.ForeignKey(

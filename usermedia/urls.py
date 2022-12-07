@@ -13,8 +13,8 @@ urlpatterns = [
     re_path(r'^delete/media/(?P<media_id>[0-9a-f-]+)$',
             UserMediaDeleteApiView.as_view(), name="media-delete"),
     path('media/reports/', MediaReportsApiView.as_view(), name='media_report'),
-
-
+        re_path(r'^update/media/(?P<media_id>[0-9a-f-]+)/$',
+            UserUpdateMediaView.as_view(), name="media-delete"),
 
     # path('user/all/media/', UserMediaAPI.as_view(), name="user-media"),
     # path('user/media/add', UserMediaAPIPost.as_view(),name="usermediaapipost"),

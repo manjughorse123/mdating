@@ -87,6 +87,7 @@ class LoginApiView(GenericAPIView):
                 'country_code': user.country_code,
                 'otp': user.otp,
                 'name': user.name,
+                # 'profile_image':user.profile_image.url,
                 'is_verified': user.is_verified}},
                 status=status.HTTP_200_OK)
             # else:
@@ -125,9 +126,11 @@ class RegistrationApiView(CreateAPIView):
     def post(self, request):
 
         try:
+           
             email = request.data['email']
             mobile = request.data['mobile']
             country_code = request.data['country_code']
+            profile_image = request.data['profile_image']
             name = request.data['name']
             birth_date = request.data['birth_date']
             check_mobile = User.objects.filter(mobile=mobile).first()
@@ -158,7 +161,12 @@ class RegistrationApiView(CreateAPIView):
 
             print("Otp from tiwillo",message.sid)
             print("otp", otp)
-            user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+            if profile_image :
+
+                user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+                        country_code=country_code,profile_image=profile_image)
+            else : 
+                user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                         country_code=country_code)
             # print(type(user))
             user.save()
@@ -170,6 +178,7 @@ class RegistrationApiView(CreateAPIView):
                                  'country_code': user.country_code,
                                  'name': user.name,
                                  'otp': user.otp,
+                                #  'profile_image':user.profile_image,
                                  'is_verified': user.is_verified}},
                             status=status.HTTP_201_CREATED)
 
@@ -196,7 +205,7 @@ class UserDataApiView(GenericAPIView):
     def get(self, request, user_id, format=None):
 
         register_user = request.user.id
-        # import pdb;pdb.set_trace()
+       
         user = User.objects.get(id=user_id)
         post = PostUpload.objects.filter(user_id=user_id)
         media = MediaPost.objects.filter(user_id=user_id)
@@ -582,6 +591,17 @@ class UserVerifyDocumentApi(GenericAPIView):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
+class GetUserVerifyDocumentApi(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = UserVerifyDocSerializer
+
+    def get(self, request):
+        user_id = request.user.id
+        userInterest =User.objects.filter(id=user_id)
+        serializer = UserVerifyDocSerializer(userInterest, many=True)
+        return Response({"success": "True", "data": serializer.data,'base_url':base_url}, status=status.HTTP_200_OK)
+
+
 class ResendOtpApiView(GenericAPIView):
     permission_classes = [AllowAny, ]
     # queryset = User.objects.all()
@@ -883,6 +903,7 @@ class UserUpdateProfileV2(GenericAPIView):
         tags=['Account']
     )
     def put(self, request, *args, **kwargs):
+        
         user_id = request.user.id
         # user_id = self.kwargs.get('user_id')
         user_data = get_object_or_404(User, id=user_id)
@@ -897,6 +918,10 @@ class UserUpdateProfileV2(GenericAPIView):
         if 'gender' in request.data:
             user_data.is_gender = True
             user_data.save(update_fields=["is_gender"])
+        
+        if 'birth_date' in request.data:
+            user_data.birth_date = request.data['birth_date']
+            user_data.save(update_fields=["birth_date"])
 
         if 'passion' in request.data:
             user_data.is_passion = True
@@ -913,7 +938,7 @@ class UserUpdateProfileV2(GenericAPIView):
         if 'location' in request.data:
             user_data.is_location = True
             user_data.save(update_fields=["is_location"])
-        # import pdb;pdb.set_trace()
+     
         if 'tall' in request.data:
             user_data.is_tall = True
             user_data.save(update_fields=["is_tall"])

@@ -16,6 +16,8 @@ urlpatterns = [
          name='user-detail'),  # GetUserDetailV2 v2version
     path('user/verified/', UserVerifiedApiView.as_view(), name='user-verify'),
     path('user/verify/doc/', UserVerifyDocumentApi.as_view(), name='user-verify'),
+        path('get-user/verify/doc/', GetUserVerifyDocumentApi.as_view(), name='get_user-verify'),
+
     path('resend-otp/', ResendOtpApiView.as_view(),
          name='resend_otp'),  # resend api
     path('logout/', LogoutApiView.as_view(), name="logout"),
