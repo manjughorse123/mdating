@@ -70,7 +70,7 @@ class CreatePostApiView(GenericAPIView):
         #     #     post_uploads = PostUpload.objects.create(user=request.user,post=name[i],message=message, title=title)
         #     # return Response({"success": True, "message": "User Post Added!","status": 201,"post": "post"}, status=status.HTTP_201_CREATED)
         # return Response({"status": 400, "message": False}, status=status.HTTP_400_BAD_REQUEST)
-       
+        
         serializer = PostUploadSerializers(
             data=request.data)
         print("request.data----------------->",request.data)
@@ -727,3 +727,86 @@ class UserAllPrivatePostApi(GenericAPIView):
                 {"success": True, 'post': user_posts.data,
                  "message": "User Public Post ", "status": 200},
                 status=status.HTTP_200_OK)
+
+
+
+class UpdatePostImageApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PostImageUploadSerilaizer
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    def get_object(self, post_id):
+        try:
+            return PostUpload.objects.get(pk=post_id)
+        except PostUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary=" Get Post  Api",
+
+        tags=['Post']
+    )
+    def get(self, request, post_id, *args, **kwargs):
+        posts = PostImageUpload.objects.filter(id=post_id)
+        serializer = PostImageUploadSerilaizer(
+            posts, context={'request': request}, many=True)
+        return Response({"success": True, "status": 200, "message": "Update post image upload", "data": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    @swagger_auto_schema(
+
+        operation_summary=" Update Post Api",
+
+        tags=['Post']
+    )
+    def patch(self, request, post_id, format=None):
+        post_data = self.get_object(post_id)
+        serializer = PostImageUploadSerilaizer(
+            post_data, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "Post  Successfully Updated!", "status": 200, "success": True,
+                 "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+    
+class DeletePostImageApiView (GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+
+    def get_object(self, post_id):
+        try:
+            # pk = request.user
+            return PostImageUpload.objects.get(pk=post_id)
+        except PostImageUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary="Post Delete Api",
+        tags=['Post']
+    )
+    def delete(self, request, post_id, format=None):
+        post_view = self.get_object(post_id)
+        opeartion = post_view.delete()
+        # return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
+        data = {}
+        if opeartion:
+            data['success'] = "Successfully Deleted!"
+            data['status'] = 204
+        else:
+            data["failed"] = "Failed Deleted!"
+            data['status'] = 404
+        return Response(data=data)

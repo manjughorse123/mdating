@@ -50,7 +50,7 @@ class PostView(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.post.post
+        return str(self.post.post)
 
 
 class PostLike(models.Model):
@@ -62,7 +62,7 @@ class PostLike(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.post.post
+        return str(self.post.post)
 
 
 # class PostShare(models.Model):
@@ -99,7 +99,7 @@ class PostReport(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.post.post
+        return str(self.post.post)
 
 
 class PostImage(models.Model):
@@ -110,4 +110,4 @@ class PostImage(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.post.post
+        return str(self.post.post)

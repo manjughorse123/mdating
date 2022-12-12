@@ -146,6 +146,7 @@ class UserFriendSerializer(ModelSerializer):
         fields = ('id',
                   'name',
                   'image',
+                  'profile_image',
                   'email',
                   'is_register_user_verified',)
 

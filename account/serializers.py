@@ -16,10 +16,12 @@ class PassionSerializer(serializers.ModelSerializer):
 
 
 class UserSerializer(serializers.ModelSerializer):
+ 
     class Meta(object):
 
         model = User
         fields = "__all__"
+        
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -43,6 +45,11 @@ class UserProfileSerializer(serializers.ModelSerializer):
     is_follower = serializers.SerializerMethodField()
     is_following = serializers.SerializerMethodField()
     is_user = serializers.SerializerMethodField()
+    pro_image = serializers.SerializerMethodField()
+
+    def get_pro_image(self, obj):
+
+        return True
     # profile_image = serializers.SerializerMethodField()
 
     # def get_profile_image(self, obj):
@@ -150,6 +157,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
                   
                   'user_verified_status',
                 #   'profile_image',
+                'pro_image',
                 )
         
 

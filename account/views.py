@@ -124,19 +124,75 @@ class RegistrationApiView(CreateAPIView):
         tags=['Account']
     )
     def post(self, request):
+        
 
         try:
-           
+            # import pdb;pdb.set_trace()
             email = request.data['email']
             mobile = request.data['mobile']
             country_code = request.data['country_code']
-            profile_image = request.data['profile_image']
+            
             name = request.data['name']
             birth_date = request.data['birth_date']
             check_mobile = User.objects.filter(mobile=mobile).first()
             check_email = User.objects.filter(email=email).first()
             print("request.data",request.data)
             if check_mobile:
+            #     if check_mobile.is_verified == False :
+
+            #         if check_email:
+            #             if check_mobile.is_verified == True :
+            #                 return Response(
+            #             {"message": "email Already Exists", 'success': False,
+            #                 'status': 400, 'is_register': False, "email": email},
+            #         status=status.HTTP_400_BAD_REQUEST)
+            #         otp = str(random.randint(1000, 9999))
+            # # otp = str(1234)
+            #         account_sid = 'ACbcfad7f1219fdaac963471693bafdf61'
+            #         auth_token = 'a7ed817c4cff17e72b7508c320ce0f66'
+            #         client = Client(account_sid, auth_token)
+
+            #         message = client.messages.create(
+            #                                     body=f'Hi, your test result is {otp} . Great job',
+            #                                     from_=+19035183066,
+            #                                     to=+919131897782
+            #                                 )
+
+            #         print("Otp from tiwillo",message.sid)
+            #         print("otp", otp)
+            #         if profile_image :
+            #             val = User.objects.get(mobile=mobile)
+            #             val.email = email,
+            #             val.email=email, 
+            #             val.name=name, 
+            #             val.birth_date=birth_date, 
+            #             val.mobile=mobile, otp=otp
+            #             val.profile_image = profile_image
+                        
+            #             val.save()
+            #         else : 
+            #             val = User.objects.get(mobile=mobile)
+            #             val.email = email,
+            #             val.email=email, 
+            #             val.name=name, 
+            #             val.birth_date=birth_date, 
+            #             val.mobile=mobile, otp=otp
+            #             val.save()
+            #         # print(type(user))
+            #         # user.save()
+            #         return Response({"message": "Your Registrations is successfully", "status": 201, "success": True, 'is_register': True,
+            #                         "user": {
+            #                             'id': user.id,
+            #                             'email': user.email,
+            #                             'mobile': user.mobile,
+            #                             'country_code': user.country_code,
+            #                             'name': user.name,
+            #                             'otp': user.otp,
+            #                             #  'profile_image':user.profile_image,
+            #                             'is_verified': user.is_verified}},
+            #                         status=status.HTTP_201_CREATED)   
+            #     else :
+                
                 return Response(
                     {"message": "Mobile Number Already Exists!", 'status': 400,
                         'success': False, 'is_register': False, "mobile": mobile},
@@ -161,13 +217,17 @@ class RegistrationApiView(CreateAPIView):
 
             print("Otp from tiwillo",message.sid)
             print("otp", otp)
-            if profile_image :
+            if 'profile_image' in request.data :
+                profile_image = request.data['profile_image']
+                if profile_image is None:
 
-                user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
-                        country_code=country_code,profile_image=profile_image)
-            else : 
-                user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
-                        country_code=country_code)
+                
+
+                    user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+                            country_code=country_code,profile_image=profile_image)
+                else : 
+                    user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+                            country_code=country_code,profile_image=profile_image)
             # print(type(user))
             user.save()
             return Response({"message": "Your Registrations is successfully", "status": 201, "success": True, 'is_register': True,

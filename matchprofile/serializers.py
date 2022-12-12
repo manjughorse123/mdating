@@ -145,6 +145,7 @@ class UserFilterSerializer(GeoFeatureModelSerializer):
                   'is_follower',
                   'user_dislike_profile',
                   'user_like_profile',
+                  'profile_image',
                   )
 
     def to_representation(self, instance):
@@ -210,7 +211,9 @@ class UserSeachFilterSerializer(serializers.ModelSerializer):
                   'is_friend_req',
                   'is_friend_acc',
                   'is_friend_get',
-                  'age')
+                  'age',
+                  'profile_image',
+                  )
 
 
 class UserDisLikeProfileSerializer(serializers.ModelSerializer):

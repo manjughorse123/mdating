@@ -31,7 +31,8 @@ class UserEditSerilaizer(ModelSerializer):
             'about',
             'country_code',
             'gender',
-            'passion',)
+            'passion',
+            'profile_image',)
 
 
 class UserMediaEditSerializer(ModelSerializer):

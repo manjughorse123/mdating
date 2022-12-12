@@ -329,24 +329,12 @@ class SendRequestByUserApiView(GenericAPIView):
                          'data_count': len(serializer.data), 'suggest_friend_data': user_data.data,
                          },
                         status=status.HTTP_200_OK)
-
+from chatbot.models import *
 
 class AddFriendRequestAcceptDetailApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendListSerializer
-    # @swagger_auto_schema(
-    #
-    #     operation_summary = "Get Friend Request Accept Api",
-    #
-    #     tags = ['Friend']
-    # )
-    # def get(self, request):
-    #     friend_list = FriendList.objects.all()
-    #     serializer = FriendListSerializer(friend_list, many=True)
-    #     return Response(
-    #         {"success": True, "message": " User Accept Request Detail", "status": 200, "data": serializer.data},
-    #         status=status.HTTP_200_OK)
-
+    
     @ swagger_auto_schema(
 
         operation_summary="Friend Request Accept Post Api",
@@ -383,6 +371,10 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=user, friends=friends, is_accepted=True)
                         obj_friend = FriendList.objects.create(
                             user=friends, friends=user, is_accepted=True)
+                        chatbottabl = ChatList.objects.create(
+                            receiver=user, sender=friends)
+                        chatbottabl1 = ChatList.objects.create(
+                            receiver=friends, sender=user)
                         # obj = FriendRequest.objects.filter(
                         #     friend=user, user=friends)
                         if FriendRequest.objects.filter(

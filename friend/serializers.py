@@ -24,7 +24,8 @@ class UserFriendSerializer(serializers.ModelSerializer):
                   'birth_date',
                   'address',
                   'city',
-                  'age',)
+                  'age',
+                  'profile_image',)
 
 
 class FriendRequestSerializer(serializers.ModelSerializer):

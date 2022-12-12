@@ -26,7 +26,7 @@ class FriendList(models.Model):
         choices=MAYBECHOICE, default=2)
 
     def __str__(self):
-        return self.user.name
+        return str(self.user.email)
 
     def add_friend(self, account):
         """
@@ -85,7 +85,7 @@ class FriendRequest(models.Model):
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return self.friend.name
+        return str(self.friend.name)
 
 
 class FollowRequest(models.Model):

@@ -19,6 +19,10 @@ urlpatterns = [
             UserImagesApiViewV2.as_view(), name="user_images_with_id"),
     path('post/reports/', PostReportsApiView.as_view(), name='post_report'),
 
+         re_path(r'^update/post/image/(?P<post_id>[0-9a-f-]+)$',
+            UpdatePostImageApiView.as_view(), name="upadte-post-image"),
+        re_path(r'^delete/post/image/(?P<post_id>[0-9a-f-]+)$',
+            DeletePostImageApiView.as_view(), name="delete-post-image"),
 
     #     path('new-post/', NewPostUploadApi
     #          .as_view(), name='postnew'),
