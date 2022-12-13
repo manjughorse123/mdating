@@ -24,21 +24,4 @@ urlpatterns = [
         re_path(r'^delete/post/image/(?P<post_id>[0-9a-f-]+)$',
             DeletePostImageApiView.as_view(), name="delete-post-image"),
 
-    #     path('new-post/', NewPostUploadApi
-    #          .as_view(), name='postnew'),
-    # path('post/<int:post_id>', GetPostUploadApi.as_view(), name="postapi"),
-    #     path('post-image/', PostMultipleImageApi.as_view(), name='postimages'),
-    # re_path(r'^user/get-all-post/v2/(?P<user_id>[0-9a-f-]+)$', UserImagesV2.as_view(), name="userimages"),
-
-    # path('post/reaction/<int:id>', PostReactionApi.as_view(), name="postreactionapi"),
-
-    # path('all/post/views/api/<int:id>', PostViewAPI.as_view(), name="postview"),
-    # path('all/post/likes/api/<int:id>', PostLikeAPI.as_view(), name="postlike"),
-    # path('all/post/share/api/<int:id>', PostShareAPI.as_view(), name="postshare"),
-    # re_path(r'^get-post-detail/(?P<user_id>[0-9a-f-]+)$', GetPostViewdetailView.as_view(), name="get-detail-post"),
-    # re_path(r'^get-post-detail/(?P<user_id>[0-9a-f-]+)$', GetPostViewdetailView.as_view(), name="get-detail-post"),
-    # re_path(r'^post/reaction/(?P<id>[0-9a-f-]+)', PostReactionApi.as_view(), name="postreactionapi"),
-    # re_path(r'^post/(?P<id>[0-9a-f-]+)', PostUploadApi.as_view(), name="postapi"),
-
-
 ]

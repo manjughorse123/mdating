@@ -748,8 +748,8 @@ class UpdatePostImageApiView(GenericAPIView):
 
     def get_object(self, post_id):
         try:
-            return PostUpload.objects.get(pk=post_id)
-        except PostUpload.DoesNotExist:
+            return PostImageUpload.objects.get(pk=post_id)
+        except PostImageUpload.DoesNotExist:
             raise Http404
 
     @swagger_auto_schema(
@@ -772,7 +772,16 @@ class UpdatePostImageApiView(GenericAPIView):
         tags=['Post']
     )
     def patch(self, request, post_id, format=None):
+      
         post_data = self.get_object(post_id)
+        posts = PostImageUpload.objects.filter(id=post_id).last()
+        postCaption = PostUpload.objects.get(id= posts.post_image.id)
+        if 'message' in request.data:
+            postCaption.message= request.data['message']
+        if 'title' in request.data:
+            postCaption.title= request.data['title']
+        
+        postCaption.save() 
         serializer = PostImageUploadSerilaizer(
             post_data, data=request.data, partial=True)
         if serializer.is_valid():

@@ -80,7 +80,7 @@ class LoginApiView(GenericAPIView):
             
 
             user.save()
-            return Response({"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
+            return Response({'base_url':base_url,"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
                 'id': user.id,
                 'email': user.email,
                 'mobile': user.mobile,
@@ -230,7 +230,7 @@ class RegistrationApiView(CreateAPIView):
                             country_code=country_code,profile_image=profile_image)
             # print(type(user))
             user.save()
-            return Response({"message": "Your Registrations is successfully", "status": 201, "success": True, 'is_register': True,
+            return Response({"message": "Your Registrations is successfully", 'base_url':base_url,"status": 201, "success": True, 'is_register': True,
                              "user": {
                                  'id': user.id,
                                  'email': user.email,
@@ -545,7 +545,7 @@ class GetUserDetailApiView(GenericAPIView):
     def get(self, request,  format=None):
 
         req = request.user
-        req.is_media = True
+        # req.is_media = True
         if (req.is_gender and req.is_passion and req.is_tall and
                 req.is_interest_in and req.is_idealmatch and req.is_marital_status and req.is_media) == True:
             req.is_complete_profile = True

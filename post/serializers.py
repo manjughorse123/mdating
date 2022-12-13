@@ -14,17 +14,8 @@ class PostUploadCreateSerializers(ModelSerializer):
         model = PostUpload
         fields = '__all__'
 
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['user'] = UserFriendSerializer(instance.user).data
-
-    #     return response
-
-
 class PostUploadSerializers(ModelSerializer):
-    # is_liked = serializers.BooleanField(read_only=True)
-    # isLiked = serializers.SerializerMethodField()
-    # isViewed = serializers.SerializerMethodField()
+  
     class Meta:
         model = PostUpload
         fields = ('post',
@@ -129,9 +120,6 @@ class PostUploadV2Serializers(ModelSerializer):
         else:
             return PostLike.objects.filter(post=obj, user=requestUser, is_like=True).exists()
 
-    # def get_isViewed(self, obj):
-    #     requestUser = self.context['request'].user
-    #     return PostView.objects.filter(post=obj, user=requestUser).exists()
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -172,38 +160,11 @@ class PostViewSerializers(ModelSerializer):
         model = PostView
         fields = ('post',)
 
-        # def to_representation(self, instance):
-        #     response = super().to_representation(instance)
-        #     response['user'] = UserFriendSerializer(instance.user).data
-        #     # response['post'] = UserPostUpdateSerilaizer(instance.post).data
-        #
-        #     return response
-
 
 class PostLikeSerializers(ModelSerializer):
     class Meta:
         model = PostLike
         fields = ('post',)
-
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['user'] = UserFriendSerializer(instance.user).data
-    #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
-
-    #     return response
-
-
-# class PostShareSerializers(ModelSerializer):
-#     class Meta:
-#         model = PostShare
-#         fields = ('post',)
-
-    # def to_representation(self, instance):
-    #     response = super().to_representation(instance)
-    #     response['user'] = UserFriendSerializer(instance.user).data
-    #     response['post'] = UserPostUpdateSerilaizer(instance.post).data
-    #
-    #     return response
 
 
 class PostUploadUpdateSerializers(ModelSerializer):
