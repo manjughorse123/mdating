@@ -33,7 +33,7 @@ class UserSendMessageView(APIView):
             return Response({"success": "error", "message":"Message Not Send","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
-class GetUserSenderMessageView(APIView):
+class GetUserSenderMessageView12(APIView):
     # permission_classes = (AllowAny,)
 
     def get(self, request,send_id):
@@ -50,9 +50,9 @@ class GetUserSenderMessageView(APIView):
         user_id = request.user.id
         print (user_id)
         userFind = User.objects.get(id=user_id)
-        userChat =ChatList.objects.filter(sender=send_id,receiver=receive_id).exclude(is_text=None)
+        userChat =ChatList.objects.filter(sender=send_id,receiver=receive_id).order_by('-id').exclude(is_text=None)
 
-        userChat1 =ChatList.objects.filter(sender=receive_id,receiver=send_id).exclude(is_text=None)
+        userChat1 =ChatList.objects.filter(sender=receive_id,receiver=send_id).order_by('-id').exclude(is_text=None)
         userChatReadValue =ChatList.objects.filter(receiver=userFind)
         for i in range(len(userChatReadValue)) :
             userChatReadValue[i].is_text_read = True

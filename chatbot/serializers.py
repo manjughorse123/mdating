@@ -27,12 +27,14 @@ class UserChatSerializer(serializers.ModelSerializer):
 class UserChatNewSerializer(serializers.ModelSerializer):
     count_un_read = serializers.SerializerMethodField()
     def get_count_un_read(self, obj):
-        # import pdb;pdb.set_trace()
+        
         user = self.context['request']
         user_data = User.objects.get(
             id=user)
+        user_data2 = User.objects.get(
+            id=obj.receiver.id)
             
-        userChatReadValue =ChatList.objects.filter(receiver=user_data,is_text_read=False)
+        userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False)
         
             
         return len(userChatReadValue)
