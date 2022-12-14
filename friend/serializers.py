@@ -666,8 +666,19 @@ class GetFollowBackSerializer(serializers.ModelSerializer):
 class UserSuggestionSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
     is_mutual = serializers.SerializerMethodField()
+    profile_image = serializers.SerializerMethodField()
+    def get_profile_image(self, obj):
+        val = User.objects.get(id=obj.id)
+        val2 = val.profile_image
+        if val2 :
+            print(val.profile_image)
+        # age = User.calculate_age(obj.birth_date)
+            return '/media/'+str(val2)
+        else : 
+            return ""
 
     def get_age(self, obj):
+       
         # age = User.calculate_age(obj.birth_date)
         return obj.age
 
@@ -703,4 +714,6 @@ class UserSuggestionSerializer(serializers.ModelSerializer):
                   'city',
                   'age',
                   'is_mutual',
-                  'show_profile')
+                  'show_profile',
+                  'profile_image',
+                  )
