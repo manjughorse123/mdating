@@ -373,6 +373,7 @@ class DeletePostApiView (GenericAPIView):
     )
     def delete(self, request, post_id, format=None):
         post_view = self.get_object(post_id)
+
         opeartion = post_view.delete()
         # return Response({"status":204, "message":"Post Deleted!" , "success" : True },status=status.HTTP_204_NO_CONTENT)
         data = {}
@@ -426,12 +427,44 @@ class UpdatePostApiView(GenericAPIView):
 
         tags=['Post']
     )
+    # def patch(self, request, post_id, format=None):
+    #     post_data = self.get_object(post_id)
+    #     serializer = PostUploadUpdateSerializers(
+    #         post_data, data=request.data, partial=True)
+    #     if serializer.is_valid():
+    #         serializer.save()
+    #         return Response(
+    #             {"message": "Post  Successfully Updated!", "status": 200, "success": True,
+    #              "data": serializer.data})
+    #     return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     def patch(self, request, post_id, format=None):
+        
         post_data = self.get_object(post_id)
         serializer = PostUploadUpdateSerializers(
             post_data, data=request.data, partial=True)
         if serializer.is_valid():
             serializer.save()
+            val = PostUpload.objects.filter(id=post_id)
+            if 'image_ids' in request.data:
+                if request.data['image_ids']:
+                    abc=     request.data['image_ids']
+                    ass = abc.replace("," , " ")
+                    ab1 = list(ass.split(" "))
+                    val1 = PostImageUpload.objects.filter(id__in=ab1)
+                    name = request.FILES.getlist('user_post_image')
+                    for i in range(len(name)):
+                        val12 = val1
+                        # media_data = MediaPost.objects.create(
+                        #     user=request.user, user_media=name[i], caption=new_caption)
+                        # valse = PostImageUpload.objects.get(id=val12[i].id)
+                        if len(ab1) >len(name)  :
+                            valse = PostImageUpload.objects.get(id=int(ab1[i]))
+                            valse.user_post_image=name[i]
+                            valse.save()
+                        else :
+                            # val122 = PostUpload.objects.filter(id=val[0].id)
+                            PostImageUpload.objects.create(user_post_image=name[i],post_image=val[0])
+
             return Response(
                 {"message": "Post  Successfully Updated!", "status": 200, "success": True,
                  "data": serializer.data})
