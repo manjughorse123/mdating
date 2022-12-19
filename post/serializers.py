@@ -27,6 +27,20 @@ class PostUploadSerializers(ModelSerializer):
                   'show_private_post',
                   'show_public_post')
 
+class PostUploadUpdateSerializer(ModelSerializer):
+
+  
+    class Meta:
+        model = PostUpload
+        fields = ('post',
+                  'id',
+                  'message',
+                  'title',
+                  'user',
+                  'is_private',
+                  'show_private_post',
+                  'show_public_post')
+
 
 class PostUploadV2Serializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
@@ -168,10 +182,23 @@ class PostLikeSerializers(ModelSerializer):
 
 
 class PostUploadUpdateSerializers(ModelSerializer):
+    post_images = serializers.SerializerMethodField()
+
+    def get_post_images(self,obj):
+        setData = PostImageUpload.objects.filter(post_image=obj.id)
+       
+        datas = PostImageUploadSerilaizer(setData,many= True)
+        print(datas.data)
+        # return datas.data
+        if datas :
+
+            return datas.data
+        else :
+            return []
 
     class Meta:
         model = PostUpload
-        fields = ('id', 'post', 'title', 'message',)
+        fields = ('id', 'post', 'title', 'message','post_images',)
 
 
 class PostReportsSerializers(ModelSerializer):
