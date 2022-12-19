@@ -416,7 +416,7 @@ class UpdatePostApiView(GenericAPIView):
     )
     def get(self, request, post_id, *args, **kwargs):
         posts = PostUpload.objects.filter(id=post_id)
-        serializer = PostUploadSerializers(
+        serializer = PostUploadUpdateSerializers(
             posts, context={'request': request}, many=True)
         return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data},
                         status=status.HTTP_200_OK)
