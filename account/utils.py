@@ -43,8 +43,8 @@
 import datetime
 import jwt
 from django.conf import settings
-
-
+from firebase_admin.messaging import Message,Notification
+from masterdata.models import *
 def generate_access_token(user):
 
     access_token_payload = {
@@ -73,3 +73,18 @@ def generate_refresh_token(user):
         refresh_token_payload, settings.REFRESH_TOKEN_SECRET, algorithm='HS256').decode('utf-8')
 
     return refresh_token
+
+
+def send_notification(user_id,body):
+    
+    try:
+        
+        device = CusztomFCMDevice.objects.filter(user=user_id).first()
+        result = device.send_message(Message(
+        notification=Notification(title="title", body=body, image="url"),
+   
+            ))
+        print("notify",result)
+        return result
+    except:
+        pass

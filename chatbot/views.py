@@ -10,7 +10,7 @@ from account.models import *
 from account.serializers import *
 from .serializers import *
 from .models import *
-
+from account.utils import *
 
 
 class UserSendMessageView(APIView):
@@ -25,9 +25,10 @@ class UserSendMessageView(APIView):
         serializer = UserChatSerializer(data=request.data)
 
         if serializer.is_valid():
-
             serializer.save()
-
+            data1 = User.objects.get(id = request.data['receiver'])
+            val =send_notification(data1,body="New Message")
+            print(val)
             return Response({"success": "True", "message":"Message Succesfully Send","data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message":"Message Not Send","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)

@@ -61,6 +61,7 @@ INSTALLED_APPS = [
     'colorfield',
     'masterdata',
     'chatbot',
+    "fcm_django",
 
 ]
 
@@ -314,3 +315,10 @@ DEFAULTS = {
     'ACCESS_TOKEN_LIFETIME': timedelta(days=15),
     'REFRESH_TOKEN_LIFETIME': timedelta(days=15),
 }
+
+import firebase_admin
+from firebase_admin import credentials
+
+data = os.path.join(BASE_DIR, 'firebasedata') + "/serviceAccountKey.json"
+cred = credentials.Certificate(data)
+firebase_admin.initialize_app(cred)

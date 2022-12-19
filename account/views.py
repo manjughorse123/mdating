@@ -23,7 +23,7 @@ from friend.models import FriendList, FriendRequest
 from friend.serializers import *
 from usermedia.models import *
 from twilio.rest import Client
-
+from masterdata.models import CusztomFCMDevice
 
 def send_otp(mobile, otp):
     conn = http.client.HTTPSConnection("api.msg91.com")
@@ -59,7 +59,7 @@ class LoginApiView(GenericAPIView):
     def post(self, request, *args, **kwargs):
 
         try:
-            # if
+           
             mobile = request.data['mobile']
             country_code = request.data['country_code']
 
@@ -74,12 +74,42 @@ class LoginApiView(GenericAPIView):
                     status=status.HTTP_404_NOT_FOUND)
             # otp = str(random.randint(999, 9999))
             # if user.is_active == True:
-
             otp = 1234
             user.otp = otp
-            
-
             user.save()
+            if "fcm_token" in request.data:
+                json = request.data
+                if  CusztomFCMDevice.objects.filter(user=user).first():
+                    ass = CusztomFCMDevice.objects.filter(user=user).first()
+                    if ass.registration_id:
+                        ass.registration_id= json['fcm_token']
+                        ass.save()
+                else:
+                    fcm_token = json['fcm_token']
+
+                    device = CusztomFCMDevice.objects.filter(user=user)
+                    if device:
+                        device.registration_id = fcm_token
+                        device.type = json['device_type']
+                        device.name = " User"
+                    
+                        device.user=user
+                        device.save()
+                    else :
+                        device = CusztomFCMDevice()
+                        device.registration_id = fcm_token
+                        device.type = json['device_type']
+                        device.name = "User"
+                    
+                        device.user=user
+                        device.save()
+                            
+                fcm_data = CusztomFCMDevice.objects.filter(user=user).first()
+                if fcm_data:
+                    datafcm = fcm_data.registration_id
+                else :
+                    datafcm = ""
+
             return Response({'base_url':base_url,"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
                 'id': user.id,
                 'email': user.email,
@@ -88,7 +118,9 @@ class LoginApiView(GenericAPIView):
                 'otp': user.otp,
                 'name': user.name,
                 # 'profile_image':user.profile_image.url,
-                'is_verified': user.is_verified}},
+                'is_verified': user.is_verified,
+                "fcm_token" : datafcm
+                }},
                 status=status.HTTP_200_OK)
             # else:
             #     return Response({'success': False, "status": 200, 'message': 'user is inactive',
@@ -127,7 +159,7 @@ class RegistrationApiView(CreateAPIView):
         
 
         try:
-            # import pdb;pdb.set_trace()
+            
             email = request.data['email']
             mobile = request.data['mobile']
             country_code = request.data['country_code']
@@ -230,6 +262,27 @@ class RegistrationApiView(CreateAPIView):
                             country_code=country_code,profile_image=profile_image)
             # print(type(user))
             user.save()
+            json = request.data
+            if 'fcm_token' in json:
+                fcm_token = json['fcm_token']
+                user = user 
+                device = CusztomFCMDevice()
+                device.registration_id = fcm_token
+                device.type =request.POST['device_type']
+                device.name = "abc"
+                device.user = user
+                device.save()
+
+                print("device",device.registration_id)
+            fcm_data = CusztomFCMDevice.objects.filter(user=user).first()
+            if fcm_data:
+                datafcm = fcm_data.registration_id
+            else :
+                datafcm = ""
+
+
+
+
             return Response({"message": "Your Registrations is successfully", 'base_url':base_url,"status": 201, "success": True, 'is_register': True,
                              "user": {
                                  'id': user.id,
@@ -239,7 +292,9 @@ class RegistrationApiView(CreateAPIView):
                                  'name': user.name,
                                  'otp': user.otp,
                                 #  'profile_image':user.profile_image,
-                                 'is_verified': user.is_verified}},
+                                 'is_verified': user.is_verified,
+                                 'datafcm':datafcm
+                                 }},
                             status=status.HTTP_201_CREATED)
 
         except Exception as e:
