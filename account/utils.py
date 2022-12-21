@@ -40,19 +40,21 @@
 #     }
 
 
-import datetime
+# import datetime
 import jwt
 from django.conf import settings
 from firebase_admin.messaging import Message,Notification
 from masterdata.models import *
+from datetime import datetime ,timedelta
+
 def generate_access_token(user):
 
     access_token_payload = {
         'user_mobile': user.mobile,
         'user_otp': user.otp,
         'user_country_code': user.country_code,
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
-        'iat': datetime.datetime.utcnow(),
+        'exp': datetime.utcnow() + timedelta(days=7),
+        'iat': datetime.utcnow(),
     }
     access_token = jwt.encode(access_token_payload,
                               settings.SECRET_KEY, algorithm='HS256').decode('utf-8')
@@ -66,8 +68,8 @@ def generate_refresh_token(user):
         'user_otp': user.otp,
         'user_country_code': user.country_code,
 
-        'exp': datetime.datetime.utcnow() + datetime.timedelta(days=7),
-        'iat': datetime.datetime.utcnow()
+        'exp': datetime.utcnow() + timedelta(days=7),
+        'iat': datetime.utcnow(),
     }
     refresh_token = jwt.encode(
         refresh_token_payload, settings.REFRESH_TOKEN_SECRET, algorithm='HS256').decode('utf-8')

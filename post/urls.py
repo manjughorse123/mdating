@@ -24,4 +24,7 @@ urlpatterns = [
         re_path(r'^delete/post/image/(?P<post_id>[0-9a-f-]+)$',
             DeletePostImageApiView.as_view(), name="delete-post-image"),
 
+        re_path(r'^user/all/video/(?P<user_id>[0-9a-f-]+)$',
+            UserPostVideoApiView.as_view(), name="user_video_post"),
+
 ]

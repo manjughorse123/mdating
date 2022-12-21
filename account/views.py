@@ -9,7 +9,7 @@ from operator import add
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+# from datetime import datetime, timedelta
 from rest_framework.generics import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from rest_framework.generics import GenericAPIView
@@ -531,6 +531,7 @@ class OTPVerifyApiView(GenericAPIView):
     )
     def post(self, request):
         try:
+          
             mobile = request.data['mobile']
             otp = request.data['otp']
             country_code = request.data['country_code']
@@ -666,7 +667,7 @@ class UserVerifiedApiView(GenericAPIView):
             return Response({"success": True, "status": 200, "message":"Account Verified Succefully","data": serializer.data}, status=status.HTTP_200_OK)
         elif req.user_verified_status == 1:
             serializer = UserVerifiedSerializer(req)
-            return Response({"success": True, "status": 200, "message":"wait for verification","data": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"success": True, "status": 200, "message":"Please Wait For Verification","data": serializer.data}, status=status.HTTP_200_OK)
         else :
             serializer = UserVerifiedSerializer(req)
             return Response({"success": True, "status": 200, "message":"Please add you Document","data": serializer.data}, status=status.HTTP_200_OK)

@@ -83,7 +83,8 @@ class PostImageUpload(models.Model):
     post_image = models.ForeignKey(
         PostUpload, on_delete=models.CASCADE, related_name="userpostiamge")
     user_post_image = models.ImageField(upload_to='user_post_image/',blank=True, null=True)
-    
+    user_post_video = models.ImageField(upload_to='user_post_video/',blank=True, null=True)
+    user_post_type = models.CharField(max_length= 255,blank=True, null=True)
     create_at = models.DateTimeField(auto_now_add=True)
     # update_at  = models.DateTimeField(now_add=True)
 

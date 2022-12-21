@@ -75,16 +75,18 @@ class CreatePostApiView(GenericAPIView):
             data=request.data)
         print("request.data----------------->",request.data)
         if serializer.is_valid():
-
-
             serializer.save()
             val = PostUpload.objects.filter(title=request.data['title']).last()
             name = request.FILES.getlist('post_image')
+            
             for i in range(len(name)):
+                
+                if 'image/png' in  name[i].content_type:
+                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                else : 
 
-                # media_data = MediaPost.objects.create(
-                #     user=request.user, user_media=name[i], caption=new_caption)
-                PostImageUpload.objects.create(user_post_image=name[i],post_image=val)
+                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                
             # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
 
             return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
@@ -317,6 +319,40 @@ class GetPostViewdetailView(GenericAPIView):
     #     post_view = self.get_object(pk)
     #     post_view.delete()
     #     return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+
+
+
+
+class UserPostVideoApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PostUploadVideoSerializers
+    """
+    Retrieve, update or delete  a media instance.
+    """
+
+    
+    def get(self, request, user_id, format=None):
+        
+
+        # user = PostUpload.objects.filter(user_id=user_id)
+        ad  = PostUpload.objects.filter(user_id=user_id)
+        list1 = []
+        for i in range(len(ad)):
+            # user = User.objects.filter(id= ad[i].user.id)
+            setData = PostImageUpload.objects.filter(post_image=ad[i],user_post_type='video/mp4')
+
+            datas = PostImageUploadSerilaizer(setData,many= True)
+            if len(datas.data) > 0 :
+
+                list1.append(datas.data[0])
+        print(list1)   
+        # serializer = PostUploadVideoSerializers(
+        #     user, context={'request': request.user.id}, many=True)
+        return Response({"success": True, "status": 200, "data": list1 ,"message" : "User Video Post "}, status=status.HTTP_200_OK)
+
 
 
 class AllPostAPI(GenericAPIView):

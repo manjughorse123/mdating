@@ -13,6 +13,7 @@ class MediaPost(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     caption = models.CharField(max_length=300, null=True, blank=True)
     user_media  = models.ImageField(upload_to='user_media_image/',blank=True, null=True)
+    media_type = models.CharField(max_length=255, null=True, blank=True)
     media = models.TextField(max_length=500, null=True, blank=True)
     media_video = models.TextField(max_length=500, null=True, blank=True)
     view_count = models.PositiveIntegerField(default=0, blank=True, null=True)
@@ -45,10 +46,7 @@ class MediaVideo(models.Model):
         return str(self.user.name)
 
 
-# class MediaView(models.Model):
-#     user = models.ForeignKey(User, on_delete=models.CASCADE)
-#     media = models.ForeignKey(MediaPost, on_delete=models.CASCADE)
-#     create_at = models.DateTimeField(auto_now_add=True)
+
 
 
 class MediaLike(models.Model):

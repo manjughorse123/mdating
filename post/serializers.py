@@ -201,6 +201,34 @@ class PostUploadUpdateSerializers(ModelSerializer):
         fields = ('id', 'post', 'title', 'message','post_images',)
 
 
+class PostUploadVideoSerializers(ModelSerializer):
+    post_images = serializers.SerializerMethodField()
+
+    def get_post_images(self,obj):
+        # import pdb;pdb.set_trace()
+        post_images = []
+        ad  = PostUpload.objects.filter(id = obj.id)
+        for i in range(len(ad)):
+            # user = User.objects.filter(id= ad[i].user.id)
+            setData = PostImageUpload.objects.filter(post_image=ad[i],user_post_type='video/mp4')
+
+            datas = PostImageUploadSerilaizer(setData,many= True)
+
+            
+        # return datas.data
+        if len(setData) >0  :
+            post_images.append(datas.data)
+            print("manju",post_images)
+            return datas.data
+        else :
+            return []
+
+    class Meta:
+        model = PostUpload
+        fields = ('id', 'post', 'title', 'message','post_images',)
+
+
+
 class PostReportsSerializers(ModelSerializer):
 
     class Meta:

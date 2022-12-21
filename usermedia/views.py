@@ -146,42 +146,6 @@ class MediaUploadApiView(GenericAPIView):
         tags=['User Media']
     )
     def post(self, request, *args, **kwargs):
-
-        # user=request.user.id
-        # user_media
-        # # caption = request.data['caption'],
-        # if "media" in request.data:
-        #     media = request.data.get('media'),
-        #     if 'caption' in request.data:
-        #         user = request.user.id
-        #         obj = User.objects.filter(id=user)
-        #         obj.update(is_media=True)
-        #         string = request.data['media']
-        #         new_caption = request.data['caption']
-        #         name = string.split(',')
-
-        #         for i in range(len(name)):
-
-        #             media_data = MediaPost.objects.create(
-        #                 user=request.user, media=name[i], caption=new_caption)
-
-        #         return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
-
-        #     else:
-        #         if media is not None:
-        #             user = request.user.id
-        #             obj = User.objects.filter(id=user)
-        #             obj.update(is_media=True)
-        #             string = request.data['media']
-        #             name = string.split(',')
-
-        #             for i in range(len(name)):
-        #                 media_data = MediaPost.objects.create(
-        #                     user=request.user, media=name[i])
-
-        #             return Response({"success": True, "message": "User Media Added!", "status": 201, "post": "post"}, status=status.HTTP_201_CREATED)
-        # else:
-        #     return Response({"status": 400, "message": "No Media Found"}, status=status.HTTP_400_BAD_REQUEST)
     
         if "user_media" in request.data:
             media = request.data.get('user_media'),
