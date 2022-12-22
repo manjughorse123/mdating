@@ -34,14 +34,14 @@ class UserChatNewSerializer(serializers.ModelSerializer):
         user_data2 = User.objects.get(
             id=obj.receiver.id)
             
-        userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False)
+        userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False).exclude(is_text= "")
         
             
         return len(userChatReadValue)
    
     class Meta:
         model = ChatList
-        fields = ('id','sender','create_at','receiver','count_un_read',)
+        fields = ('id','sender','create_at','receiver','count_un_read','is_text',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)

@@ -75,6 +75,7 @@ class GetUserChatListView(APIView):
         
         userChat =ChatList.objects.filter(sender=user_id).order_by('receiver','-create_at').distinct('receiver')
         print(userChat)
+        # val = userChat
         serializer = UserChatNewSerializer(userChat,context={
                                              'request': user_id}, many=True)
         return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)
