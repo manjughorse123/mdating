@@ -31,10 +31,13 @@ class UserChatNewSerializer(serializers.ModelSerializer):
         user = self.context['request']
         user_data = User.objects.get(
             id=user)
+        # user_data2 = User.objects.get(
+        #     id=obj.receiver.id)
+        
         user_data2 = User.objects.get(
-            id=obj.receiver.id)
-            
+            id=obj.sender.id)
         userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False).exclude(is_text= "")
+        # userChatReadValue =ChatList.objects.filter(receiver=user_data2,sender=user_data,is_text_read=False).exclude(is_text= "")
         
             
         return len(userChatReadValue)

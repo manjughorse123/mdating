@@ -69,13 +69,26 @@ class GetUserSenderMessageView(APIView):
 class GetUserChatListView(APIView):
     permission_classes = (IsAuthenticated,)    
 
+    # def get(self, request,user_id):
+    #     user_ids = request.user.id
+    #     print (user_id)
+    #     userFind = User.objects.get(id=user_id)
+    #     userChatReadValue =ChatList.objects.filter(receiver=userFind,is_text_read=False)
+        
+    #     userChat =ChatList.objects.filter(sender=user_id).order_by('receiver','-create_at').distinct('receiver')
+    #     print(userChat)
+    #     # val = userChat
+    #     serializer = UserChatNewSerializer(userChat,context={
+    #                                          'request': user_id}, many=True)
+    #     return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)
+
     def get(self, request,user_id):
         user_ids = request.user.id
         print (user_id)
         userFind = User.objects.get(id=user_id)
         userChatReadValue =ChatList.objects.filter(receiver=userFind,is_text_read=False)
         
-        userChat =ChatList.objects.filter(sender=user_id).order_by('receiver','-create_at').distinct('receiver')
+        userChat =ChatList.objects.filter(receiver=user_id).distinct('sender').order_by('sender','-create_at')
         print(userChat)
         # val = userChat
         serializer = UserChatNewSerializer(userChat,context={
