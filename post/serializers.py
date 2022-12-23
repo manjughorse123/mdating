@@ -179,7 +179,16 @@ class PostImageUploadSerilaizer(ModelSerializer):
 
 class PostImageUploadVedioSerilaizer(ModelSerializer):
     is_user = serializers.SerializerMethodField()
+    is_friend_acc = serializers.SerializerMethodField()
    
+    def get_is_friend_acc(self, obj):
+
+        user = self.context['request1']
+        friend_data = FriendList.objects.filter(user=user, friends=obj.post_image.user.id)
+        if friend_data:
+            return True
+        else:
+            return False
 
     def get_is_user(self, obj):
       
@@ -196,7 +205,7 @@ class PostImageUploadVedioSerilaizer(ModelSerializer):
     
     class Meta:
         model = PostImageUpload
-        fields = ("id","user_post_image","user_post_type","create_at","post_image","is_user",)
+        fields = ("id","user_post_image","user_post_type","create_at","post_image","is_user","is_friend_acc",)
     
     def to_representation(self, instance):
         response = super().to_representation(instance)
