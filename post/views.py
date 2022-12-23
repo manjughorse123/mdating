@@ -344,11 +344,12 @@ class UserPostVideoApiView(GenericAPIView):
             # user = User.objects.filter(id= ad[i].user.id)
             setData = PostImageUpload.objects.filter(post_image=ad[i],user_post_type='video/mp4')
 
-            datas = PostImageUploadSerilaizer(setData,many= True)
+            datas = PostImageUploadSerilaizer(setData,context={'request1': request.user.id},many= True)
             if len(datas.data) > 0 :
 
                 list1.append(datas.data[0])
-        print(list1)   
+        # print(list1)   
+        print(request.user.id)
         # serializer = PostUploadVideoSerializers(
         #     user, context={'request': request.user.id}, many=True)
         return Response({"success": True, "status": 200, "data": list1 ,"message" : "User Video Post "}, status=status.HTTP_200_OK)

@@ -154,6 +154,7 @@ class UserFriendSerializer(ModelSerializer):
 
 
 class UserPostUpdateSerilaizer(ModelSerializer):
+    
     class Meta:
         model = PostUpload
         fields = '__all__'
@@ -165,9 +166,25 @@ class NewPostUploadSerializers(ModelSerializer):
         fields = ('post', 'message', 'title',)
 
 class PostImageUploadSerilaizer(ModelSerializer):
+    is_user = serializers.SerializerMethodField()
+   
+
+    def get_is_user(self, obj):
+      
+      
+        user = self.context['request1']
+        user_data = User.objects.get(
+            id=user)
+        user_datas = User.objects.get(
+            id=obj.post_image.user.id)
+        if user_data == user_datas:
+            return True
+        else:
+            return False
+    
     class Meta:
         model = PostImageUpload
-        fields = "__all__"
+        fields = ("id","user_post_image","user_post_type","create_at","post_image","is_user",)
     
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -211,7 +228,7 @@ class PostUploadVideoSerializers(ModelSerializer):
     post_images = serializers.SerializerMethodField()
 
     def get_post_images(self,obj):
-        # import pdb;pdb.set_trace()
+       
         post_images = []
         ad  = PostUpload.objects.filter(id = obj.id)
         for i in range(len(ad)):
