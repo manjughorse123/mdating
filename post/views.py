@@ -3,7 +3,7 @@ from django.db.models import Q
 from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
-
+from account.utils import *
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.views import APIView
@@ -237,7 +237,7 @@ class PostReactionApiView(GenericAPIView):
                             obj = obj[0]
                             obj.is_like_count = obj.is_like_count + 1
                             obj.save(update_fields=("is_like_count",))
-
+                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name))
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()

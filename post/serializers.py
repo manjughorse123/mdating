@@ -168,6 +168,12 @@ class PostImageUploadSerilaizer(ModelSerializer):
     class Meta:
         model = PostImageUpload
         fields = "__all__"
+    
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['post_image'] = UserPostUpdateSerilaizer(instance.post_image).data
+
+        return response
 
 class PostViewSerializers(ModelSerializer):
     class Meta:

@@ -15,7 +15,7 @@ from account.models import *
 from account.serializers import *
 from .serializers import *
 from .models import *
-
+from account.utils import *
 today = date.today()
 last_week = today - timedelta(days=5)
 
@@ -44,6 +44,7 @@ class AddFriendRequestSendView(GenericAPIView):
         flag = request.data['flag']
         flag = str(flag)
         if serializer.is_valid():
+            # import pdb;pdb.set_trace()
             friend = serializer.validated_data['friend']
             users = str(request.user.id)
             user = User.objects.get(id=users)
@@ -53,6 +54,8 @@ class AddFriendRequestSendView(GenericAPIView):
                 else:
                     obj = FriendRequest.objects.create(
                         user=user, friend=friend, friendrequestsent=True)
+                    val =send_notification(friend,body="{} Send You Friend Request".format(user.name))
+                    print(val)
                     return Response({"success": True, "message": "Friend Request Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
             if flag == '2':
@@ -1091,6 +1094,7 @@ class SendFollowRequestView(GenericAPIView):
     def post(self, request, format='json'):
         users = str(request.user.id)
         user = User.objects.get(id=users)
+        
 
         if "flag" in request.data:
             print("request data", request.data)
@@ -1107,7 +1111,7 @@ class SendFollowRequestView(GenericAPIView):
                 if flag == '1':  # accept follow
                     if FollowRequest.objects.filter(follow=follow, user=user):
                         followdatas = FollowRequest.objects.filter(follow=follow, user=user)
-                        
+                       
                         followData = {
                             "follow":followdatas[0].follow.id,
                             "is_follow":followdatas[0].is_follow,
@@ -1119,6 +1123,8 @@ class SendFollowRequestView(GenericAPIView):
                     else:
                         obj = FollowRequest.objects.create(
                             user=user, follow=follow,is_follow=True)
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name))
+                        print(val)
                         return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
                 if flag == '2':  
@@ -1212,6 +1218,7 @@ class FollowBackApiView(GenericAPIView):
                             user=user, follow=follow, is_follow=True,is_follow_accepted=True)
                         objs = FollowRequest.objects.filter(
                             user=follow, follow=user)
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name))
                         fetch_obj_data = objs[0]
                         fetch_obj_data.is_follow = True
                         fetch_obj_data.save(update_fields=["is_follow"])

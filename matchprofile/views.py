@@ -34,7 +34,7 @@ class UserFieldFilter(filters.FilterSet):
                   'passion': ['exact'],
                   'idealmatch': ['exact'],
                   'marital_status': ['exact'],
-                  'interest_in': ['exact'],
+                 
                   'city': ['exact']
                   }
 
@@ -49,7 +49,7 @@ class UserFilterApiView(ListAPIView):
         DistanceToPointFilter, SearchFilter, DistanceToPointOrderingFilter, DjangoFilterBackend, OrderingFilter)
 
     def get_queryset(self):
-
+        
         user_id = self.request.user.id
         user_info = User.objects.filter(id=user_id)
 
@@ -90,8 +90,11 @@ class UserFilterApiView(ListAPIView):
             #     print("manju",i)
             #     manu = FriendList.objects.filter(user=user_info,friends=i)
             #     valfrnd.append(manu)
-
-            val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+            if 'interest_in' in self.request.GET:
+                val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                                       birth_date__lte=min_date)).filter(interest_in__in =eval(self.request.GET['interest_in']) ,location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
+            else :
+                val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
             
             # print(val)
@@ -103,8 +106,8 @@ class UserFilterApiView(ListAPIView):
             user_info[0].birth_date.year - 10))
             & Q(birth_date__year__lte=(
                 user_info[0].birth_date.year + 10)) &
-            Q(gender=user_info[0].interest_in) |
-            Q(interest_in=user_info[0].gender) &
+            Q(gender__in=user_info[0].interest_in) |
+            Q(interest_in__in=user_info[0].gender) &
             Q(city=user_info[0].city) |
             Q(location=user_info[0].location) |
             Q(passion__in=user_info[0].passion.all()) |

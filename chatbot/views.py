@@ -27,8 +27,10 @@ class UserSendMessageView(APIView):
         if serializer.is_valid():
             serializer.save()
             data1 = User.objects.get(id = request.data['receiver'])
-            val =send_notification(data1,body="New Message")
-            print(val)
+            vals = ChatList.objects.filter(receiver=data1).last()
+            
+            val =send_notification(data1,body="{}".format(vals.is_text))
+            print("My name is {}, I'm {}".format("John",36))
             return Response({"success": "True", "message":"Message Succesfully Send","data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message":"Message Not Send","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
