@@ -2,7 +2,7 @@ import imp
 from rest_framework import serializers
 from .models import *
 from account.models import *
-
+from django.db.models import Q
 class UserProfileDataSerializer(serializers.ModelSerializer):
    
     class Meta:
@@ -26,6 +26,23 @@ class UserChatSerializer(serializers.ModelSerializer):
 
 class UserChatNewSerializer(serializers.ModelSerializer):
     count_un_read = serializers.SerializerMethodField()
+    is_text = serializers.SerializerMethodField()
+    def get_is_text(self,obj):
+        user = self.context['request']
+        user_data = User.objects.get(
+            id=user)
+        # user_data2 = User.objects.get(
+        #     id=obj.receiver.id)
+        
+        user_data2 = User.objects.get(
+            id=obj.sender.id)
+        userChatReadValue =ChatList.objects.filter((Q(receiver=user_data)& Q(sender=user_data2))|(Q(receiver=user_data2)& Q(sender=user_data))).order_by("-id")
+     
+        if len(userChatReadValue) > 0:
+            return userChatReadValue[0].is_text
+        else :
+            return ""
+
     def get_count_un_read(self, obj):
         
         user = self.context['request']
