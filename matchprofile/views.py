@@ -91,8 +91,13 @@ class UserFilterApiView(ListAPIView):
             #     manu = FriendList.objects.filter(user=user_info,friends=i)
             #     valfrnd.append(manu)
             if 'interest_in' in self.request.GET:
-                val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                if len(eval(self.request.GET['interest_in'])) > 0 :
+                    val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(interest_in__in =eval(self.request.GET['interest_in']) ,location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
+                else :
+                    val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                                       birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
+            
             else :
                 val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id)
