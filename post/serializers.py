@@ -166,6 +166,18 @@ class NewPostUploadSerializers(ModelSerializer):
         fields = ('post', 'message', 'title',)
 
 class PostImageUploadSerilaizer(ModelSerializer):
+
+    class Meta:
+        model = PostImageUpload
+        fields = ("id","user_post_image","user_post_type","create_at","post_image",)
+    
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['post_image'] = UserPostUpdateSerilaizer(instance.post_image).data
+
+        return response
+
+class PostImageUploadVedioSerilaizer(ModelSerializer):
     is_user = serializers.SerializerMethodField()
    
 

@@ -328,7 +328,7 @@ class GetPostViewdetailView(GenericAPIView):
 
 class UserPostVideoApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
-    serializer_class = PostUploadVideoSerializers
+    serializer_class = PostImageUploadVedioSerilaizer
     """
     Retrieve, update or delete  a media instance.
     """
@@ -344,7 +344,7 @@ class UserPostVideoApiView(GenericAPIView):
             # user = User.objects.filter(id= ad[i].user.id)
             setData = PostImageUpload.objects.filter(post_image=ad[i],user_post_type='video/mp4')
 
-            datas = PostImageUploadSerilaizer(setData,context={'request1': request.user.id},many= True)
+            datas = PostImageUploadVedioSerilaizer(setData,context={'request1': request.user.id},many= True)
             if len(datas.data) > 0 :
 
                 list1.append(datas.data[0])
