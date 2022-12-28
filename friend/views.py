@@ -1194,7 +1194,7 @@ class FollowBackApiView(GenericAPIView):
         tags=['Follow']
     )
     def post(self, request, format='json'):
-        import pdb;pdb;pdb.set_trace()
+        # import pdb;pdb;pdb.set_trace()
         users = str(request.user.id)
         user = User.objects.get(id=users)
         if "flag" in request.data:
