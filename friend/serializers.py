@@ -389,7 +389,9 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
         print("user-----------------",user)
         follow1 = (FollowRequest.objects.filter(
             user_id=obj.follow,follow= user,is_follow=True))|(FollowRequest.objects.filter(
-            user_id=user,follow=obj.follow,is_follow=True))
+            user_id=user,follow=obj.follow,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=user,follow=obj.user,is_follow=True))
         if follow1:
         # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
         
@@ -404,7 +406,9 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
         print("user-----------------",user)
         follow1 = (FollowRequest.objects.filter(
             user_id=obj.follow,follow= user,is_follow=True,is_follow_accepted=True))|(FollowRequest.objects.filter(
-            user_id=user,follow= obj.follow,is_follow=True,is_follow_accepted=True))
+            user_id=user,follow= obj.follow,is_follow=True,is_follow_accepted=True))|(FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True,is_follow_accepted=True))|(FollowRequest.objects.filter(
+            user_id=user,follow= obj.user,is_follow=True,is_follow_accepted=True))
         if follow1:
         # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
         
