@@ -144,7 +144,7 @@ class AddNotificationData(GenericAPIView):
         tags=['Master data']
     )
     def get(self, request):
-        faq = NotificationData.objects.filter(user=request.user.id)
+        faq = NotificationData.objects.filter(user=request.user.id).order_by("-id")
         serializer = NotificationDataSerializer(faq, many=True)
         return Response({"success": True, "message": " Notification Data!", "status": 200, "data": serializer.data},
                         status=status.HTTP_200_OK)
