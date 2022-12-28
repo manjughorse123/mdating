@@ -30,8 +30,9 @@ class UserSendMessageView(APIView):
             vals = ChatList.objects.filter(receiver=data1).last()
             
             val =send_notification(data1,body="{}".format(vals.is_text))
-            NotificationData.objects.create(user=vals.sender.id,notification_message="{}".format(vals.is_text))
-            print(val,vals.sender.id)
+            data2 = User.objects.get(id = vals.sender.id)
+            NotificationData.objects.create(user=vals.sender,notification_message="{}".format(vals.is_text))
+            print(val,vals.sender,data2)
             return Response({"success": "True", "message":"Message Succesfully Send","data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message":"Message Not Send","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
