@@ -83,7 +83,7 @@ def send_notification(user_id,body):
         # import pdb;pdb.set_trace()
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(user_id.name), body=body, image="url"),
+        notification=Notification(title=str(user_id.name), body=body, image="https://picsum.photos/200/300"),
    
             ))
         print("notify",result)
@@ -98,7 +98,7 @@ def send_notification1(user_id,title,body):
         # import pdb;pdb.set_trace()
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(title.name), body=body, image="url"),
+        notification=Notification(title=str(title.name), body=body, image="https://picsum.photos/200/300"),
    
             ))
         print("notify",result,str(title.name))
