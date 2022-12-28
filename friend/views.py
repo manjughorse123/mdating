@@ -10,7 +10,7 @@ from rest_framework.views import *
 from rest_framework.viewsets import *
 from rest_framework.generics import *
 from rest_framework.permissions import *
-
+from masterdata.models import *
 from account.models import *
 from account.serializers import *
 from .serializers import *
@@ -55,6 +55,7 @@ class AddFriendRequestSendView(GenericAPIView):
                     obj = FriendRequest.objects.create(
                         user=user, friend=friend, friendrequestsent=True)
                     val =send_notification(friend,body="{} Send You Friend Request".format(user.name))
+                    NotificationData.objects.create(user=friend,notification_message="{} Send You Friend Request".format(user.name))
                     print(val)
                     return Response({"success": True, "message": "Friend Request Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
@@ -1124,6 +1125,7 @@ class SendFollowRequestView(GenericAPIView):
                         obj = FollowRequest.objects.create(
                             user=user, follow=follow,is_follow=True)
                         val =send_notification(follow,body="{} Started Following You ".format(user.name))
+                        NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name))
                         print(val)
                         return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
@@ -1219,6 +1221,7 @@ class FollowBackApiView(GenericAPIView):
                         objs = FollowRequest.objects.filter(
                             user=follow, follow=user)
                         val =send_notification(follow,body="{} Started Following You ".format(user.name))
+                        NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name))
                         fetch_obj_data = objs[0]
                         fetch_obj_data.is_follow = True
                         fetch_obj_data.save(update_fields=["is_follow"])
