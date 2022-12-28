@@ -217,6 +217,8 @@ class PostReactionApiView(GenericAPIView):
                         obj.is_view_count = obj.is_view_count + 1
                         obj.save(update_fields=("is_view_count",))
                         PostView.objects.create(user=user, post=post)
+                        val =send_notification(obj.user,body="{} Like Your Post".format(user.name))
+                        NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user)
                         # serializerView.save()
 
                         return Response(

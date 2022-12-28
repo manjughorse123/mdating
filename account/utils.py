@@ -46,6 +46,7 @@ from django.conf import settings
 from firebase_admin.messaging import Message,Notification
 from masterdata.models import *
 from datetime import datetime ,timedelta
+from DatingApp.baseurl import base_url
 
 def generate_access_token(user):
 
@@ -83,10 +84,10 @@ def send_notification(user_id,body):
         # import pdb;pdb.set_trace()
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(user_id.name), body=body, image="https://picsum.photos/200/300"),
+        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(user_id.profile_image)),
    
             ))
-        print("notify",result)
+        print("notify",base_url+"/media/"+str(user_id.profile_image))
         return result
     except:
         pass
@@ -95,13 +96,13 @@ def send_notification(user_id,body):
 def send_notification1(user_id,title,body):
     
     try:
-        # import pdb;pdb.set_trace()
+      
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(title.name), body=body, image="https://picsum.photos/200/300"),
+        notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image)),
    
             ))
-        print("notify",result,str(title.name))
+        print("notify",result,base_url+"/media/"+str(title.profile_image))
         return result
     except:
         pass

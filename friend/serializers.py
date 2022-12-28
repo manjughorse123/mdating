@@ -280,6 +280,38 @@ class FollowRequestFollowingV2Serializer(serializers.ModelSerializer):
 
     is_mutual = serializers.SerializerMethodField()
     is_user = serializers.SerializerMethodField()
+    is_follow = serializers.SerializerMethodField()
+    is_follow_accepted =serializers.SerializerMethodField()
+
+    def get_is_follow(self, obj):
+        # import pdb;pdb.set_trace()
+        user = self.context['request']
+        print("user-----------------",user)
+        follow1 = (FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=user,follow=obj.user,is_follow=True))
+        if follow1:
+        # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
+        
+        # if friend_data:
+            return True
+        else:
+            return False
+    
+    def get_is_follow_accepted(self, obj):
+        # import pdb;pdb.set_trace()
+        user = self.context['request']
+        print("user-----------------",user)
+        follow1 = FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True,is_follow_accepted=True)|(FollowRequest.objects.filter(
+            user_id=user,follow= obj.user,is_follow=True,is_follow_accepted=True))
+        if follow1:
+        # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
+        
+        # if friend_data:
+            return True
+        else:
+            return False
 
     def get_is_user(self, obj):
        
@@ -370,8 +402,9 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
         # import pdb;pdb.set_trace()
         user = self.context['request']
         print("user-----------------",user)
-        follow1 = FollowRequest.objects.filter(
-            user_id=obj.user,follow= user,is_follow=True,is_follow_accepted=True)
+        follow1 = (FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True,is_follow_accepted=True))|(FollowRequest.objects.filter(
+            user_id=user,follow= obj.user,is_follow=True,is_follow_accepted=True))
         if follow1:
         # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
         
