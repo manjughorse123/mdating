@@ -1235,10 +1235,8 @@ class FollowBackApiView(GenericAPIView):
                 if flag == '2':  # remove follow back
                     
                     if FollowRequest.objects.filter(follow=follow, user=user):
-                        obj = FollowRequest.objects.filter(
-                            follow=follow, user=user)
-                        objs = FollowRequest.objects.filter(
-                            user=follow, follow=user)
+                        obj = FollowRequest.objects.filter(follow=follow, user=user)
+                        objs = FollowRequest.objects.filter(user=follow, follow=user)
                         fetch_obj_data = objs[0]
                         fetch_obj_data.is_follow = False
                         fetch_obj_data.save(update_fields=["is_follow"])
