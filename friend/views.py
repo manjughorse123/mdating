@@ -764,12 +764,14 @@ class GetFollowingApiView(GenericAPIView):
        
         user_req_id = request.user.id
         user_data = User.objects.filter(id=user_id)
+        # user_data = User.objects.filter(
+
+        #     Q(passion__in=user_data[0].passion.all())
+        #     | Q(is_complete_profile=True)
+        # ).exclude(id=user_id).distinct()
         user_data = User.objects.filter(
-
-            Q(passion__in=user_data[0].passion.all())
-            | Q(is_complete_profile=True)
+         Q(is_complete_profile=True)
         ).exclude(id=user_id).distinct()
-
         list_suggested = []
 
         for user_list_id in range(len(user_data)):
