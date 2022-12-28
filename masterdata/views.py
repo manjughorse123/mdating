@@ -10,7 +10,7 @@ from rest_framework.generics import *
 from account.models import *
 from account.serializers import *
 from DatingApp.baseurl import base_url
-from .serializers import FAQSerializer
+from .serializers import *
 from friend.models import *
 # Create your views here.
 
@@ -131,3 +131,31 @@ class GetMasterDataV2(GenericAPIView):
 
                       }},
             status=status.HTTP_200_OK)
+
+
+class AddNotificationData(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = NotificationDataSerializer
+
+    @swagger_auto_schema(
+
+        operation_summary="Get Notification Api",
+
+        tags=['Master data']
+    )
+    def get(self, request):
+        faq = NotificationData.objects.filter(user=request.user.id)
+        serializer = NotificationDataSerializer(faq, many=True)
+        return Response({"success": True, "message": " Notification Data!", "status": 200, "data": serializer.data},
+                        status=status.HTTP_200_OK)
+
+    def post(self, request, format='json'):
+        serializer = NotificationDataSerializer(data=request.data)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response({"success": True, "status": 201,"message": " Notification Add Data",  "data": serializer.data}, status=status.HTTP_201_CREATED)
+        else:
+            return Response({"success": "error", "message": " Notification Data Not Added" ,"status": 400, "data": serializer.errors},
+                            status=status.HTTP_400_BAD_REQUEST)

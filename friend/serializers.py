@@ -355,8 +355,9 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
         # import pdb;pdb.set_trace()
         user = self.context['request']
         print("user-----------------",user)
-        follow1 = FollowRequest.objects.filter(
-            user_id=obj.user,follow= user,is_follow=True)
+        follow1 = (FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=user,follow=obj.user,is_follow=True))
         if follow1:
         # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
         

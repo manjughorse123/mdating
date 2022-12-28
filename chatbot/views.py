@@ -14,7 +14,7 @@ from account.utils import *
 
 
 class UserSendMessageView(APIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request):
         # userChat =FriendRequest.objects.all()
@@ -30,14 +30,15 @@ class UserSendMessageView(APIView):
             vals = ChatList.objects.filter(receiver=data1).last()
             
             val =send_notification(data1,body="{}".format(vals.is_text))
-            print("My name is {}, I'm {}".format("John",36))
+            NotificationData.objects.create(user=vals.sender.id,notification_message="{}".format(vals.is_text))
+            print(val,vals.sender.id)
             return Response({"success": "True", "message":"Message Succesfully Send","data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message":"Message Not Send","data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
 
 class GetUserSenderMessageView12(APIView):
-    # permission_classes = (AllowAny,)
+    permission_classes = (IsAuthenticated,)
 
     def get(self, request,send_id):
         userChat =ChatList.objects.filter(sender=send_id)

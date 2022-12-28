@@ -15,7 +15,7 @@ from DatingApp.baseurl import base_url
 from post.models import *
 from post.serializers import *
 from friend.models import *
-
+from masterapp.models import *
 
 class GetPostUploadApi(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
@@ -194,6 +194,7 @@ class PostReactionApiView(GenericAPIView):
         user = User.objects.get(id=str(users))
 
         if 'post' in request.data:
+          
             postdata = int(request.data.get('post'))
             post = PostUpload.objects.get(id=postdata)
             flag = request.data.get('flag')
@@ -203,7 +204,7 @@ class PostReactionApiView(GenericAPIView):
             serializerLike = PostLikeSerializers(data=request.data)
             # serializerShare = PostShareSerializers(data=request.data)
             if serializerView.is_valid():
-
+                
                 if flagdata == 1:
                     if PostView.objects.filter(user=user, post=post).exists():
                         return Response(
@@ -238,6 +239,7 @@ class PostReactionApiView(GenericAPIView):
                             obj.is_like_count = obj.is_like_count + 1
                             obj.save(update_fields=("is_like_count",))
                             val =send_notification(obj.user,body="{} Like Your Post".format(user.name))
+                            NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()
