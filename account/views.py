@@ -59,7 +59,7 @@ class LoginApiView(GenericAPIView):
     def post(self, request, *args, **kwargs):
 
         try:
-           
+            print(request.data)
             mobile = request.data['mobile']
             country_code = request.data['country_code']
 
