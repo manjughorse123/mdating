@@ -90,3 +90,18 @@ def send_notification(user_id,body):
         return result
     except:
         pass
+
+
+def send_notification1(user_id,title,body):
+    
+    try:
+        # import pdb;pdb.set_trace()
+        device = CusztomFCMDevice.objects.filter(user=user_id).first()
+        result = device.send_message(Message(
+        notification=Notification(title=title, body=body, image="url"),
+   
+            ))
+        print("notify",result)
+        return result
+    except:
+        pass
