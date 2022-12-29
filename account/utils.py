@@ -81,7 +81,7 @@ def generate_refresh_token(user):
 def send_notification(user_id,body,vals):
     
     try:
-        # import pdb;pdb.set_trace()
+        
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
         notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),

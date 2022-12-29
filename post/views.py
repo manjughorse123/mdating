@@ -75,27 +75,21 @@ class CreatePostApiView(GenericAPIView):
             data=request.data)
         print("request.data----------------->",request.data)
         if serializer.is_valid():
-            
+            serializer.save()
+            val = PostUpload.objects.filter(title=request.data['title']).last()
             name = request.FILES.getlist('post_image')
-            if name:
-                serializer.save()
-                val = PostUpload.objects.filter(title=request.data['title']).last()
             
+            for i in range(len(name)):
                 
-                for i in range(len(name)):
-                    
-                    if 'image/png' in  name[i].content_type:
-                        PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
-                    else : 
+                if 'image/png' in  name[i].content_type:
+                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                else : 
 
-                        PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
-                    
-                # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
-
+                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
                 
-                return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
-            else :
-                return Response({"message": "No Post", "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
+            # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
+
+            return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
         return Response({"message": False, "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -223,7 +217,7 @@ class PostReactionApiView(GenericAPIView):
                         obj.is_view_count = obj.is_view_count + 1
                         obj.save(update_fields=("is_view_count",))
                         PostView.objects.create(user=user, post=post)
-                        val =send_notification(obj.user,body="{} Like Your Post".format(user.name))
+                        val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
                         NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user)
                         # serializerView.save()
 
@@ -246,8 +240,9 @@ class PostReactionApiView(GenericAPIView):
                             obj = obj[0]
                             obj.is_like_count = obj.is_like_count + 1
                             obj.save(update_fields=("is_like_count",))
-                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name))
+                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
                             NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user)
+                            print(val,user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()
