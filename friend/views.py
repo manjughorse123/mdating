@@ -1237,17 +1237,19 @@ class FollowBackApiView(GenericAPIView):
                     if FollowRequest.objects.filter(follow=follow, user=user):
                         obj = FollowRequest.objects.filter(follow=follow, user=user)
                         objs = FollowRequest.objects.filter(user=follow, follow=user)
-                        fetch_obj_data = objs[0]
-                        fetch_obj_data.is_follow = False
-                        fetch_obj_data.save(update_fields=["is_follow"])
-                        fetch_obj_data.is_follow_accepted = False
-                        fetch_obj_data.save(update_fields=["is_follow_accepted"])
-
-                        ob_set_data = FollowRequest.objects.filter(
+                        if objs:
+                            fetch_obj_data = objs[0]
+                            fetch_obj_data.is_follow = False
+                            fetch_obj_data.save(update_fields=["is_follow"])
+                            fetch_obj_data.is_follow_accepted = False
+                            fetch_obj_data.save(update_fields=["is_follow_accepted"])
+                        if obj:
+                            ob_set_data = FollowRequest.objects.filter(
                             id=obj[0].id)
-                        ob_set_data.is_follow_accepted = False
-                          
-                        ob_set_data.delete()
+                        
+                            ob_set_data.is_follow_accepted = False
+                            
+                            ob_set_data.delete()
                         return Response({"success": True, "message": "Cancel Follow Back !", "status": 200}, status=status.HTTP_200_OK)
                     else:
                         return Response({"success": True, "message": "No Follow Request !", "status": 200}, status=status.HTTP_200_OK)
