@@ -57,7 +57,7 @@ class LoginApiView(GenericAPIView):
         tags=['Account']
     )
     def post(self, request, *args, **kwargs):
-
+        import pdb;pdb.set_trace()
         try:
             print(request.data)
             mobile = request.data['mobile']
@@ -108,6 +108,15 @@ class LoginApiView(GenericAPIView):
                 if fcm_data:
                     datafcm = fcm_data.registration_id
                 else :
+                    # json = request.data
+                    # fcm_token = json['fcm_token']
+                    # device = CusztomFCMDevice()
+                    # device.registration_id = fcm_token
+                    # device.type = json['device_type']
+                    # device.name = "User"
+                
+                    # device.user=user
+                    # device.save()
                     datafcm = ""
 
             return Response({'base_url':base_url,"message": "User Login Successfully!", "status": 200, "success": True, 'is_register': True, "user": {
