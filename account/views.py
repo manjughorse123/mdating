@@ -84,6 +84,15 @@ class LoginApiView(GenericAPIView):
                     if ass.registration_id:
                         ass.registration_id= json['fcm_token']
                         ass.save()
+                    else :
+                        device = CusztomFCMDevice()
+                        device.registration_id = json['fcm_token']
+                        device.type = json['device_type']
+                        device.name = "anroide"
+                    
+                        device.user=user
+                        device.save()
+
                 else:
                     fcm_token = json['fcm_token']
 
