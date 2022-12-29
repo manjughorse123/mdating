@@ -18,5 +18,6 @@ class NotificationData(models.Model):
     notification_message = models.TextField(null=True,blank=True)
     notify_user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="Notify_anotheruser",null=True,blank=True)
+    flag = models.CharField(max_length=255, null=True,blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
     delete_at = models.DateTimeField(auto_now=True)
