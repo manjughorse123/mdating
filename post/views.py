@@ -75,21 +75,27 @@ class CreatePostApiView(GenericAPIView):
             data=request.data)
         print("request.data----------------->",request.data)
         if serializer.is_valid():
-            serializer.save()
-            val = PostUpload.objects.filter(title=request.data['title']).last()
-            name = request.FILES.getlist('post_image')
             
-            for i in range(len(name)):
+            name = request.FILES.getlist('post_image')
+            if name:
+                serializer.save()
+                val = PostUpload.objects.filter(title=request.data['title']).last()
+            
                 
-                if 'image/png' in  name[i].content_type:
-                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
-                else : 
+                for i in range(len(name)):
+                    
+                    if 'image/png' in  name[i].content_type:
+                        PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                    else : 
 
-                    PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                        PostImageUpload.objects.create(user_post_image=name[i],post_image=val,user_post_type=name[i].content_type)
+                    
+                # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
+
                 
-            # PostImageUpload.objects.create(user_post_image=request.data['post_image'],post_image=val)
-
-            return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
+                return Response({"message":"User Post by User","success":True, "status": 201, "post": [serializer.data]}, status=status.HTTP_201_CREATED)
+            else :
+                return Response({"message": "No Post", "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
         return Response({"message": False, "status": 400, "post": [serializer.errors]}, status=status.HTTP_400_BAD_REQUEST)
 
 

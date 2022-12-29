@@ -57,7 +57,7 @@ class LoginApiView(GenericAPIView):
         tags=['Account']
     )
     def post(self, request, *args, **kwargs):
-        import pdb;pdb.set_trace()
+        # import pdb;pdb.set_trace()
         try:
             print(request.data)
             mobile = request.data['mobile']
