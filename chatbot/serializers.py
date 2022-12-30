@@ -53,7 +53,7 @@ class UserChatNewSerializer(serializers.ModelSerializer):
         
         user_data2 = User.objects.get(
             id=obj.sender.id)
-        userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False).exclude(is_text= "")
+        userChatReadValue =ChatList.objects.filter(receiver=user_data,sender=user_data2,is_text_read=False).exclude(is_text=None)
         # userChatReadValue =ChatList.objects.filter(receiver=user_data2,sender=user_data,is_text_read=False).exclude(is_text= "")
         
             

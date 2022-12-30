@@ -78,13 +78,13 @@ def generate_refresh_token(user):
     return refresh_token
 
 
-def send_notification(user_id,body,vals,data):
+def send_notification(user_id,body,vals):
     
     try:
         
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image),data=data),
+        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),
    
             ))
         print("notify",base_url+"/media/"+str(user_id.profile_image))
@@ -93,13 +93,13 @@ def send_notification(user_id,body,vals,data):
         pass
 
 
-def send_notification1(user_id,title,body,data):
+def send_notification1(user_id,title,body):
     
     try:
       
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image),data=data),
+        notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image)),
    
             ))
         print("notify",result,base_url+"/media/"+str(title.profile_image))

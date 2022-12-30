@@ -54,7 +54,7 @@ class AddFriendRequestSendView(GenericAPIView):
                 else:
                     obj = FriendRequest.objects.create(
                         user=user, friend=friend, friendrequestsent=True)
-                    val =send_notification(friend,body="{} Send You Friend Request".format(user.name),vals=user,data="FriendRequest")
+                    val =send_notification(friend,body="{} Send You Friend Request".format(user.name),vals=user)
                     NotificationData.objects.create(user=friend,notification_message="{} Send You Friend Request".format(user.name),notify_user=user,flag="Friend Request")
                     print(val)
                     return Response({"success": True, "message": "Friend Request Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -375,7 +375,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=user, friends=friends, is_accepted=True)
                         obj_friend = FriendList.objects.create(
                             user=friends, friends=user, is_accepted=True)
-                        val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends,data="AcceptedFriendRequest")
+                        val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends)
                         NotificationData.objects.create(user=friends,notification_message="{}  Accepted Friend Request ".format(user.name),notify_user=user)
                         print(val)
                         chatbottabl = ChatList.objects.create(
@@ -1129,7 +1129,7 @@ class SendFollowRequestView(GenericAPIView):
                     else:
                         obj = FollowRequest.objects.create(
                             user=user, follow=follow,is_follow=True)
-                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user,data="StartingFollow")
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user,flag="Follow Request")
                         print(val)
                         return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1225,7 +1225,7 @@ class FollowBackApiView(GenericAPIView):
                             user=user, follow=follow, is_follow=True,is_follow_accepted=True)
                         objs = FollowRequest.objects.filter(
                             user=follow, follow=user)
-                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user,data="StartedFollowing")
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user)
                         fetch_obj_data = objs[0]
                         fetch_obj_data.is_follow = True

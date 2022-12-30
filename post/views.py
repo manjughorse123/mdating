@@ -240,7 +240,7 @@ class PostReactionApiView(GenericAPIView):
                             obj = obj[0]
                             obj.is_like_count = obj.is_like_count + 1
                             obj.save(update_fields=("is_like_count",))
-                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="LikePost")
+                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
                             NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user)
                             print(val,user)
                             PostLike.objects.create(
