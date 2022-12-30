@@ -93,13 +93,13 @@ def send_notification(user_id,body,vals):
         pass
 
 
-def send_notification1(user_id,title,body):
+def send_notification1(user_id,title,body,data):
     
     try:
       
         device = CusztomFCMDevice.objects.filter(user=user_id).first()
         result = device.send_message(Message(
-        notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image)),
+        notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image),data=data),
    
             ))
         print("notify",result,base_url+"/media/"+str(title.profile_image))
