@@ -79,8 +79,8 @@ class LoginApiView(GenericAPIView):
             user.save()
             if "fcm_token" in request.data:
                 json = request.data
-                if  CusztomFCMDevice.objects.filter(user=user).first():
-                    ass = CusztomFCMDevice.objects.filter(user=user).first()
+                if  CusztomFCMDevice.objects.filter(user=user).last():
+                    ass = CusztomFCMDevice.objects.filter(user=user).last()
                     if ass.registration_id:
                         ass.registration_id= json['fcm_token']
                         ass.save()
@@ -113,7 +113,7 @@ class LoginApiView(GenericAPIView):
                         device.user=user
                         device.save()
                             
-                fcm_data = CusztomFCMDevice.objects.filter(user=user).first()
+                fcm_data = CusztomFCMDevice.objects.filter(user=user).last()
                 if fcm_data:
                     datafcm = fcm_data.registration_id
                 else :
