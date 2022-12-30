@@ -404,7 +404,7 @@ class FollowRequestFollowerV2Serializer(serializers.ModelSerializer):
     def get_is_follow_accepted(self, obj):
         # import pdb;pdb.set_trace()
         onjss = self.context['request']
-        print("user-----------------",user)
+        # print("user-----------------",user)
         follow1 = (FollowRequest.objects.filter(
             user_id=obj.user,follow=onjss,is_follow=True,is_follow_accepted=True))|(FollowRequest.objects.filter(
             user_id=onjss,follow=obj.user,is_follow=True,is_follow_accepted=True))
