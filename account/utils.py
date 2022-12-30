@@ -82,7 +82,7 @@ def send_notification(user_id,body,vals):
     
     try:
         
-        device = CusztomFCMDevice.objects.filter(user=user_id).first()
+        device = CusztomFCMDevice.objects.filter(user=user_id).last()
         result = device.send_message(Message(
         notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),
    
@@ -97,7 +97,7 @@ def send_notification1(user_id,title,body):
     
     try:
       
-        device = CusztomFCMDevice.objects.filter(user=user_id).first()
+        device = CusztomFCMDevice.objects.filter(user=user_id).last()
         result = device.send_message(Message(
         notification=Notification(title=str(title.name), body=body, image=base_url+"/media/"+str(title.profile_image)),
    
