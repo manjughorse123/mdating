@@ -1227,11 +1227,12 @@ class FollowBackApiView(GenericAPIView):
                             user=follow, follow=user)
                         val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user)
-                        fetch_obj_data = objs[0]
-                        fetch_obj_data.is_follow = True
-                        fetch_obj_data.save(update_fields=["is_follow"])
-                        fetch_obj_data.is_follow_accepted = True
-                        fetch_obj_data.save(update_fields=["is_follow_accepted"])
+                        if objs:
+                            fetch_obj_data = objs[0]
+                            fetch_obj_data.is_follow = True
+                            fetch_obj_data.save(update_fields=["is_follow"])
+                            fetch_obj_data.is_follow_accepted = True
+                            fetch_obj_data.save(update_fields=["is_follow_accepted"])
 
                         return Response({"success": True, "message": "Follow Back added!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
