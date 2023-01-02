@@ -381,10 +381,10 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=friends, friends=user, is_accepted=True)
                         val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends)
                         NotificationData.objects.create(user=friends,notification_message="{}  Accepted Friend Request ".format(user.name),notify_user=user)
-                        delNotify = NotificationData.objects.get(user=user, notify_user=friends,notification_message="{} Send You Friend Request".format(friends.name))
-                        if delNotify:
-                            delNotify.delete()
-                        print(val)
+                        # delNotify = NotificationData.objects.get(user=user, notify_user=friends,notification_message="{} Send You Friend Request".format(friends.name))
+                        # if delNotify:
+                        #     delNotify.delete()
+                        # print(val)
                         chatbottabl = ChatList.objects.create(
                             receiver=user, sender=friends)
                         chatbottabl1 = ChatList.objects.create(
