@@ -217,8 +217,10 @@ class PostReactionApiView(GenericAPIView):
                         obj.is_view_count = obj.is_view_count + 1
                         obj.save(update_fields=("is_view_count",))
                         PostView.objects.create(user=user, post=post)
-                        val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
-                        NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user)
+                        user_datas = post.user
+                        if user != user_datas:
+                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
+                            NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user,post=post)
                         # serializerView.save()
 
                         return Response(
@@ -240,9 +242,13 @@ class PostReactionApiView(GenericAPIView):
                             obj = obj[0]
                             obj.is_like_count = obj.is_like_count + 1
                             obj.save(update_fields=("is_like_count",))
-                            val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
-                            NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user)
-                            print(val,user)
+                            
+                            user_datas = post.user
+                            if user != user_datas:
+                                # return True
+                                val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user)
+                                NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user,post=post)
+                                print(val,user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()
@@ -581,33 +587,23 @@ class UserImagesV2(GenericAPIView):
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
 from rest_framework import pagination
-class CustomPagination(pagination.PageNumberPagination):
-    page_size = 10
-    page_size_query_param = 'page_size'
-    max_page_size = 1000
-    page_query_param = 'p'
+class CustomPagination(pagination.LimitOffsetPagination):
+    # page_size = 10
+    # page_size_query_param = 'page_size'
+    # max_page_size = 1000
+    # page_query_param = 'p'
+    default_limit = 2
+    limit_query_param = 'limit'
+    offset_query_param = 'offset'
+    max_limit = 50
     
     def get_paginated_response(self, data1):
         return Response({
-            # 'links': {
-            #     'next': self.page.next_page_number() if self.page.has_next() else None,
-            #     'previous': self.page.previous_page_number() if self.page.has_previous() else None
-            # },
-            # 'total': self.page.paginator.count,
-            # 'page': int(self.request.GET.get('page', 1)), 
-            # 'page_size': int(self.request.GET.get('page_size', self.page_size)),
+           
             'post': data1,"success": True,
-            # 'responseData': PostUploadV2Serializers(data1, context={'request':self.request}, many=True).data,
+            
              "message": "User Post by User ", "status": 200,'base_url':base_url},
         status=status.HTTP_200_OK)
-
-# return Response({
-            
-            
-#         "success": True, 'post': PostUploadV2Serializers(data, context={'request':self.request}, many=True).data,
-#                 "message": "User Post by User ", "status": 200,'base_url':base_url},
-#             status=status.HTTP_200_OK)
-
 
 
 # Version 2 API

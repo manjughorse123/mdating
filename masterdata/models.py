@@ -3,7 +3,7 @@ from account.models import *
 # Create your models here.
 from fcm_django.models import AbstractFCMDevice
 from django.db import models
-
+from post.models import *
 class CusztomFCMDevice(AbstractFCMDevice):
 
     user = models.ForeignKey(User,on_delete=models.CASCADE ,blank=True, null=True, related_name = "fcm_user_id")
@@ -13,7 +13,8 @@ class NotificationData(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="Notify_user")
     # friends = models.ManyToManyField(User, blank=True, related_name="friends")
-    
+    post = models.ForeignKey(
+        PostUpload, on_delete=models.CASCADE, related_name="postsview_notification",null=True,blank=True)
     is_notification_read = models.BooleanField(default=False)
     notification_message = models.TextField(null=True,blank=True)
     notify_user = models.ForeignKey(

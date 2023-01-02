@@ -72,9 +72,9 @@ class LoginApiView(GenericAPIView):
                     {"message": "mobile no. not registered", "success": False,
                         'is_register': False, "status": 404},
                     status=status.HTTP_404_NOT_FOUND)
-            # otp = str(random.randint(999, 9999))
+            otp = str(random.randint(999, 9999))
             # if user.is_active == True:
-            otp = 1234
+            # otp = 1234
             user.otp = otp
             user.save()
             if "fcm_token" in request.data:
@@ -140,10 +140,7 @@ class LoginApiView(GenericAPIView):
                 "fcm_token" : datafcm
                 }},
                 status=status.HTTP_200_OK)
-            # else:
-            #     return Response({'success': False, "status": 200, 'message': 'user is inactive',
-            #                      "data": user.active_reseaon},
-            #                     status=status.HTTP_200_OK)
+            
 
         except Exception as e:
             print(e)

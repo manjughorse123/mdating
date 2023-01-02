@@ -132,7 +132,10 @@ class GetMasterDataV2(GenericAPIView):
                       }},
             status=status.HTTP_200_OK)
 
+import datetime
+from  datetime import timedelta
 
+date = datetime.date.today()
 class AddNotificationData(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = NotificationDataSerializer
@@ -144,9 +147,11 @@ class AddNotificationData(GenericAPIView):
         tags=['Master data']
     )
     def get(self, request):
-        faq = NotificationData.objects.filter(user=request.user.id).order_by("-id")
+        today = date.today()
+        seven_day_before = today - timedelta(days=7)
+        faq = NotificationData.objects.filter(user=request.user.id,create_at__gte=seven_day_before).order_by("-id")
         serializer = NotificationDataSerializer(faq, many=True)
-        return Response({"success": True, "message": " Notification Data!", "status": 200, "data": serializer.data},
+        return Response({"success": True, "base_url":base_url,"message": " Notification Data!", "status": 200, "data": serializer.data},
                         status=status.HTTP_200_OK)
 
     def post(self, request, format='json'):
@@ -155,7 +160,7 @@ class AddNotificationData(GenericAPIView):
         if serializer.is_valid():
             serializer.save()
 
-            return Response({"success": True, "status": 201,"message": " Notification Add Data",  "data": serializer.data}, status=status.HTTP_201_CREATED)
+            return Response({"success": True,  "status": 201,"message": " Notification Add Data",  "data": serializer.data}, status=status.HTTP_201_CREATED)
         else:
             return Response({"success": "error", "message": " Notification Data Not Added" ,"status": 400, "data": serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)

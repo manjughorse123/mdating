@@ -147,6 +147,9 @@ class GetFriendRequestListView(GenericAPIView):
         return Response({"success": True, "status": 200, "message": " Friend request Deatil", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
+
+
+
 class GetFriendRequestListApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendRequestListSerializer
