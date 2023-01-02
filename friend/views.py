@@ -44,7 +44,7 @@ class AddFriendRequestSendView(GenericAPIView):
         flag = request.data['flag']
         flag = str(flag)
         if serializer.is_valid():
-            # import pdb;pdb.set_trace()
+            
             friend = serializer.validated_data['friend']
             users = str(request.user.id)
             user = User.objects.get(id=users)
@@ -335,6 +335,10 @@ class SendRequestByUserApiView(GenericAPIView):
                         status=status.HTTP_200_OK)
 from chatbot.models import *
 
+
+
+
+
 class AddFriendRequestAcceptDetailApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = FriendListSerializer
@@ -377,6 +381,9 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=friends, friends=user, is_accepted=True)
                         val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends)
                         NotificationData.objects.create(user=friends,notification_message="{}  Accepted Friend Request ".format(user.name),notify_user=user)
+                        delNotify = NotificationData.objects.get(user=user, notify_user=friends,notification_message="{} Send You Friend Request".format(friends.name))
+                        if delNotify:
+                            delNotify.delete()
                         print(val)
                         chatbottabl = ChatList.objects.create(
                             receiver=user, sender=friends)
@@ -1227,6 +1234,7 @@ class FollowBackApiView(GenericAPIView):
                             user=follow, follow=user)
                         val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user)
+                        
                         if objs:
                             fetch_obj_data = objs[0]
                             fetch_obj_data.is_follow = True

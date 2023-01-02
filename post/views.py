@@ -580,11 +580,40 @@ class UserImagesV2(GenericAPIView):
             {"success": True, "post": follow_serializer.data,
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
+from rest_framework import pagination
+class CustomPagination(pagination.PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 1000
+    page_query_param = 'p'
+    
+    def get_paginated_response(self, data1):
+        return Response({
+            # 'links': {
+            #     'next': self.page.next_page_number() if self.page.has_next() else None,
+            #     'previous': self.page.previous_page_number() if self.page.has_previous() else None
+            # },
+            # 'total': self.page.paginator.count,
+            # 'page': int(self.request.GET.get('page', 1)), 
+            # 'page_size': int(self.request.GET.get('page_size', self.page_size)),
+            'post': data1,"success": True,
+            # 'responseData': PostUploadV2Serializers(data1, context={'request':self.request}, many=True).data,
+             "message": "User Post by User ", "status": 200,'base_url':base_url},
+        status=status.HTTP_200_OK)
+
+# return Response({
+            
+            
+#         "success": True, 'post': PostUploadV2Serializers(data, context={'request':self.request}, many=True).data,
+#                 "message": "User Post by User ", "status": 200,'base_url':base_url},
+#             status=status.HTTP_200_OK)
+
 
 
 # Version 2 API
 class UserImagesApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomPagination
     serializer_class = PostUploadV2Serializers
 
     def get_serializer_context(self):
@@ -627,9 +656,15 @@ class UserImagesApiView(GenericAPIView):
             | Q(user_id__in=friend_id_list)).order_by(
             '-create_at').distinct()
         if len(posts_list) > 0:
+            
+            
 
             user_posts = PostUploadV2Serializers(
                 posts_list, context={'request': request}, many=True)
+            newsDeta = self.paginate_queryset(user_posts.data)
+            newsDeta = self.get_paginated_response(newsDeta)
+            
+            return newsDeta
         # user_posts = ass
         else:
             # pass
@@ -647,13 +682,17 @@ class UserImagesApiView(GenericAPIView):
 
             posts_lists = PostUpload.objects.filter(Q(user_id__in=user_id_list, is_private=0)).order_by(
                 '-create_at').exclude(id=request.user.id).distinct()
+        
             user_posts = PostUploadV2Serializers(
                 posts_lists, context={'request': request}, many=True)
-
-        return Response(
-            {"success": True, 'post': user_posts.data,
-                "message": "User Post by User ", "status": 200,'base_url':base_url},
-            status=status.HTTP_200_OK)
+            newsDeta = self.paginate_queryset(user_posts.data)
+            newsDeta = self.get_paginated_response(newsDeta)
+            
+        return newsDeta
+        # return Response(
+        #     {"success": True, 'post': user_posts.data,
+        #         "message": "User Post by User ", "status": 200,'base_url':base_url},
+        #     status=status.HTTP_200_OK)
 
 
 # PostMultipleImageApi

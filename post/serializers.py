@@ -142,6 +142,107 @@ class PostUploadV2Serializers(ModelSerializer):
         return response
 
 
+class PostUploadV2SerializersNew(ModelSerializer):
+    # is_liked = serializers.BooleanField(read_only=True)
+    # isLiked = serializers.SerializerMethodField()
+    # # isViewed = serializers.SerializerMethodField()
+    # is_friend_req = serializers.SerializerMethodField()
+    # is_friend_acc = serializers.SerializerMethodField()
+    # is_friend_get = serializers.SerializerMethodField()
+    # is_user = serializers.SerializerMethodField()
+    # post_images = serializers.SerializerMethodField()
+
+    # def get_post_images(self,obj):
+    #     setData = PostImageUpload.objects.filter(post_image=obj.id)
+       
+    #     datas = PostImageUploadSerilaizer(setData,many= True)
+    #     print(datas.data)
+    #     # return datas.data
+    #     if datas :
+
+    #         return datas.data
+    #     else :
+    #         return []
+
+    # def get_is_friend_req(self, obj):
+
+    #     user = self.context['request1'].user
+    #     friend_data = FriendRequest.objects.filter(user=user, friend=obj.user)
+    #     if friend_data:
+    #         return True
+    #     else:
+    #         return False
+
+    # def get_is_friend_acc(self, obj):
+
+    #     user = self.context['request1'].user
+    #     friend_data = FriendList.objects.filter(user=user, friends=obj.user)
+    #     if friend_data:
+    #         return True
+    #     else:
+    #         return False
+
+    # def get_is_friend_get(self, obj):
+
+    #     user = self.context['request1'].user
+    #     friend_data = FriendRequest.objects.filter(
+    #         user=obj.user, friend=user)
+    #     if friend_data:
+    #         return True
+    #     else:
+    #         return False
+
+    # def get_is_user(self, obj):
+    #     user = self.context['request1'].user.id
+    #     user_data = User.objects.get(
+    #         id=user)
+    #     user_datas = User.objects.get(
+    #         id=obj.user.id)
+    #     if user_data == user_datas:
+    #         return True
+    #     else:
+    #         return False
+
+    class Meta:
+        model = PostUpload
+        fields = "__all__"
+        # fields = ('id',
+        #           'user',
+        #           'post',
+        #           'title',
+        #           'message',
+        #           'is_like_count',
+        #           'is_user',
+        #           'is_friend_get',
+        #           'is_view_count',
+        #           'isLiked',
+        #           'post_report',
+        #           'is_friend_req',
+        #           'is_friend_acc',
+        #           'show_public_post',
+        #           'show_private_post',
+        #           'is_private',
+        #           'create_at',
+        #           'post_images',
+                # )
+
+    # def get_isLiked(self, obj):
+
+    #     requestUser = self.context['request1'].user
+    #     if PostLike.objects.filter(post=obj, user=requestUser, is_like=True).exists():
+
+    #         return PostLike.objects.filter(post=obj, user=requestUser, is_like=True).exists()
+    #     else:
+    #         return PostLike.objects.filter(post=obj, user=requestUser, is_like=True).exists()
+
+
+    # def to_representation(self, instance):
+    #     response = super().to_representation(instance)
+    #     response['user'] = UserFriendSerializer(instance.user).data
+
+    #     return response
+
+
 class UserFriendSerializer(ModelSerializer):
     class Meta:
         model = User
