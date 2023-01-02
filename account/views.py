@@ -255,17 +255,17 @@ class RegistrationApiView(CreateAPIView):
 
             otp = str(random.randint(1000, 9999))
             # otp = str(1234)
-            account_sid = 'ACbcfad7f1219fdaac963471693bafdf61'
-            auth_token = 'a7ed817c4cff17e72b7508c320ce0f66'
-            client = Client(account_sid, auth_token)
+            # account_sid = 'ACbcfad7f1219fdaac963471693bafdf61'
+            # auth_token = 'a7ed817c4cff17e72b7508c320ce0f66'
+            # client = Client(account_sid, auth_token)
 
-            message = client.messages.create(
-                                        body=f'Hi, your test result is {otp} . Great job',
-                                        from_=+19035183066,
-                                        to=+919131897782
-                                    )
+            # message = client.messages.create(
+            #                             body=f'Hi, your test result is {otp} . Great job',
+            #                             from_=+19035183066,
+            #                             to=+919131897782
+            #                         )
 
-            print("Otp from tiwillo",message.sid)
+            # print("Otp from tiwillo",message.sid)
             print("otp", otp)
             if 'profile_image' in request.data :
                 profile_image = request.data['profile_image']
