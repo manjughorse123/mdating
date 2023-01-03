@@ -38,17 +38,7 @@ urlpatterns = [
     re_path(r'^user-friends-list/testing/(?P<user_id>[0-9a-f-]+)$',
             GetFriendRequestAcceptViewTesting.as_view(), name="get_friend_req_list_test"),
 
-    #     re_path(r'^get-user-follower/(?P<user_id>[0-9a-f-]+)$',
-    #             GetFollowersView.as_view(), name="getfollower"),
-    # re_path(r'^get-following/(?P<user_id>[0-9a-f-]+)$', GetFollowingView.as_view(), name="userfollownew"),
-
-    # path('faq/', FAQView.as_view(), name='question'),
-    # re_path(r'^get-following/(?P<user_id>[0-9a-f-]+)$',
-    #         GetFollowerFollowingView.as_view(), name="get-following"),
-    #     path('get-follower/', GetFollowerV2View.as_view(), name="getfollower"),
-    # re_path(r'^get-friend-req-list/(?P<user_id>[0-9a-f-]+)$',
-    #         GetFriendRequestListView.as_view(), name="get_friend_req_list"),
-    # path('friend-request-accept/', AddFriendRequestAcceptView.as_view(), name='accept'),
-    #     path('get-following/', GetFollowerV3View.as_view(), name="getfollowing"),
+    path('get-friend-suggested-list/', GetFriendSuggestedListApiView.as_view(),
+         name="get_friend_suggested_list"),
 
 ]

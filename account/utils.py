@@ -78,15 +78,15 @@ def generate_refresh_token(user):
     return refresh_token
 
 
-def send_notification(user_id,body,vals):
+def send_notification(user_id,body,vals,data):
     
     try:
         
         device = CusztomFCMDevice.objects.filter(user=user_id).last()
-        result = device.send_message(Message(
-        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),
-   
-            ))
+        msg= Message(
+        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),data={"type":data}
+            )
+        result = device.send_message(msg)
         print("notify",base_url+"/media/"+str(user_id.profile_image))
         return result
     except:

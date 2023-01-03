@@ -5,7 +5,7 @@ from drf_yasg.openapi import Schema, TYPE_OBJECT, TYPE_STRING, TYPE_ARRAY
 from drf_yasg.utils import swagger_auto_schema
 from drf_yasg import openapi
 from datetime import date, timedelta
-
+from rest_framework import pagination
 from rest_framework.views import *
 from rest_framework.viewsets import *
 from rest_framework.generics import *
@@ -54,7 +54,7 @@ class AddFriendRequestSendView(GenericAPIView):
                 else:
                     obj = FriendRequest.objects.create(
                         user=user, friend=friend, friendrequestsent=True)
-                    val =send_notification(friend,body="{} Send You Friend Request".format(user.name),vals=user)
+                    val =send_notification(friend,body="{} Send You Friend Request".format(user.name),vals=user,data="FriendsRequest")
                     NotificationData.objects.create(user=friend,notification_message="{} Send You Friend Request".format(user.name),notify_user=user,flag="Friend Request")
                     print(val)
                     return Response({"success": True, "message": "Friend Request Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -252,6 +252,125 @@ class GetFriendRequestListApiView(GenericAPIView):
                         status=status.HTTP_200_OK)
 
 
+class CustomSuggetionPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        return Response({"success": True, "status": 200, "message": "Get Friend suggested List!",
+                        'suggest_friend_data': data1},
+                        status=status.HTTP_200_OK)
+
+
+class GetFriendSuggestedListApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = FriendRequestListSerializer
+    pagination_class = CustomSuggetionPagination
+    """
+    Retrieve, update or delete a Get Follower instance.
+
+    """
+
+    def get_serializer_context(self):
+
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    @swagger_auto_schema(
+        operation_summary="Get Send Friend Request Api By User ID ",
+        tags=['Friend']
+    )
+    def get(self, request, format=None):
+        
+        user_id = request.user.id
+        user_data = User.objects.filter(id=user_id)
+        
+        user_datas = User.objects.filter(Q(gender=user_data[0].gender) |
+
+                                        Q(passion__in=user_data[0].passion.all(
+                                        ))
+                                        | Q(is_complete_profile=True)
+
+                                        ).exclude(id=request.user.id).distinct()
+
+                            
+        list_suggested = []
+        for user_list_id in range(len(user_datas)):
+            fetch_data = user_datas[user_list_id].id
+            list_suggested.append(fetch_data)
+
+        for friend_list_id in range(len(list_suggested)):
+            if FriendRequest.objects.filter(friend_id__in=list_suggested):
+                friend_value = FriendRequest.objects.filter(
+                    friend_id__in=list_suggested, user_id=user_id)
+                if not friend_value:
+                    list_suggested
+                else:
+                    for frnd_lst_id in range(len(friend_value)):
+                        list_suggested.remove(
+                            friend_value[frnd_lst_id].friend_id)
+
+        for friend_list_id in range(len(list_suggested)):
+            if FriendRequest.objects.filter(user_id__in=list_suggested):
+                friend_value = FriendRequest.objects.filter(
+                    user_id__in=list_suggested, friend_id=user_id)
+                if not friend_value:
+                    list_suggested
+                else:
+                    for frnd_lst_id in range(len(friend_value)):
+                        list_suggested.remove(
+                            friend_value[frnd_lst_id].user_id)
+
+        for friend_req_id in range(len(list_suggested)):
+            if FriendList.objects.filter(user_id__in=list_suggested):
+                friend_value = FriendList.objects.filter(user_id=user_id,
+                                                         friends_id__in=list_suggested)
+                if not friend_value:
+                    list_suggested
+                else:
+                    for frnd_lst_id in range(len(friend_value)):
+                        list_suggested.remove(
+                            friend_value[frnd_lst_id].friends_id)
+
+        
+        friend_req_list = FriendRequest.objects.filter(
+            friend_id=user_id).order_by('-create_at')
+        # user_suggest_friend = User.objects.filter(id__in=list_suggested)
+        list_suggesteds = tuple(list_suggested)
+        # print("kjksajhcka------->",len(list_suggesteds))
+        if len(list_suggesteds) > 0 : 
+            user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
+        else :
+            list_suggested = []
+            user_suggest_friend = User.objects.all().exclude(id=user_id).order_by('-create_at')[:2]
+            for user_list_id in range(len(user_suggest_friend)):
+                fetch_data = user_datas[user_list_id].id
+                list_suggested.append(fetch_data) 
+            list_suggesteds = tuple(list_suggested)
+            user_suggest_friend = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
+        # user_data = UserFriendSerializer(user_suggest_friend, many=True)
+        
+        user_data = UserSuggestionSerializer(user_suggest_friend, context={
+                                             'request': user_id}, many=True)
+        
+        suggestData = self.paginate_queryset(user_data.data)
+        suggestData = self.get_paginated_response(suggestData)
+        return suggestData
+        # print ("hjasdhjdh-----",len(user_data.data))                                   
+        # return Response({"success": True, "status": 200, "message": "Get Friend suggested List!",
+        #                 'suggest_friend_data': user_data.data},
+        #                 status=status.HTTP_200_OK)
+
+
+
 # send req -by user
 class SendRequestByUserApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
@@ -382,7 +501,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=user, friends=friends, is_accepted=True)
                         obj_friend = FriendList.objects.create(
                             user=friends, friends=user, is_accepted=True)
-                        val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends)
+                        val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends,data="FriendsAccept")
                         NotificationData.objects.create(user=friends,notification_message="{}  Accepted Friend Request ".format(user.name),notify_user=user)
                         # delNotify = NotificationData.objects.get(user=user, notify_user=friends,notification_message="{} Send You Friend Request".format(friends.name))
                         # if delNotify:
@@ -1139,7 +1258,7 @@ class SendFollowRequestView(GenericAPIView):
                     else:
                         obj = FollowRequest.objects.create(
                             user=user, follow=follow,is_follow=True)
-                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user,data="FollowRequest")
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user,flag="Follow Request")
                         print(val)
                         return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
@@ -1235,7 +1354,7 @@ class FollowBackApiView(GenericAPIView):
                             user=user, follow=follow, is_follow=True,is_follow_accepted=True)
                         objs = FollowRequest.objects.filter(
                             user=follow, follow=user)
-                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user)
+                        val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user,data="FollowAccept")
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user)
                         
                         if objs:
