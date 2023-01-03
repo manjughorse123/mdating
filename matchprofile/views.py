@@ -39,11 +39,12 @@ class UserFieldFilter(filters.FilterSet):
                   }
 
 from rest_framework import pagination
-class CustomPagination(pagination.LimitOffsetPagination):
-    default_limit = 2
-    limit_query_param = 'limit'
-    offset_query_param = 'offset'
-    max_limit = 50
+class CustomPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
     
     def get_paginated_response(self, data1):
         return Response({
