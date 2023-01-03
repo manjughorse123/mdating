@@ -587,15 +587,16 @@ class UserImagesV2(GenericAPIView):
                 "message": "User Post by User ", "status": 200},
             status=status.HTTP_200_OK)
 from rest_framework import pagination
-class CustomPagination(pagination.LimitOffsetPagination):
-    # page_size = 10
-    # page_size_query_param = 'page_size'
-    # max_page_size = 1000
-    # page_query_param = 'p'
-    default_limit = 2
-    limit_query_param = 'limit'
-    offset_query_param = 'offset'
-    max_limit = 50
+class CustomPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    # default_limit = 2
+    # limit_query_param = 'limit'
+    # offset_query_param = 'offset'
+    # max_limit = 50
     
     def get_paginated_response(self, data1):
         return Response({
