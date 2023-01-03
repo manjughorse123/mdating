@@ -23,13 +23,13 @@ class UserSendMessageView(APIView):
 
     def post(self, request, format='json'):
         serializer = UserChatSerializer(data=request.data)
-
+        # import pdb;pdb.set_trace()
         if serializer.is_valid():
             serializer.save()
             data1 = User.objects.get(id = request.data['receiver'])
             vals = ChatList.objects.filter(receiver=data1).last()
             
-            val =send_notification1(data1,title= vals.sender,body="{}".format(vals.is_text))
+            val =send_notification1(data1,title= vals.sender,body="{}".format(vals.is_text),data="MessagDeatil")
             data2 = User.objects.get(id = vals.sender.id)
             NotificationData.objects.create(notify_user=vals.sender,notification_message='Send A Message "{}" '.format(vals.is_text),user=data1)
             print(val,vals.sender,data2)
