@@ -12,7 +12,7 @@ class CusztomFCMDevice(AbstractFCMDevice):
 class NotificationData(models.Model):
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="Notify_user")
-    # friends = models.ManyToManyField(User, blank=True, related_name="friends")
+    
     post = models.ForeignKey(
         PostUpload, on_delete=models.CASCADE, related_name="postsview_notification",null=True,blank=True)
     is_notification_read = models.BooleanField(default=False)

@@ -147,11 +147,22 @@ class GetFriendRequestListView(GenericAPIView):
         return Response({"success": True, "status": 200, "message": " Friend request Deatil", "data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
-
+class CustomFriendPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        return Response({"success": True, "status": 200, "message": "Get Friend Request List!",
+                        "data": data1},
+                        status=status.HTTP_200_OK)
 
 
 class GetFriendRequestListApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class  = CustomFriendPagination
     serializer_class = FriendRequestListSerializer
     """
     Retrieve, update or delete a Get Follower instance.
@@ -247,9 +258,13 @@ class GetFriendRequestListApiView(GenericAPIView):
         print ("hjasdhjdh-----",len(user_data.data))                                   
         serializer = FriendRequestListSerializer(friend_req_list, many=True)
 
-        return Response({"success": True, "status": 200, "message": "Get Friend Request List!", "data": serializer.data,
-                         'data_count': len(serializer.data), 'suggest_friend_data': user_data.data},
-                        status=status.HTTP_200_OK)
+        suggestData = self.paginate_queryset(serializer.data)
+        suggestData = self.get_paginated_response(suggestData)
+        return suggestData
+
+        # return Response({"success": True, "status": 200, "message": "Get Friend Request List!", "data": serializer.data,
+        #                  'data_count': len(serializer.data), 'suggest_friend_data': user_data.data},
+        #                 status=status.HTTP_200_OK)
 
 
 class CustomSuggetionPagination(pagination.PageNumberPagination):
@@ -369,11 +384,21 @@ class GetFriendSuggestedListApiView(GenericAPIView):
         #                 'suggest_friend_data': user_data.data},
         #                 status=status.HTTP_200_OK)
 
-
+class CustomSendRequestPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        return Response({"success": True, "status": 200, "message": "Send Friend Request by User", "data": data1,},
+                        status=status.HTTP_200_OK)
 
 # send req -by user
 class SendRequestByUserApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomSendRequestPagination
     serializer_class = SendRequestListSerializer
     """
     Retrieve, API for Send Request By User instance.
@@ -450,11 +475,16 @@ class SendRequestByUserApiView(GenericAPIView):
         friend_req_list = FriendRequest.objects.filter(
             user_id=user_id).order_by('-create_at')
         serializer = SendRequestListSerializer(friend_req_list, many=True)
+        suggestData = self.paginate_queryset(serializer.data)
+        suggestData = self.get_paginated_response(suggestData)
+        return suggestData
 
-        return Response({"success": True, "status": 200, "message": "Send Friend Request by User", "data": serializer.data,
-                         'data_count': len(serializer.data), 'suggest_friend_data': user_data.data,
-                         },
-                        status=status.HTTP_200_OK)
+        # return Response({"success": True, "status": 200, "message": "Send Friend Request by User", "data": serializer.data,
+        #                  'data_count': len(serializer.data), 'suggest_friend_data': user_data.data,
+        #                  },
+        #                 status=status.HTTP_200_OK)
+
+
 from chatbot.models import *
 
 
@@ -485,7 +515,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                 data=request.data, context={'request': request})
             print("Request data", request.data)
             if serializer.is_valid():
-
+                # import pdb;pdb.set_trace()
                 users = str(request.user.id)
                 user = User.objects.get(id=users)
                 friends = serializer.validated_data['friends']
@@ -507,10 +537,17 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                         # if delNotify:
                         #     delNotify.delete()
                         # print(val)
-                        chatbottabl = ChatList.objects.create(
-                            receiver=user, sender=friends)
-                        chatbottabl1 = ChatList.objects.create(
-                            receiver=friends, sender=user)
+                        if ChatList.objects.filter(
+                            receiver=user, sender=friends):
+                            chatbottabl = ChatList.objects.filter(
+                                receiver=user, sender=friends).update(is_soft_delete=False)
+                            chatbottabl1 = ChatList.objects.filter(
+                                receiver=friends, sender=user).update(is_soft_delete=False)
+                        else:
+                            chatbottabl = ChatList.objects.create(
+                                receiver=user, sender=friends)
+                            chatbottabl1 = ChatList.objects.create(
+                                receiver=friends, sender=user)
                         # obj = FriendRequest.objects.filter(
                         #     friend=user, user=friends)
                         if FriendRequest.objects.filter(
@@ -557,6 +594,11 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                         obj1 = obj1[0].id
                         objs1 = FriendList.objects.filter(id=obj1)
                         objs1.delete()
+                        chatbottabl = ChatList.objects.filter(
+                            receiver=user, sender=friends).update(is_soft_delete=True)
+                        chatbottabl1 = ChatList.objects.filter(
+                            receiver=friends, sender=user).update(is_soft_delete=True)
+
                         return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
                     else:
                         return Response({"success": "error", "status": 400, "message": "No Data Found"},
@@ -1326,7 +1368,7 @@ class FollowBackApiView(GenericAPIView):
         tags=['Follow']
     )
     def post(self, request, format='json'):
-        # import pdb;pdb;pdb.set_trace()
+        
         users = str(request.user.id)
         user = User.objects.get(id=users)
         if "flag" in request.data:
