@@ -914,9 +914,23 @@ class FollowRequestAcceptView(GenericAPIView):
         else:
             return Response({"success": "error", "message": "NO data Found", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
 
+class CustomFolowingPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        # import pdb;pdb.set_trace()
+        return Response({"success": True, "status": 200, "message": " User Following Detail",
+                        "data": data1},
+                        status=status.HTTP_200_OK)
+
 
 class GetFollowingApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomFolowingPagination
     serializer_class = FollowRequestFollowingV2Serializer
     """
     Retrieve,  Get Followering instance.
@@ -997,13 +1011,20 @@ class GetFollowingApiView(GenericAPIView):
             user_id=user_id).order_by('-create_at')
         serializer = FollowRequestFollowingV2Serializer(follower_info, context={
             'request':request.user.id},many=True)
-        return Response({"success": True,
-                         "message": " User following Detail",
-                        "data": serializer.data,
-                         "status": 200,
-                         'data_count': len(serializer.data),
-                         "follow_suggestion": user_data.data
-                         }, status=status.HTTP_200_OK)
+        
+        suggestData = self.paginate_queryset(serializer.data)
+        
+        
+        suggestData = self.get_paginated_response(suggestData)
+        # suggestData.data['is_user'] = usersss
+        return suggestData
+        # return Response({"success": True,
+        #                  "message": " User following Detail",
+        #                 "data": serializer.data,
+        #                  "status": 200,
+        #                  'data_count': len(serializer.data),
+        #                  "follow_suggestion": user_data.data
+        #                  }, status=status.HTTP_200_OK)
 
 
 # GetFollowerView
@@ -1096,9 +1117,23 @@ class GetFollowerFollowingView(GenericAPIView):
                 'status': 404, },
             status=status.HTTP_404_NOT_FOUND)
 
+class CustomFllowerPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        # import pdb;pdb.set_trace()
+        return Response({"success": True, "status": 200, "message": " User follower Detail",
+                        "data": data1},
+                        status=status.HTTP_200_OK)
+
 
 class GetFollowerApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomFllowerPagination
     serializer_class = FollowRequestFollowerV2Serializer
     """
     Retrieve,  Get Follower instance API .
@@ -1170,17 +1205,116 @@ class GetFollowerApiView(GenericAPIView):
         else :
             
             usersss = False
+        
+        suggestData = self.paginate_queryset(serializer.data)
+        
+        
+        suggestData = self.get_paginated_response(suggestData)
+        suggestData.data['is_user'] = usersss
+        return suggestData
 
-        return Response({"success": True,
-                        "message": " User follower Detail",
-                         "data": serializer.data,
-                         "status": 200,
-                         "data_count": len(serializer.data),
-                         "follow_suggestion": user_data.data,
-                         "is_user":usersss
+        
+        # return Response({"success": True,
+        #                 "message": " User follower Detail",
+        #                  "data": serializer.data,
+        #                  "status": 200,
+        #                  "data_count": len(serializer.data),
+        #                  "follow_suggestion": user_data.data,
+        #                  "is_user":usersss
 
 
-                         }, status=status.HTTP_200_OK)
+        #                  }, status=status.HTTP_200_OK)
+
+class CustomFolowerSuggetionPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        # import pdb;pdb.set_trace()
+        return Response({"success": True, "status": 200, "message": " User follower Suggestion Detail",
+                        "follow_suggestion": data1},
+                        status=status.HTTP_200_OK)
+
+class GetFollowerSuggestionApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomFolowerSuggetionPagination
+    serializer_class = FollowRequestFollowerV2Serializer
+    """
+    Retrieve,  Get Follower instance API .
+
+    """
+    @swagger_auto_schema(
+
+        operation_summary="Get Follower Api",
+
+        tags=['Follow']
+    )
+    def get(self, request,  user_id, format=None):
+        user_req_id = request.user.id
+        register_user = request.user.id
+        user_data = User.objects.filter(id=user_id)
+        user_data = User.objects.filter(
+            Q(city=user_data[0].city) |
+            Q(gender=user_data[0].gender) |
+            Q(passion__in=user_data[0].passion.all()) &
+            Q(is_complete_profile=True)).exclude(id=user_id).distinct()
+        list_suggested = []
+
+        for user_list_id in range(len(user_data)):
+            fetch_data = user_data[user_list_id].id
+            list_suggested.append(fetch_data)
+
+        for follow_list_id in range(len(list_suggested)):
+            if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                follow_value = FollowRequest.objects.filter(user_id=user_id,
+                                                            follow_id__in=list_suggested)
+                if not follow_value:
+                    list_suggested
+                else:
+                    for flw_lst_id in range(len(follow_value)):
+                        list_suggested.remove(
+                            follow_value[flw_lst_id].follow_id)
+
+        for follow_req_id in range(len(list_suggested)):
+
+            if FollowRequest.objects.filter(follow_id__in=list_suggested):
+                follow_value = FollowRequest.objects.filter(follow_id=user_id,
+                                                            user_id__in=list_suggested)
+                if not follow_value:
+                    list_suggested
+                else:
+                    for flw_lst_id in range(len(follow_value)):
+
+                        list_suggested.remove(
+                            follow_value[flw_lst_id].user_id)
+
+        # friend_req_list = FriendRequest.objects.filter(friend_id=user_id)
+        # user_suggest_follow = User.objects.filter(
+        #     id__in=list_suggested).exclude(id=user_id)
+        list_suggesteds = tuple(list_suggested)
+        user_suggest_follow = User.objects.raw(
+            "SELECT id, date_part('year', age(birth_date))::int as age  FROM account_user where id IN %s ", [list_suggesteds])
+        user_data = UserSuggestionSerializer(user_suggest_follow, context={
+            'request': user_id}, many=True)
+
+
+        if str(user_id) == str(request.user.id) :
+            
+            usersss = True
+        else :
+            
+            usersss = False
+        
+        suggestData = self.paginate_queryset(user_data.data)
+        
+        
+        suggestData = self.get_paginated_response(suggestData)
+        suggestData.data['is_user'] = usersss
+        return suggestData
+
 
 
 class GetFollowersView(GenericAPIView):

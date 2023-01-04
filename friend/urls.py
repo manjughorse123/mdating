@@ -40,5 +40,8 @@ urlpatterns = [
 
     path('get-friend-suggested-list/', GetFriendSuggestedListApiView.as_view(),
          name="get_friend_suggested_list"),
+     
+     re_path(r'^get-follower-suggestion/(?P<user_id>[0-9a-f-]+)/$',
+            GetFollowerSuggestionApiView.as_view(), name="get_follower_suggestion"),
 
 ]
