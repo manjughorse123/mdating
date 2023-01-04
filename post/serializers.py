@@ -6,6 +6,8 @@ from account.models import *
 from rest_framework.fields import SerializerMethodField
 from friend.models import *
 
+from DatingApp.baseurl import base_url
+
 
 class PostUploadCreateSerializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
@@ -51,6 +53,7 @@ class PostUploadV2Serializers(ModelSerializer):
     is_friend_get = serializers.SerializerMethodField()
     is_user = serializers.SerializerMethodField()
     post_images = serializers.SerializerMethodField()
+    base_url = serializers.SerializerMethodField()
 
     def get_post_images(self,obj):
         setData = PostImageUpload.objects.filter(post_image=obj.id)
@@ -102,6 +105,8 @@ class PostUploadV2Serializers(ModelSerializer):
             return True
         else:
             return False
+    def get_base_url(self,obj):
+        return base_url
 
     class Meta:
         model = PostUpload
@@ -123,6 +128,7 @@ class PostUploadV2Serializers(ModelSerializer):
                   'is_private',
                   'create_at',
                   'post_images',
+                  'base_url'
                 )
 
     def get_isLiked(self, obj):
@@ -267,10 +273,12 @@ class NewPostUploadSerializers(ModelSerializer):
         fields = ('post', 'message', 'title',)
 
 class PostImageUploadSerilaizer(ModelSerializer):
-
+    base_url = serializers.SerializerMethodField()
+    def get_base_url(self,obj):
+        return base_url
     class Meta:
         model = PostImageUpload
-        fields = ("id","user_post_image","user_post_type","create_at","post_image",)
+        fields = ("id","user_post_image","user_post_type","create_at","post_image","base_url",)
     
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -343,7 +351,13 @@ class PostUploadUpdateSerializers(ModelSerializer):
 
     class Meta:
         model = PostUpload
-        fields = ('id', 'post', 'title', 'message','post_images',)
+        fields = ('id', 'post', 'title', 'message','post_images','user',)
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerializer(instance.user).data
+
+        return response
 
 
 class PostUploadVideoSerializers(ModelSerializer):

@@ -246,7 +246,7 @@ class PostReactionApiView(GenericAPIView):
                             user_datas = post.user
                             if user != user_datas:
                                 # return True
-                                val =send_notification2(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="ProfileTimeline",post=post.id)
+                                val =send_notification2(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
                                 NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user,post=post)
                                 print(val,user)
                             PostLike.objects.create(
@@ -974,5 +974,5 @@ class GetPostApiView(GenericAPIView):
         posts = PostUpload.objects.filter(id=post_id)
         serializer = PostUploadUpdateSerializers(
             posts, context={'request': request}, many=True)
-        return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data},
+        return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data,"base_url":base_url},
                         status=status.HTTP_200_OK)
