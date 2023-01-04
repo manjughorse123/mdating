@@ -246,7 +246,7 @@ class PostReactionApiView(GenericAPIView):
                             user_datas = post.user
                             if user != user_datas:
                                 # return True
-                                val =send_notification(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="ProfileTimeline")
+                                val =send_notification2(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="ProfileTimeline",post=post)
                                 NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user,post=post)
                                 print(val,user)
                             PostLike.objects.create(

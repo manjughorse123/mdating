@@ -110,7 +110,7 @@ def send_notification1(user_id,title,body,data):
 
 
 
-def send_notification2(user_id,title,body,data,post):
+def send_notification2(user_id,body,vals,data,post):
     
     try:
         
