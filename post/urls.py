@@ -15,6 +15,11 @@ urlpatterns = [
             DeletePostApiView.as_view(), name="deletepost"),
     re_path(r'^update/post/(?P<post_id>[0-9a-f-]+)$',
             UpdatePostApiView.as_view(), name="deletepost"),
+
+        
+        re_path(r'^get/post/(?P<post_id>[0-9a-f-]+)/$',
+            GetPostApiView.as_view(), name="getpostdetail"),
+            
     re_path(r'^user/get-all-post/(?P<user_id>[0-9a-f-]+)$',
             UserImagesApiViewV2.as_view(), name="user_images_with_id"),
     path('post/reports/', PostReportsApiView.as_view(), name='post_report'),

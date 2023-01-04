@@ -204,7 +204,7 @@ class PostReactionApiView(GenericAPIView):
             serializerLike = PostLikeSerializers(data=request.data)
             # serializerShare = PostShareSerializers(data=request.data)
             if serializerView.is_valid():
-                
+                # import pdb;pdb.set_trace()
                 if flagdata == 1:
                     if PostView.objects.filter(user=user, post=post).exists():
                         return Response(
@@ -219,7 +219,7 @@ class PostReactionApiView(GenericAPIView):
                         PostView.objects.create(user=user, post=post)
                         user_datas = post.user
                         if user != user_datas:
-                            val =send_notification(obj.user,body="{} View Your Post".format(user.name),vals=user,data="ProfileTimeline")
+                            val =send_notification2(obj.user,body="{} View Your Post".format(user.name),vals=user,data="SingleUserPost",post=post)
                             NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user,post=post)
                         # serializerView.save()
 
@@ -939,3 +939,40 @@ class DeletePostImageApiView (GenericAPIView):
             data["failed"] = "Failed Deleted!"
             data['status'] = 404
         return Response(data=data)
+
+
+
+class GetPostApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PostUploadUpdateSerializers
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    def get_object(self, post_id):
+        try:
+            return PostUpload.objects.get(pk=post_id)
+        except PostUpload.DoesNotExist:
+            raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary=" Get Post  Api",
+
+        tags=['Post']
+    )
+    def get(self, request, post_id, *args, **kwargs):
+        posts = PostUpload.objects.filter(id=post_id)
+        serializer = PostUploadUpdateSerializers(
+            posts, context={'request': request}, many=True)
+        return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data},
+                        status=status.HTTP_200_OK)
