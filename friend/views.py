@@ -620,9 +620,22 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                     'status': 404, },
                 status=status.HTTP_404_NOT_FOUND)
 
+class CustomFriendAcceptPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        # import pdb;pdb.set_trace()
+        return Response({"success": True, "status": 200, "message": "User Friend List!",
+                        "data": data1},
+                        status=status.HTTP_200_OK)
 
 class GetFriendRequestAcceptApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
+    pagination_class = CustomFriendAcceptPagination
     serializer_class = FriendRequestAcceptSerializer
     """
     Retrieve API FOR Friend Accept List.
@@ -715,7 +728,14 @@ class GetFriendRequestAcceptApiView(GenericAPIView):
             is_user = True
         else :
             is_user = False
-        return Response({"success": True, "status": 200, "message": "User Friend List!","data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
+
+        suggestData = self.paginate_queryset(serializer.data)
+        
+        
+        suggestData = self.get_paginated_response(suggestData)
+        suggestData.data['is_user'] = is_user
+        return suggestData
+        # return Response({"success": True, "status": 200, "message": "User Friend List!","data": serializer.data, 'data_count': len(serializer.data), 'suggest_friend_data': user_data.data}, status=status.HTTP_200_OK)
 
 
 class GetFriendRequestAcceptApiViewV2(GenericAPIView):

@@ -11,7 +11,7 @@ from account.serializers import *
 from .serializers import *
 from .models import *
 from account.utils import *
-
+from rest_framework import pagination
 
 class UserSendMessageView(APIView):
     permission_classes = (IsAuthenticated,)
@@ -68,8 +68,25 @@ class GetUserSenderMessageView(APIView):
         serializer = UserChatSerializer(newdata, many=True)
         return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)
 
-class GetUserChatListView(APIView):
-    permission_classes = (IsAuthenticated,)    
+
+class CustomChatPagination(pagination.PageNumberPagination):
+    
+    page_query_param = "offset"   # this is the "page"
+    page_size_query_param="limit" # this is the "page_size"
+    page_size = 10
+    max_page_size = 100
+    
+    def get_paginated_response(self, data1):
+        # import pdb;pdb.set_trace()
+        return Response({"success": True, "status": 200, "message": "Data Received",
+                        "data": data1},
+                        status=status.HTTP_200_OK)
+
+
+
+class GetUserChatListView(GenericAPIView):
+    permission_classes = (IsAuthenticated,)   
+    pagination_class = CustomChatPagination 
 
     # def get(self, request,user_id):
     #     user_ids = request.user.id
@@ -95,4 +112,12 @@ class GetUserChatListView(APIView):
         # val = userChat
         serializer = UserChatNewSerializer(userChat,context={
                                              'request': user_id}, many=True)
-        return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)
+        
+
+        # return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)   
+        suggestData = self.paginate_queryset(serializer.data)
+        
+        
+        suggestData = self.get_paginated_response(suggestData)
+        # suggestData.data['is_user'] = usersss
+        return suggestData
