@@ -84,7 +84,7 @@ def send_notification(user_id,body,vals,data):
         
         device = CusztomFCMDevice.objects.filter(user=user_id).last()
         msg= Message(
-        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),data={"type":data}
+        notification=Notification(title=str(user_id.name), body=body, image=base_url+"/media/"+str(vals.profile_image)),data={"type":data,"user1":str(user_id.id),"user2":str(vals.id),"profile_image":str(vals.profile_image),"media":"media","base_url":str(base_url),"name":str(vals.name)}
             )
         result = device.send_message(msg)
         print("notify",base_url+"/media/"+str(user_id.profile_image))
