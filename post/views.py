@@ -591,7 +591,7 @@ class CustomPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 25
     max_page_size = 100
     # default_limit = 2
     # limit_query_param = 'limit'
