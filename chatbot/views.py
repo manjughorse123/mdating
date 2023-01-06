@@ -86,7 +86,7 @@ class CustomChatPagination(pagination.PageNumberPagination):
 
 class GetUserChatListView(GenericAPIView):
     permission_classes = (IsAuthenticated,)   
-    pagination_class = CustomChatPagination 
+    # pagination_class = CustomChatPagination 
 
     # def get(self, request,user_id):
     #     user_ids = request.user.id
@@ -114,10 +114,10 @@ class GetUserChatListView(GenericAPIView):
                                              'request': user_id}, many=True)
         
 
-        # return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)   
-        suggestData = self.paginate_queryset(serializer.data)
+        return Response({"success": True, "message":"Data Received","data": serializer.data,"status":200}, status=status.HTTP_200_OK)   
+        # suggestData = self.paginate_queryset(serializer.data)
         
         
-        suggestData = self.get_paginated_response(suggestData)
-        # suggestData.data['is_user'] = usersss
-        return suggestData
+        # suggestData = self.get_paginated_response(suggestData)
+        # # suggestData.data['is_user'] = usersss
+        # return suggestData
