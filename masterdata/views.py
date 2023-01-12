@@ -16,7 +16,7 @@ from friend.models import *
 
 
 class FAQView(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = FAQSerializer
 
     @swagger_auto_schema(
@@ -75,7 +75,7 @@ class GetMasterData(GenericAPIView):
 
 
 class FAQViewV2(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = FAQSerializer
 
     @swagger_auto_schema(
@@ -169,7 +169,7 @@ class AddNotificationData(GenericAPIView):
 
 
 class TermAndConditionView(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = PublicUrlSerializer
 
     @swagger_auto_schema(
@@ -189,7 +189,7 @@ class TermAndConditionView(GenericAPIView):
 
 
 class PrivacyPolicyView(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = PublicUrlSerializer
 
     @swagger_auto_schema(
