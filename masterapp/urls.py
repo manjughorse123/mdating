@@ -11,5 +11,6 @@ urlpatterns = [
     path('faq-list/', FAQView.as_view(), name='faqlist'),
     path('userverified-list/', UserVerifiedList.as_view(), name='userverifiedlist'),
     path('ideal-match-list/', IdealMatchProfile.as_view(), name='idealmatchlist'),
+    
  
 ]

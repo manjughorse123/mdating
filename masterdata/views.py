@@ -15,6 +15,22 @@ from friend.models import *
 # Create your views here.
 
 
+def index(request):
+    
+
+    return  render(request, 'data/index.html')
+
+
+def termAndConditionView(request):
+      
+
+    return  render(request, 'data/term-condition.html')
+
+def faqHtmlView(request):
+      
+
+    return  render(request, 'data/faq.html')
+
 class FAQView(GenericAPIView):
     permission_classes = [AllowAny, ]
     serializer_class = FAQSerializer
@@ -45,7 +61,7 @@ class FAQView(GenericAPIView):
 
 
 class GetMasterData(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = GenderSerializer
 
     @swagger_auto_schema(
@@ -68,7 +84,10 @@ class GetMasterData(GenericAPIView):
                                   'passion': pan_serializer.data,
                                   'idealmatch': ideal_serializer.data,
                                   'marital_status': marital_serializer.data,
-                                  'tall': tall_serializer.data
+                                  'tall': tall_serializer.data,
+                                  "public-privacy":base_url+"/api/get-public-privacy/",
+                                  "term-condition": base_url+"/api/term-and-condition/",
+                                  "faq":base_url+"/api/faq-detail/"
 
                                   }},
                         status=status.HTTP_200_OK)

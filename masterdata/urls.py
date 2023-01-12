@@ -1,9 +1,14 @@
 from django.urls import path, re_path
 from .views import *
 
+
 urlpatterns = [
 
-
+     path('get-public-privacy/',index),
+     path('term-and-condition/',termAndConditionView,name="term-and-condition"),
+      path('faq-detail/',faqHtmlView,name="faq-data"),
+    #  term-and-condition
+    
     path('faq/', FAQView.as_view(), name='question'),
     path('get-master-data/', GetMasterData.as_view(), name='getmasterdata'),
 
