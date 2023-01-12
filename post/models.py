@@ -95,8 +95,23 @@ class PostImageUpload(models.Model):
 class PostReport(models.Model):
 
     post = models.ForeignKey(
-        PostUpload, on_delete=models.CASCADE, related_name="postreplike")
+        PostUpload, on_delete=models.CASCADE, related_name="postreplike",null=True,blank=True)
     report_text = models.CharField(max_length=255, blank=True, null=True,)
+    # report_user = models.ForeignKey(
+    #     User, on_delete=models.CASCADE, related_name="reposrtuserpost",null=True,blank=True)
+    create_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return str(self.post.post)
+
+
+class NewPostReport(models.Model):
+
+    post = models.ForeignKey(
+        PostUpload, on_delete=models.CASCADE, related_name="newpostreplike",null=True,blank=True)
+    report_text = models.CharField(max_length=255, blank=True, null=True,)
+    report_user = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="newreposrtuserpost",null=True,blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):

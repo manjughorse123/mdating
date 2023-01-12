@@ -647,15 +647,25 @@ class UserImagesApiView(GenericAPIView):
             friend_id_data = friends_ids[fri].friends
             friend_id_list.append(friend_id_data)
 
+
+        user_post_lists = User.objects.filter(Q(gender=user_data[0].gender) |
+                                                  Q(passion__in=user_data[0].passion.all(
+                                                  ))
+                                                  & Q(is_complete_profile=True)
+                                                  ).exclude(id=request.user.id).distinct()
+
+        user_id_list = []
+        for i in range(len(user_post_lists)):
+            user_posts_lists = user_post_lists[i].id
+            user_id_list.append(user_posts_lists)
+
         posts_list = PostUpload.objects.filter(
             Q(user_id__in=following_id_list)
             | Q(user=user_id)
-            | Q(user_id__in=friend_id_list)).order_by(
+            | Q(user_id__in=friend_id_list)| Q(user_id__in=user_id_list)).order_by(
             '-create_at').distinct()
         if len(posts_list) > 0:
             
-            
-
             user_posts = PostUploadV2Serializers(
                 posts_list, context={'request': request}, many=True)
             newsDeta = self.paginate_queryset(user_posts.data)
@@ -771,7 +781,7 @@ class UserAllPostApiView(GenericAPIView):
 
 
 class PostReportsApiView(GenericAPIView):
-    serializer_class = PostReportsSerializers
+    serializer_class = NewPostReportSerializers
     permission_classes = [IsAuthenticated, ]
 
     @swagger_auto_schema(
@@ -787,7 +797,7 @@ class PostReportsApiView(GenericAPIView):
         tags=['Post']
     )
     def post(self, request, format='json'):
-        serializer = PostReportsSerializers(data=request.data)
+        serializer = NewPostReportSerializers(data=request.data)
         if serializer.is_valid():
             post_request = request.data['post']
             post_data = PostUpload.objects.get(id=post_request)
@@ -975,4 +985,41 @@ class GetPostApiView(GenericAPIView):
         serializer = PostUploadUpdateSerializers(
             posts, context={'request': request}, many=True)
         return Response({"success": True, "status": 200, "message": "Get User Post ", "data": serializer.data,"base_url":base_url},
+                        status=status.HTTP_200_OK)
+
+
+
+class UserReportPostApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PostUploadUpdateSerializers
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    # def get_object(self:
+    #     try:
+    #         return NewPostReport.objects.get(pk=post_id)
+    #     except NewPostReport.DoesNotExist:
+    #         raise Http404
+
+    @swagger_auto_schema(
+
+        operation_summary=" Get Post  Api",
+
+        tags=['Post']
+    )
+    def get(self, request,  *args, **kwargs):
+        posts = PostUpload.objects.filter(user= request.user.id,post_report=True)
+        serializer = PostUploadUpdateSerializers(
+            posts, context={'request': request}, many=True)
+        return Response({"success": True, "status": 200, "message": "User Reports Post", "data": serializer.data,"base_url":base_url},
                         status=status.HTTP_200_OK)

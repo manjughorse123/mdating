@@ -393,3 +393,23 @@ class PostReportsSerializers(ModelSerializer):
     class Meta:
         model = PostReport
         fields = '__all__'
+
+
+class NewPostReportSerializers(ModelSerializer):
+
+    class Meta:
+        model = NewPostReport
+        fields = '__all__'
+
+class NewPostReportDetailSerializers(ModelSerializer):
+
+    class Meta:
+        model = NewPostReport
+        fields = '__all__'
+
+    def to_representation(self, instance):
+        response = super().to_representation(instance)
+        response['user'] = UserFriendSerializer(instance.user).data
+        response['post'] = PostUploadUpdateSerializers(instance.post).data
+
+        return response

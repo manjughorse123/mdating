@@ -6,7 +6,7 @@ from rest_framework.views import *
 from rest_framework.permissions import *
 from rest_framework.viewsets import *
 from rest_framework.generics import *
-
+from ckeditor.fields import RichTextField
 from account.models import *
 from account.serializers import *
 from DatingApp.baseurl import base_url
@@ -164,3 +164,44 @@ class AddNotificationData(GenericAPIView):
         else:
             return Response({"success": "error", "message": " Notification Data Not Added" ,"status": 400, "data": serializer.errors},
                             status=status.HTTP_400_BAD_REQUEST)
+
+
+
+
+class TermAndConditionView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PublicUrlSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Get Master Data Api",
+        tags=['Master data']
+    )
+    def get(self, request):
+        trem = PublicUrl.objects.filter(name="Term and Condition")
+        
+        trem_serializer = PublicUrlSerializer(trem, many=True)
+        
+        return Response({"success": True, "message": "Term and Condition Detail", "status": 200, "base_url": base_url,
+                         "data":trem_serializer.data,
+                                  },
+                        status=status.HTTP_200_OK)
+
+
+
+class PrivacyPolicyView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = PublicUrlSerializer
+
+    @swagger_auto_schema(
+        operation_summary="Get Master Data Api",
+        tags=['Master data']
+    )
+    def get(self, request):
+        trem = PublicUrl.objects.filter(name__icontains="Privacy Policy")
+        
+        trem_serializer = PublicUrlSerializer(trem, many=True)
+        
+        return Response({"success": True, "message": "Privacy Policy Detail", "status": 200, "base_url": base_url,
+                         "data":trem_serializer.data,
+                                  },
+                        status=status.HTTP_200_OK)

@@ -31,5 +31,7 @@ urlpatterns = [
 
         re_path(r'^user/all/video/(?P<user_id>[0-9a-f-]+)$',
             UserPostVideoApiView.as_view(), name="user_video_post"),
+        path('user/report-post/',
+            UserReportPostApiView.as_view(), name="user_report_post"),
 
 ]

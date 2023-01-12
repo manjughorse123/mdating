@@ -72,3 +72,11 @@ class NotificationDataSerializer(serializers.ModelSerializer):
 
         return response
     
+
+class PublicUrlSerializer(serializers.ModelSerializer):
+
+
+    class Meta:
+        model  = PublicUrl
+        fields = '__all__'
+

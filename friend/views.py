@@ -151,7 +151,7 @@ class CustomFriendPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -271,7 +271,7 @@ class CustomSuggetionPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -388,7 +388,7 @@ class CustomSendRequestPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -624,7 +624,7 @@ class CustomFriendAcceptPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -938,7 +938,7 @@ class CustomFolowingPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -1036,6 +1036,7 @@ class GetFollowingApiView(GenericAPIView):
         
         
         suggestData = self.get_paginated_response(suggestData)
+        suggestData.data['data_count'] = len(serializer.data)
         # suggestData.data['is_user'] = usersss
         return suggestData
         # return Response({"success": True,
@@ -1141,7 +1142,7 @@ class CustomFllowerPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):
@@ -1231,6 +1232,7 @@ class GetFollowerApiView(GenericAPIView):
         
         suggestData = self.get_paginated_response(suggestData)
         suggestData.data['is_user'] = usersss
+        suggestData.data['data_count'] = len(serializer.data)
         return suggestData
 
         
@@ -1249,7 +1251,7 @@ class CustomFolowerSuggetionPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 10
+    page_size = 20
     max_page_size = 100
     
     def get_paginated_response(self, data1):

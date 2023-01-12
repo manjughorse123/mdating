@@ -22,3 +22,14 @@ class NotificationData(models.Model):
     flag = models.CharField(max_length=255, null=True,blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
     delete_at = models.DateTimeField(auto_now=True)
+
+
+class PublicUrl(models.Model):
+
+    name = models.CharField(max_length=255, null=True,blank=True)
+    description = RichTextField(null=True,blank=True)
+    remark = models.CharField(max_length=255, null=True,blank=True)
+    create_at = models.DateTimeField(auto_now_add=True)
+    delete_at = models.DateTimeField(auto_now=True)
+    
+
