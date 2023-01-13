@@ -85,8 +85,8 @@ class GetMasterData(GenericAPIView):
                                   'idealmatch': ideal_serializer.data,
                                   'marital_status': marital_serializer.data,
                                   'tall': tall_serializer.data,
-                                  "public-privacy":base_url+"/api/get-public-privacy/",
-                                  "term-condition": base_url+"/api/term-and-condition/",
+                                  "public_privacy":base_url+"/api/get-public-privacy/",
+                                  "term_condition": base_url+"/api/term-and-condition/",
                                   "faq":base_url+"/api/faq-detail/"
 
                                   }},
