@@ -662,7 +662,7 @@ class UserImagesApiView(GenericAPIView):
         posts_list = PostUpload.objects.filter(
             Q(user_id__in=following_id_list)
             | Q(user=user_id)
-            | Q(user_id__in=friend_id_list)| Q(user_id__in=user_id_list),is_soft_delete=True).order_by(
+            | Q(user_id__in=friend_id_list)| Q(user_id__in=user_id_list),is_soft_delete=False).order_by(
             '-create_at').distinct()
         if len(posts_list) > 0:
             
