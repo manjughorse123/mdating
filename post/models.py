@@ -36,6 +36,8 @@ class PostUpload(models.Model):
         choices=MAYBECHOICE, default=0)
     show_private_post = models.IntegerField(
         choices=MAYBECHOICE, default=2)
+    is_soft_delete = models.BooleanField(
+        default=False, blank=True, null=True)
 
     def __str__(self):
         return str(self.id)+','+str(self.post)
