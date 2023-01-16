@@ -351,7 +351,7 @@ class PostUploadUpdateSerializers(ModelSerializer):
 
     class Meta:
         model = PostUpload
-        fields = ('id', 'post', 'title', 'message','post_images','user',)
+        fields = "__all__"
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
