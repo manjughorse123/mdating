@@ -615,7 +615,7 @@ class GetUserDetailApiView(GenericAPIView):
     )
     def get(self, request,  format=None):
 
-        req = request.users
+        req = request.user
         # req.is_media = True
         if (req.is_gender and req.is_passion and req.is_tall and
                 req.is_interest_in and req.is_idealmatch and req.is_marital_status and req.is_media and req.is_location) == True:
