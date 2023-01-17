@@ -991,7 +991,7 @@ class GetPostApiView(GenericAPIView):
 
 class UserReportPostApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
-    serializer_class = PostUploadUpdateSerializers
+    serializer_class = PostUploadV2Serializers
 
     def get_serializer_context(self):
 
@@ -1019,7 +1019,7 @@ class UserReportPostApiView(GenericAPIView):
     )
     def get(self, request,  *args, **kwargs):
         posts = PostUpload.objects.filter(user= request.user.id,post_report=True)
-        serializer = PostUploadUpdateSerializers(
+        serializer = PostUploadV2Serializers(
             posts, context={'request': request}, many=True)
         return Response({"success": True, "status": 200, "message": "User Reports Post", "data": serializer.data,"base_url":base_url},
                         status=status.HTTP_200_OK)
