@@ -1023,3 +1023,46 @@ class UserReportPostApiView(GenericAPIView):
             posts, context={'request': request}, many=True)
         return Response({"success": True, "status": 200, "message": "User Reports Post", "data": serializer.data,"base_url":base_url},
                         status=status.HTTP_200_OK)
+
+
+
+
+
+class UserRepostPostApiView(GenericAPIView):
+    permission_classes = [IsAuthenticated, ]
+    serializer_class = NewPostReportSerializers
+
+    def get_serializer_context(self):
+
+        user = self.request.user
+        """
+        Extra context provided to the serializer class.
+        """
+        return {
+            'request': self.request,
+            'format': self.format_kwarg,
+            'view': self
+        }
+
+    # def get_object(self, post_id):
+    #     # import pdb;pdb.set_trace()
+    #     try:
+    #         return NewPostReport.objects.get(pk=post_id)
+    #     except NewPostReport.DoesNotExist:
+    #         raise Http404
+
+   
+
+    
+    def patch(self, request, post_id, format=None):
+        
+        
+        post_data = NewPostReport.objects.filter(post=post_id).first()
+        serializer = NewPostReportSerializers(
+            post_data, data=request.data, partial=True)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(
+                {"message": "User Request for RePost", "status": 200, "success": True,
+                 "data": serializer.data})
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

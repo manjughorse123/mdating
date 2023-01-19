@@ -115,9 +115,23 @@ class NewPostReport(models.Model):
     report_user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="newreposrtuserpost",null=True,blank=True)
     create_at = models.DateTimeField(auto_now_add=True)
+    is_report = models.BooleanField(default=True)
+    repost_text = models.TextField(null=True,blank=True)
 
     def __str__(self):
         return str(self.post.post)
+
+# class NewPostReportReslove(models.Model):
+
+#     post = models.ForeignKey(
+#         PostUpload, on_delete=models.CASCADE, related_name="newpostrepost",null=True,blank=True)
+#     repost_text = models.CharField(max_length=255, blank=True, null=True,)
+#     post_user = models.ForeignKey(
+#         User, on_delete=models.CASCADE, related_name="newrepostuserpost",null=True,blank=True)
+#     create_at = models.DateTimeField(auto_now_add=True)
+
+#     def __str__(self):
+#         return str(self.post.post)
 
 
 class PostImage(models.Model):
