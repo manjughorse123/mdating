@@ -69,7 +69,7 @@ class LoginApiView(GenericAPIView):
             #     mobile=mobile, country_code=country_code, otp=otp).first()
             if user is None:
                 return Response(
-                    {"message": "mobile no. not registered", "success": False,
+                    {"message": "User Not Registered", "success": False,
                         'is_register': False, "status": 404},
                     status=status.HTTP_404_NOT_FOUND)
             otp = str(random.randint(999, 9999))
@@ -175,80 +175,27 @@ class RegistrationApiView(CreateAPIView):
 
         try:
             
-            email = request.data['email']
+            # email = request.data['email']
             mobile = request.data['mobile']
             country_code = request.data['country_code']
             
             name = request.data['name']
             birth_date = request.data['birth_date']
             check_mobile = User.objects.filter(mobile=mobile).first()
-            check_email = User.objects.filter(email=email).first()
+            # check_email = User.objects.filter(email=email).first()
             print("request.data",request.data)
             if check_mobile:
-            #     if check_mobile.is_verified == False :
-
-            #         if check_email:
-            #             if check_mobile.is_verified == True :
-            #                 return Response(
-            #             {"message": "email Already Exists", 'success': False,
-            #                 'status': 400, 'is_register': False, "email": email},
-            #         status=status.HTTP_400_BAD_REQUEST)
-            #         otp = str(random.randint(1000, 9999))
-            # # otp = str(1234)
-            #         account_sid = 'ACbcfad7f1219fdaac963471693bafdf61'
-            #         auth_token = 'a7ed817c4cff17e72b7508c320ce0f66'
-            #         client = Client(account_sid, auth_token)
-
-            #         message = client.messages.create(
-            #                                     body=f'Hi, your test result is {otp} . Great job',
-            #                                     from_=+19035183066,
-            #                                     to=+919131897782
-            #                                 )
-
-            #         print("Otp from tiwillo",message.sid)
-            #         print("otp", otp)
-            #         if profile_image :
-            #             val = User.objects.get(mobile=mobile)
-            #             val.email = email,
-            #             val.email=email, 
-            #             val.name=name, 
-            #             val.birth_date=birth_date, 
-            #             val.mobile=mobile, otp=otp
-            #             val.profile_image = profile_image
-                        
-            #             val.save()
-            #         else : 
-            #             val = User.objects.get(mobile=mobile)
-            #             val.email = email,
-            #             val.email=email, 
-            #             val.name=name, 
-            #             val.birth_date=birth_date, 
-            #             val.mobile=mobile, otp=otp
-            #             val.save()
-            #         # print(type(user))
-            #         # user.save()
-            #         return Response({"message": "Your Registrations is successfully", "status": 201, "success": True, 'is_register': True,
-            #                         "user": {
-            #                             'id': user.id,
-            #                             'email': user.email,
-            #                             'mobile': user.mobile,
-            #                             'country_code': user.country_code,
-            #                             'name': user.name,
-            #                             'otp': user.otp,
-            #                             #  'profile_image':user.profile_image,
-            #                             'is_verified': user.is_verified}},
-            #                         status=status.HTTP_201_CREATED)   
-            #     else :
-                
+           
+          
                 return Response(
                     {"message": "Mobile Number Already Exists!", 'status': 400,
                         'success': False, 'is_register': False, "mobile": mobile},
                     status=status.HTTP_400_BAD_REQUEST)
-            if check_email:
-                return Response(
-                    {"message": "email Already Exists", 'success': False,
-                        'status': 400, 'is_register': False, "email": email},
-                    status=status.HTTP_400_BAD_REQUEST)
+            # if check_email:
+            #     return Response(
+            #         {"message": "email Already Exists", 'success': False,
+            #             'status': 400, 'is_register': False, "email": email},
+            #         status=status.HTTP_400_BAD_REQUEST)
 
             otp = str(random.randint(1000, 9999))
             # otp = str(1234)
@@ -270,10 +217,10 @@ class RegistrationApiView(CreateAPIView):
 
                 
 
-                    user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+                    user = User( name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                             country_code=country_code,profile_image=profile_image)
                 else : 
-                    user = User(email=email, name=name, birth_date=birth_date, mobile=mobile, otp=otp,
+                    user = User( name=name, birth_date=birth_date, mobile=mobile, otp=otp,
                             country_code=country_code,profile_image=profile_image)
             # print(type(user))
             user.save()
@@ -298,10 +245,10 @@ class RegistrationApiView(CreateAPIView):
 
 
 
-            return Response({"message": "Your Registrations is successfully", 'base_url':base_url,"status": 201, "success": True, 'is_register': True,
+            return Response({"message": "Your Registrations Is Successfully", 'base_url':base_url,"status": 201, "success": True, 'is_register': True,
                              "user": {
                                  'id': user.id,
-                                 'email': user.email,
+                                #  'email': user.email,
                                  'mobile': user.mobile,
                                  'country_code': user.country_code,
                                  'name': user.name,
@@ -402,7 +349,7 @@ class UserUpdate(GenericAPIView):
         if serializer.is_valid():
             question = serializer.save()
 
-            return Response({"message": "User Data is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
+            return Response({"message": "User Data Is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -458,7 +405,7 @@ class UserUpdateIdealMatch(GenericAPIView):
         question.save(update_fields=["is_idealmatch"])
         if serializer.is_valid():
             question = serializer.save()
-            return Response({"message": "User Ideal Match field is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
+            return Response({"message": "User Ideal Match field Is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(question).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -523,7 +470,7 @@ class UserUpdateProfileApiView(GenericAPIView):
 
         if serializer.is_valid():
             user_data = serializer.save()
-            return Response({"message": "User Profile is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(user_data).data})
+            return Response({"message": "User Profile Is Successfully Updated!", "status": 200, "success": True, "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
@@ -578,7 +525,7 @@ class OTPVerifyApiView(GenericAPIView):
                     user_obj.save()
 
                 return Response(
-                    {'success': True, 'message': 'your OTP is verified', 'status': 200, 'is_register': True, "token": access_token, "user": {
+                    {'success': True, 'message': 'Your OTP Is Verified', 'status': 200, 'is_register': True, "token": access_token, "user": {
                         'id': user_obj.id,
                         'email': user_obj.email,
                         'mobile': user_obj.mobile,
@@ -590,13 +537,13 @@ class OTPVerifyApiView(GenericAPIView):
 
                      },
                     status=status.HTTP_200_OK)
-            return Response({'success': "success", 'message': 'Wrong OTP', "status": 404, "data": serializers.data},
+            return Response({'success': "success", 'message': 'OTP Is Not Valid!', "status": 404, "data": serializers.data},
                             status=status.HTTP_404_NOT_FOUND)
 
         except Exception as e:
             print(e)
         return Response(
-            {'success': False, 'message': ' Wrong OTP',
+            {'success': False, 'message': 'OTP Is Not Valid!',
                 'status': 404, 'is_register': False},
             status=status.HTTP_404_NOT_FOUND)
 
@@ -685,7 +632,7 @@ class UserVerifiedApiView(GenericAPIView):
             return Response({"success": True, "status": 200, "message":"Please Wait For Verification","data": serializer.data}, status=status.HTTP_200_OK)
         else :
             serializer = UserVerifiedSerializer(req)
-            return Response({"success": True, "status": 200, "message":"Please add you Document","data": serializer.data}, status=status.HTTP_200_OK)
+            return Response({"success": True, "status": 200, "message":"Please Add You Document","data": serializer.data}, status=status.HTTP_200_OK)
         
 class UserVerifyDocumentApi(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
@@ -717,7 +664,7 @@ class UserVerifyDocumentApi(GenericAPIView):
             user_data.save(update_fields=["user_verified_status"])
             user_data = serializer.save()
 
-            return Response({"message": "User Document successfully added!", "status": 200, "success": True,
+            return Response({"message": "User Document Successfully Added!", "status": 200, "success": True,
                              "doc_data": serializer.data, "data": UserSerializer(user_data).data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
@@ -775,7 +722,7 @@ class ResendOtpApiView(GenericAPIView):
                             }
             }, status=status.HTTP_200_OK)
 
-        return Response({"message": " No Resend otp", "status": 200, "success": True,
+        return Response({"message": " No Resend Otp", "status": 200, "success": True,
                          }, status=status.HTTP_200_OK)
 
 

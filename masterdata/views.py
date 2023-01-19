@@ -18,7 +18,7 @@ from friend.models import *
 def index(request):
     
 
-    return  render(request, 'data/index.html')
+    return  render(request, 'data/public-privacy.html')
 
 
 def termAndConditionView(request):

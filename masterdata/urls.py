@@ -4,7 +4,7 @@ from .views import *
 
 urlpatterns = [
 
-     path('get-public-privacy/',index),
+     path('get-public-privacy/',index,name="get-public-privacy"),
      path('term-and-condition/',termAndConditionView,name="term-and-condition"),
       path('faq-detail/',faqHtmlView,name="faq-data"),
     #  term-and-condition
@@ -13,8 +13,8 @@ urlpatterns = [
     path('get-master-data/', GetMasterData.as_view(), name='getmasterdata'),
 
     path('get-notification/', AddNotificationData.as_view(), name='get-notification'),
-    path('term-condition/', TermAndConditionView.as_view(), name='term-and-condition'),
-    path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
+    # path('term-condition/', TermAndConditionView.as_view(), name='term-and-condition'),
+    # path('privacy-policy/', PrivacyPolicyView.as_view(), name='privacy-policy'),
     
     # path('get-master-data/v2', GetMasterDataV2.as_view(), name='getmasterdata'),
 ]
