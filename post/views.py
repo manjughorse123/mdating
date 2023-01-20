@@ -637,16 +637,19 @@ class UserImagesApiView(GenericAPIView):
         # following_ids = request.user.following.values_list('id', flat=True)
         following_ids = FollowRequest.objects.filter(user_id=user_id)
         friends_ids = FriendList.objects.filter(user_id=user_id)
-        following_id_list = []
-        friend_id_list = []
-        for i in range(len(following_ids)):
-            following_id_data = following_ids[i].follow
-            following_id_list.append(following_id_data)
+        # following_id_list = []
+        # # friend_id_list = []
+        # for i in range(len(following_ids)):
+        #     following_id_data = following_ids[i].follow
+        #     following_id_list.append(following_id_data)
 
-        for fri in range(len(friends_ids)):
-            friend_id_data = friends_ids[fri].friends
-            friend_id_list.append(friend_id_data)
+        # for fri in range(len(friends_ids)):
+        #     friend_id_data = friends_ids[fri].friends
+        #     friend_id_list.append(friend_id_data)
 
+    
+        following_id_list = [following_ids[i].follow for i in range(len(following_ids))]
+        friend_id_list = [friends_ids[fri].friends for fri in range(len(friends_ids)) ]
 
         user_post_lists = User.objects.filter(Q(gender=user_data[0].gender) |
                                                   Q(passion__in=user_data[0].passion.all(
@@ -654,10 +657,12 @@ class UserImagesApiView(GenericAPIView):
                                                   & Q(is_complete_profile=True)
                                                   ).exclude(id=request.user.id).distinct()
 
-        user_id_list = []
-        for i in range(len(user_post_lists)):
-            user_posts_lists = user_post_lists[i].id
-            user_id_list.append(user_posts_lists)
+        # user_id_list = []
+        # for i in range(len(user_post_lists)):
+        #     user_posts_lists = user_post_lists[i].id
+        #     user_id_list.append(user_posts_lists)
+
+        user_id_list = [user_post_lists[i].id for i in range(len(user_post_lists))]
 
         posts_list = PostUpload.objects.filter(
             Q(user_id__in=following_id_list)
@@ -681,10 +686,7 @@ class UserImagesApiView(GenericAPIView):
                                                   & Q(is_complete_profile=True)
                                                   ).exclude(id=request.user.id).distinct()
 
-            user_id_list = []
-            for i in range(len(user_post_lists)):
-                user_posts_lists = user_post_lists[i].id
-                user_id_list.append(user_posts_lists)
+            user_id_list = [user_post_lists[i].id for i in range(len(user_post_lists))]
             # print("user_post_lists", user_post_lists)
 
             posts_lists = PostUpload.objects.filter(Q(user_id__in=user_id_list, is_private=0)).order_by(
@@ -1066,3 +1068,39 @@ class UserRepostPostApiView(GenericAPIView):
                 {"message": "User Request for RePost", "status": 200, "success": True,
                  "data": serializer.data})
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+            
+
+class UserReportUndoApiView(GenericAPIView):
+    serializer_class = NewPostReportSerializers
+    permission_classes = [IsAuthenticated, ]
+
+    @swagger_auto_schema(
+
+        operation_summary="Post Reports Api ",
+        request_body=openapi.Schema(
+            type=openapi.TYPE_OBJECT,
+            properties={
+                'post': openapi.Schema(type=openapi.TYPE_STRING, description='Add post Id'),
+                'report_text': openapi.Schema(type=openapi.TYPE_STRING, description='Add Report Text'),
+            }),
+
+        tags=['Post']
+    )
+    def post(self, request, format='json'):
+        serializer = NewPostReportSerializers(data=request.data)
+        try :
+            if serializer.is_valid():
+                post_request = request.data['post']
+                val = NewPostReport.objects.filter(post=post_request,report_user=request.data['report_user']).last()
+                val.delete()
+                
+                # serializer.save()
+
+                return Response({"success": True, "message": "Post Reports ", "status": 201, "data": {}}, status=status.HTTP_201_CREATED)
+            else:
+                return Response({"success": False, "message": "NO Data!", "status": 200, "data": serializer.errors}, status=status.HTTP_200_OK)
+        except :
+            return Response({"success": False, "message": "NO Data!", "status": 400, "data": serializer.errors}, status=status.HTTP_400_BAD_REQUEST)
