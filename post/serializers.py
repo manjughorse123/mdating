@@ -47,6 +47,7 @@ class PostUploadUpdateSerializer(ModelSerializer):
 class PostUploadV2Serializers(ModelSerializer):
     # is_liked = serializers.BooleanField(read_only=True)
     isLiked = serializers.SerializerMethodField()
+    is_user_report  = serializers.SerializerMethodField()
     # isViewed = serializers.SerializerMethodField()
     is_friend_req = serializers.SerializerMethodField()
     is_friend_acc = serializers.SerializerMethodField()
@@ -54,6 +55,23 @@ class PostUploadV2Serializers(ModelSerializer):
     is_user = serializers.SerializerMethodField()
     post_images = serializers.SerializerMethodField()
     base_url = serializers.SerializerMethodField()
+    is_report_count =  serializers.SerializerMethodField()
+
+    def get_is_report_count(self, obj):
+        requestUser = self.context['request'].user
+        if NewPostReport.objects.filter(post=obj).exists():
+            val = NewPostReport.objects.filter(post=obj)
+            return len(val)
+        else:
+            return 0
+            
+    def get_is_user_report(self, obj):
+        requestUser = self.context['request'].user
+        if NewPostReport.objects.filter(post=obj, report_user=requestUser).exists():
+
+            return NewPostReport.objects.filter(post=obj, report_user=requestUser).exists()
+        else:
+            return NewPostReport.objects.filter(post=obj, report_user=requestUser).exists()
 
     def get_post_images(self,obj):
         setData = PostImageUpload.objects.filter(post_image=obj.id)
@@ -128,7 +146,9 @@ class PostUploadV2Serializers(ModelSerializer):
                   'is_private',
                   'create_at',
                   'post_images',
-                  'base_url'
+                  'base_url',
+                  'is_user_report',
+                  'is_report_count',
                 )
 
     def get_isLiked(self, obj):
