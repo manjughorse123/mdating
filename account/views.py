@@ -135,6 +135,7 @@ class LoginApiView(GenericAPIView):
                 'country_code': user.country_code,
                 'otp': user.otp,
                 'name': user.name,
+                'dob':user.birth_date,
                 # 'profile_image':user.profile_image.url,
                 'is_verified': user.is_verified,
                 "fcm_token" : datafcm
@@ -252,6 +253,7 @@ class RegistrationApiView(CreateAPIView):
                                  'mobile': user.mobile,
                                  'country_code': user.country_code,
                                  'name': user.name,
+                                 'dob':user.birth_date,
                                  'otp': user.otp,
                                 #  'profile_image':user.profile_image,
                                  'is_verified': user.is_verified,
