@@ -73,7 +73,7 @@ class CreatePostApiView(GenericAPIView):
         
         serializer = PostUploadSerializers(
             data=request.data)
-        print("request.data----------------->",request.data)
+        # print("request.data----------------->",request.data)
         if serializer.is_valid():
             serializer.save()
             val = PostUpload.objects.filter(title=request.data['title']).last()
@@ -248,7 +248,7 @@ class PostReactionApiView(GenericAPIView):
                                 # return True
                                 val =send_notification2(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
                                 NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user,post=post)
-                                print(val,user)
+                                # print(val,user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()
@@ -360,7 +360,7 @@ class UserPostVideoApiView(GenericAPIView):
 
                 list1.append(datas.data[0])
         # print(list1)   
-        print(request.user.id)
+        # print(request.user.id)
         # serializer = PostUploadVideoSerializers(
         #     user, context={'request': request.user.id}, many=True)
         return Response({"success": True, "status": 200, "data": list1 ,"message" : "User Video Post "}, status=status.HTTP_200_OK)
@@ -562,7 +562,7 @@ class UserImagesV2(GenericAPIView):
         # k = PostUpload.objects.filter(postlike__post__in=user_list).values('id', 'postlike__post').distinct()
         # k = UserPostLike.objects.filter(userposts__user__in=user_list).distinct()
         # k = UserPost.objects.filter(userpostlike__post=9)
-        print(k.query)
+        # print(k.query)
         # following_ids = request.user.following.values_list('id', flat=True)
         # following_ids = FollowRequest.objects.filter(user_id=user_id)
         # friends_ids = FriendList.objects.filter(user_id=user_id)
@@ -591,7 +591,7 @@ class CustomPagination(pagination.PageNumberPagination):
     
     page_query_param = "offset"   # this is the "page"
     page_size_query_param="limit" # this is the "page_size"
-    page_size = 25
+    page_size = 10
     max_page_size = 100
     # default_limit = 2
     # limit_query_param = 'limit'
