@@ -74,10 +74,11 @@ class PostUploadV2Serializers(ModelSerializer):
             return NewPostReport.objects.filter(post=obj, report_user=requestUser).exists()
 
     def get_post_images(self,obj):
+        request = self.context['request']
         setData = PostImageUpload.objects.filter(post_image=obj.id)
        
-        datas = PostImageUploadSerilaizer(setData,many= True)
-        print(datas.data)
+        datas = PostImageUploadSerilaizer(setData,context = {'request':request},many= True)
+        # 
         # return datas.data
         if datas :
 
@@ -182,7 +183,7 @@ class PostUploadV2SerializersNew(ModelSerializer):
     #     setData = PostImageUpload.objects.filter(post_image=obj.id)
        
     #     datas = PostImageUploadSerilaizer(setData,many= True)
-    #     print(datas.data)
+    #     
     #     # return datas.data
     #     if datas :
 
@@ -293,12 +294,19 @@ class NewPostUploadSerializers(ModelSerializer):
         fields = ('post', 'message', 'title',)
 
 class PostImageUploadSerilaizer(ModelSerializer):
+    image_url = serializers.SerializerMethodField('get_image_url')
     base_url = serializers.SerializerMethodField()
+
+    def get_image_url(self, obj):
+        # import pdb;pdb.set_trace()
+        request = self.context.get("request")
+        return request.build_absolute_uri(obj.user_post_image.url)
+
     def get_base_url(self,obj):
         return base_url
     class Meta:
         model = PostImageUpload
-        fields = ("id","user_post_image","user_post_type","create_at","post_image","base_url",)
+        fields = ("id","user_post_image","user_post_type","create_at","image_url","post_image","base_url",)
     
     def to_representation(self, instance):
         response = super().to_representation(instance)
@@ -361,7 +369,7 @@ class PostUploadUpdateSerializers(ModelSerializer):
         setData = PostImageUpload.objects.filter(post_image=obj.id)
        
         datas = PostImageUploadSerilaizer(setData,many= True)
-        print(datas.data)
+        # 
         # return datas.data
         if datas :
 
@@ -397,7 +405,7 @@ class PostUploadVideoSerializers(ModelSerializer):
         # return datas.data
         if len(setData) >0  :
             post_images.append(datas.data)
-            print("manju",post_images)
+           
             return datas.data
         else :
             return []

@@ -764,6 +764,7 @@ class PostMultipleImageApi(GenericAPIView):
 class UserAllPostApiView(GenericAPIView):
     permission_classes = [IsAuthenticated, ]
     serializer_class = PostUploadV2Serializers
+    pagination_class = CustomPagination
 
     @swagger_auto_schema(
 
@@ -782,10 +783,14 @@ class UserAllPostApiView(GenericAPIView):
             posts_list, context={'request': request}, many=True)
         # posts_data = ass
 
-        return Response(
-            {"success": True, 'post': posts_data.data,
-                "message": "User Post by User ", "status": 200},
-            status=status.HTTP_200_OK)
+        newsDeta = self.paginate_queryset(posts_data.data)
+        newsDeta = self.get_paginated_response(newsDeta)
+            
+        return newsDeta
+        # return Response(
+        #     {"success": True, 'post': posts_data.data,
+        #         "message": "User Post by User ", "status": 200},
+        #     status=status.HTTP_200_OK)
 
 
 class PostReportsApiView(GenericAPIView):

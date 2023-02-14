@@ -168,8 +168,8 @@ class AddNotificationData(GenericAPIView):
     def get(self, request):
         today = date.today()
         seven_day_before = today - timedelta(days=7)
-        faq = NotificationData.objects.filter(user=request.user.id,create_at__gte=seven_day_before).order_by("-id")
-        serializer = NotificationDataSerializer(faq, many=True)
+        notif = NotificationData.objects.filter(user=request.user.id,create_at__gte=seven_day_before).order_by("-id")
+        serializer = NotificationDataSerializer(notif, context={'request': request.user.id},many=True)
         return Response({"success": True, "base_url":base_url,"message": " Notification Data!", "status": 200, "data": serializer.data},
                         status=status.HTTP_200_OK)
 

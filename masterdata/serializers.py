@@ -58,11 +58,39 @@ class PostUploadV2Serializers(serializers.ModelSerializer):
 
 
 class NotificationDataSerializer(serializers.ModelSerializer):
+    
+    is_friend_accept =  serializers.SerializerMethodField()
+    is_follow_accept = serializers.SerializerMethodField()
 
+    def get_is_friend_accept(self, obj):
+
+        user = self.context['request']
+        friend_data = FriendList.objects.filter(user=user, friends=obj.user)
+        if friend_data:
+            return True
+        else:
+            return False
+
+    def get_is_follow_accept(self, obj):
+
+        user = self.context['request']
+        print("user-----------------",user)
+        follow1 = (FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=user,follow=obj.user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=obj.user,follow= user,is_follow=True))|(FollowRequest.objects.filter(
+            user_id=user,follow=obj.user,is_follow=True))
+        if follow1:
+        # friend_data = FriendList.objects.filter(user=user, friends=obj.user_id)
+        
+        # if friend_data:
+            return True
+        else:
+            return False
 
     class Meta:
         model  = NotificationData
-        fields = ('id','notification_message','user','notify_user','create_at','flag','post')
+        fields = ('id','notification_message','user','notify_user','create_at','flag','post','is_friend_accept','is_follow_accept',)
 
     def to_representation(self, instance):
         response = super().to_representation(instance)
