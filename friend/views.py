@@ -1475,6 +1475,10 @@ class SendFollowRequestView(GenericAPIView):
                         val =send_notification(follow,body="{} Started Following You ".format(user.name),vals=user,data="FollowRequest")
                         NotificationData.objects.create(user=follow,notification_message="{} Started Following You ".format(user.name),notify_user=user,flag="Follow Request")
                         print(val)
+                        if 'notification_id' in request.data:
+                            notiVal=NotificationData.objects.get(id=request.data['notification_id'])
+                            notiVal.flag = " "
+                            notiVal.save(update_fields=["flag"])
                         return Response({"success": True, "message": "follow Sent!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
                 if flag == '2':  
