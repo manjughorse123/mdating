@@ -509,7 +509,8 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
         tags=['Friend']
     )
     def post(self, request, format='json'):
-        try:
+        try: 
+            # import pdb;pdb.set_trace()
             flag = str(request.data['flag'])
             serializer = FriendListSerializer(
                 data=request.data, context={'request': request})
@@ -533,10 +534,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             user=friends, friends=user, is_accepted=True)
                         val =send_notification(friends,body="{} Accepted Friend Request".format(user.name),vals=friends,data="FriendsAccept")
                         NotificationData.objects.create(user=friends,notification_message="{}  Accepted Friend Request ".format(user.name),notify_user=user)
-                        # delNotify = NotificationData.objects.get(user=user, notify_user=friends,notification_message="{} Send You Friend Request".format(friends.name))
-                        # if delNotify:
-                        #     delNotify.delete()
-                        # print(val)
+                       
                         if ChatList.objects.filter(
                             receiver=user, sender=friends):
                             chatbottabl = ChatList.objects.filter(
@@ -573,6 +571,11 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                         obj = FriendRequest.objects.filter(
                             friend=friends, user=user)
                         print("else :", obj)
+
+                    notiVal=NotificationData.objects.filter(user=request.user.id,notify_user=friends)[0]
+                    notiVal.flag = " "
+                    notiVal.save(update_fields=["flag"])
+
                     if obj:
                         obj = obj[0].id
                         objs = FriendRequest.objects.filter(id=obj)
@@ -580,6 +583,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                         return Response({"success": True, "message": "Friend Request Deleted !", "status": 200}, status=status.HTTP_200_OK)
                     else:
                         return Response({"success": True, "message": "No Data", "status": 400}, status=status.HTTP_200_OK)
+                
                 if flag == '3':  # unfriend user
                     if FriendList.objects.filter(friends=friends):
                         obj = FriendList.objects.filter(
@@ -598,7 +602,9 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             receiver=user, sender=friends).update(is_soft_delete=True)
                         chatbottabl1 = ChatList.objects.filter(
                             receiver=friends, sender=user).update(is_soft_delete=True)
-
+                        notiVal=NotificationData.objects.filter(user=request.user.id,notify_user=friends)[0]
+                        notiVal.flag = " "
+                        notiVal.save(update_fields=["flag"])
                         return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
                     else:
                         return Response({"success": "error", "status": 400, "message": "No Data Found"},
@@ -921,6 +927,10 @@ class FollowRequestAcceptView(GenericAPIView):
                 else:
                     new_follow = FollowRequest.objects.create(
                         user=user, follow=follow, is_follow=True)
+                    # notiVal=NotificationData.objects.filter(user=request.user.id,follow=follow)
+                    # notiVal[0].flag=""
+                    # notiVal.save()
+
 
             if request.data['flag'] == '2':
                 obj = FollowRequest.objects.filter(follow=follow)
@@ -1562,6 +1572,9 @@ class FollowBackApiView(GenericAPIView):
                             fetch_obj_data.is_follow_accepted = True
                             fetch_obj_data.save(update_fields=["is_follow_accepted"])
 
+                        notiVal=NotificationData.objects.filter(user=request.user.id,notify_user=follow)[0]
+                        notiVal.flag = " "
+                        notiVal.save(update_fields=["flag"])
                         return Response({"success": True, "message": "Follow Back added!", "status": 201, "data": serializer.data}, status=status.HTTP_201_CREATED)
 
                 if flag == '2':  # remove follow back
