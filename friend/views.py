@@ -572,7 +572,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             friend=friends, user=user)
                         print("else :", obj)
 
-                    notiVal=NotificationData.objects.filter(user=request.user.id,notify_user=friends)[0]
+                    notiVal=NotificationData.objects.filter(notify_user=request.user.id,user=friends)[0]
                     notiVal.flag = " "
                     notiVal.save(update_fields=["flag"])
 
@@ -602,7 +602,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             receiver=user, sender=friends).update(is_soft_delete=True)
                         chatbottabl1 = ChatList.objects.filter(
                             receiver=friends, sender=user).update(is_soft_delete=True)
-                        notiVal=NotificationData.objects.filter(user=request.user.id,notify_user=friends)[0]
+                        notiVal=NotificationData.objects.filter(notify_user=request.user.id,user=friends)[0]
                         notiVal.flag = " "
                         notiVal.save(update_fields=["flag"])
                         return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
