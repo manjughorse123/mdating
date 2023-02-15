@@ -510,13 +510,14 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
     )
     def post(self, request, format='json'):
         try: 
-            # import pdb;pdb.set_trace()
+        
+        
             flag = str(request.data['flag'])
             serializer = FriendListSerializer(
                 data=request.data, context={'request': request})
             print("Request data", request.data)
             if serializer.is_valid():
-                import pdb;pdb.set_trace()
+                # import pdb;pdb.set_trace()
                 users = str(request.user.id)
                 user = User.objects.get(id=users)
                 friends = serializer.validated_data['friends']
@@ -1157,7 +1158,7 @@ class CustomFllowerPagination(pagination.PageNumberPagination):
     max_page_size = 100
     
     def get_paginated_response(self, data1):
-        # import pdb;pdb.set_trace()
+       
         return Response({"success": True, "status": 200, "message": " User follower Detail",
                         "data": data1},
                         status=status.HTTP_200_OK)
@@ -1266,7 +1267,8 @@ class CustomFolowerSuggetionPagination(pagination.PageNumberPagination):
     max_page_size = 100
     
     def get_paginated_response(self, data1):
-        # import pdb;pdb.set_trace()
+        
+        
         return Response({"success": True, "status": 200, "message": " User follower Suggestion Detail",
                         "follow_suggestion": data1},
                         status=status.HTTP_200_OK)

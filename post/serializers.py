@@ -301,9 +301,11 @@ class PostImageUploadSerilaizer(ModelSerializer):
         # import pdb;pdb.set_trace()
         request = self.context.get("request")
         return request.build_absolute_uri(obj.user_post_image.url)
+        
 
     def get_base_url(self,obj):
         return base_url
+
     class Meta:
         model = PostImageUpload
         fields = ("id","user_post_image","user_post_type","create_at","image_url","post_image","base_url",)
@@ -366,9 +368,10 @@ class PostUploadUpdateSerializers(ModelSerializer):
     post_images = serializers.SerializerMethodField()
 
     def get_post_images(self,obj):
+        request = self.context['request']
         setData = PostImageUpload.objects.filter(post_image=obj.id)
        
-        datas = PostImageUploadSerilaizer(setData,many= True)
+        datas = PostImageUploadSerilaizer(setData,context = {'request':request},many= True)
         # 
         # return datas.data
         if datas :
