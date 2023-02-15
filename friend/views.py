@@ -516,7 +516,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                 data=request.data, context={'request': request})
             print("Request data", request.data)
             if serializer.is_valid():
-                # import pdb;pdb.set_trace()
+                import pdb;pdb.set_trace()
                 users = str(request.user.id)
                 user = User.objects.get(id=users)
                 friends = serializer.validated_data['friends']
@@ -546,6 +546,9 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                                 receiver=user, sender=friends)
                             chatbottabl1 = ChatList.objects.create(
                                 receiver=friends, sender=user)
+                        notiVal=NotificationData.objects.filter(notify_user=request.user.id,user=friends)[0]
+                        notiVal.flag = " "
+                        notiVal.save(update_fields=["flag"])
                         # obj = FriendRequest.objects.filter(
                         #     friend=user, user=friends)
                         if FriendRequest.objects.filter(
@@ -602,9 +605,7 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                             receiver=user, sender=friends).update(is_soft_delete=True)
                         chatbottabl1 = ChatList.objects.filter(
                             receiver=friends, sender=user).update(is_soft_delete=True)
-                        notiVal=NotificationData.objects.filter(notify_user=request.user.id,user=friends)[0]
-                        notiVal.flag = " "
-                        notiVal.save(update_fields=["flag"])
+                        
                         return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
                     else:
                         return Response({"success": "error", "status": 400, "message": "No Data Found"},
