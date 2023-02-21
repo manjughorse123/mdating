@@ -98,11 +98,11 @@ class UserFilterApiView(ListAPIView):
                     val = User.objects.filter(Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(gender__in =eval(self.request.GET['interest_in']) ,location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id).distinct()
                 else :
-                    val = User.objects.filter(Q(passion__in=user_info[0].passion.all()) & Q(interest_in=user_info[0].gender) & Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                    val = User.objects.filter(Q(gender=user_info[0].interest_in) & Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id).distinct()
             
             else :
-                val = User.objects.filter(Q(passion__in=user_info[0].passion.all()) & Q(interest_in=user_info[0].gender) & Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
+                val = User.objects.filter(Q(passion__in=user_info[0].passion.all()) & Q(gender=user_info[0].interest_in) & Q(is_complete_profile=True) & Q(birth_date__gte=max_date,
                                        birth_date__lte=min_date)).filter(location__dwithin=(user_location, distance_to_decimal_degrees(D(km=related_distance)))).annotate(distance = Distance("location", user_location)).order_by("create_at").exclude(id=user_info[0].id).distinct()
               
             return val
