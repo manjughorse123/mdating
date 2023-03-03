@@ -219,8 +219,8 @@ class PostReactionApiView(GenericAPIView):
                         PostView.objects.create(user=user, post=post)
                         user_datas = post.user
                         if user != user_datas:
-                            val =send_notification2(obj.user,body="{} View Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
-                            NotificationData.objects.create(user = obj.user,notification_message="{} View Your Post".format(user.name),notify_user=user,post=post)
+                            val =send_notification2(obj.user,body="{} Viewed Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
+                            NotificationData.objects.create(user = obj.user,notification_message="{} Viewed Your Post".format(user.name),notify_user=user,post=post)
                         # serializerView.save()
 
                         return Response(
@@ -246,8 +246,8 @@ class PostReactionApiView(GenericAPIView):
                             user_datas = post.user
                             if user != user_datas:
                                 # return True
-                                val =send_notification2(obj.user,body="{} Like Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
-                                NotificationData.objects.create(user = obj.user,notification_message="{} Like Your Post".format(user.name),notify_user=user,post=post)
+                                val =send_notification2(obj.user,body="{} Liked Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
+                                NotificationData.objects.create(user = obj.user,notification_message="{} Liked Your Post".format(user.name),notify_user=user,post=post)
                                 # print(val,user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
@@ -966,7 +966,7 @@ class DeletePostImageApiView (GenericAPIView):
 
 
 class GetPostApiView(GenericAPIView):
-    permission_classes = [IsAuthenticated, ]
+    permission_classes = [AllowAny, ]
     serializer_class = PostUploadUpdateSerializers
 
     def get_serializer_context(self):
