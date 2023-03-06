@@ -248,7 +248,7 @@ class PostReactionApiView(GenericAPIView):
                                 # return True
                                 val =send_notification2(obj.user,body="{} Liked Your Post".format(user.name),vals=user,data="SingleUserPost",post=post.id)
                                 NotificationData.objects.create(user = obj.user,notification_message="{} Liked Your Post".format(user.name),notify_user=user,post=post)
-                                # print(val,user)
+                                print(val,user)
                             PostLike.objects.create(
                                 user=user, post=post, is_like=True)
                         # serializerLike.save()
