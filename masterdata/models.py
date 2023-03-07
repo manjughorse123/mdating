@@ -7,7 +7,9 @@ from post.models import *
 class CusztomFCMDevice(AbstractFCMDevice):
 
     user = models.ForeignKey(User,on_delete=models.CASCADE ,blank=True, null=True, related_name = "fcm_user_id")
-        
+
+    def __str__(self):
+        return self.user.mobile
 
 class NotificationData(models.Model):
     user = models.ForeignKey(
