@@ -1299,7 +1299,7 @@ class GetFollowerSuggestionApiView(GenericAPIView):
             Q(city=user_data[0].city) |
             Q(gender=user_data[0].gender) |
             Q(passion__in=user_data[0].passion.all()) &
-            Q(is_complete_profile=True)).exclude(id=user_id).distinct()
+            Q(is_complete_profile=True)).exclude(id=user_req_id).distinct() #user_id
         list_suggested = []
 
         for user_list_id in range(len(user_data)):
