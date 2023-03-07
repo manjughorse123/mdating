@@ -57,8 +57,9 @@ class LoginApiView(GenericAPIView):
         tags=['Account']
     )
     def post(self, request, *args, **kwargs):
-        # import pdb;pdb.set_trace()
+       
         try:
+            
             print(request.data)
             mobile = request.data['mobile']
             country_code = request.data['country_code']
@@ -85,13 +86,13 @@ class LoginApiView(GenericAPIView):
                         ass.registration_id= json['fcm_token']
                         ass.save()
                     else :
-                        device = CusztomFCMDevice()
-                        device.registration_id = json['fcm_token']
-                        device.type = json['device_type']
-                        device.name = "anroide"
+                        # device = CusztomFCMDevice()
+                        ass.registration_id = json['fcm_token']
+                        ass.type = json['device_type']
+                        ass.name = "anroide"
                     
-                        device.user=user
-                        device.save()
+                        ass.user=user
+                        ass.save()
 
                 else:
                     fcm_token = json['fcm_token']
@@ -590,8 +591,13 @@ class LogoutApiView(APIView):
     def get(self, request, format=None):
         # simply delete the token to force a login
         user = User.objects.get(id=request.user.id)
-
+       
         user.auth_tokens = ''
+        fcmDaat = CusztomFCMDevice.objects.filter(user=user).last()
+        fcmDaat.registration_id = ""
+        fcmDaat.save(update_fields=["registration_id"])
+
+        print(fcmDaat)
         user.save()
         # print(user.auth_tokens.delete())
         logout(request)
