@@ -304,6 +304,7 @@ class GetFriendSuggestedListApiView(GenericAPIView):
     def get(self, request, format=None):
         
         user_id = request.user.id
+        
         user_data = User.objects.filter(id=user_id)
         
         user_datas = User.objects.filter(Q(gender=user_data[0].gender) |
@@ -605,10 +606,10 @@ class AddFriendRequestAcceptDetailApiView(GenericAPIView):
                         obj1 = obj1[0].id
                         objs1 = FriendList.objects.filter(id=obj1)
                         objs1.delete()
-                        chatbottabl = ChatList.objects.filter(
-                            receiver=user, sender=friends).update(is_soft_delete=True)
-                        chatbottabl1 = ChatList.objects.filter(
-                            receiver=friends, sender=user).update(is_soft_delete=True)
+                        # chatbottabl = ChatList.objects.filter(
+                        #     receiver=user, sender=friends).update(is_soft_delete=True)
+                        # chatbottabl1 = ChatList.objects.filter(
+                        #     receiver=friends, sender=user).update(is_soft_delete=True)
                         
                         return Response({"success": True, "status": 200, "message": "User  Unfriend"}, status=status.HTTP_200_OK)
                     else:
